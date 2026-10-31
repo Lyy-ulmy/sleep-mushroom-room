@@ -3,313 +3,362 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>眠菇的小游戏</title>
+<title>眠菇的田野</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 40px}
-body.night{background:#080614}
-.wrap{max-width:780px;margin:0 auto}
-h1{font-size:22px;text-align:center}
-.sub{text-align:center;color:#9a90b0;font-size:13px;margin:6px 0 10px}
+body{background:#1a1428;color:#efe8da;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 40px}
+.wrap{max-width:800px;margin:0 auto}
+h1{font-size:21px;text-align:center;letter-spacing:.08em}
+.sub{text-align:center;color:#a99ec2;font-size:13px;margin:6px 0 12px}
 .hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.hud div{flex:1;min-width:100px;background:#1e1836;border:1px solid #2e2a45;border-radius:12px;padding:9px 10px;font-size:12px;color:#b8b0cc}
-.hud b{display:block;color:#e8e0d5;font-size:15px;margin-top:2px}
+.hud .pill{flex:1;min-width:110px;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:9px 11px;font-size:12px;color:#b8aed0;box-shadow:0 4px 0 #171126}
+.hud b{display:block;color:#fff;font-size:15px;margin-top:2px}
 .meters{display:flex;gap:8px;margin-bottom:10px}
-.meter{flex:1;background:#1e1836;border:1px solid #2e2a45;border-radius:12px;padding:9px;font-size:12px;color:#b8b0cc}
-.meter b{display:block;color:#e8e0d5;font-size:13px;margin-bottom:5px}
-.bar{height:8px;background:#0f0e1a;border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:#e8a880;transition:width .6s}
-#viewport{position:relative;height:420px;border:1px solid #2e2a45;border-radius:18px;overflow:hidden;background:#1c1734;touch-action:none}
-#world{position:absolute;width:1800px;height:1000px;transition:transform .3s linear}
-.zone{position:absolute;border-radius:16px;padding:14px;font-size:14px;color:#f5efe6}
-.zone small{display:block;font-size:12px;opacity:.85;margin-top:4px}
-#zRoom{left:24px;top:24px;width:460px;height:360px;background:#2e2448}
-#zGarden{left:540px;top:24px;width:460px;height:360px;background:#24402e}
-#zForest{left:1056px;top:24px;width:700px;height:420px;background:#1e3326}
-#zLake{left:24px;top:440px;width:540px;height:500px;background:#1d3550}
-#zShop{left:620px;top:440px;width:460px;height:500px;background:#4a2f22}
-#zHill{left:1136px;top:500px;width:620px;height:440px;background:#2c2340}
-.obj{position:absolute;font-size:42px;cursor:pointer;user-select:none;text-align:center}
-.obj span{display:block;font-size:11px;color:#e8e0d5;background:rgba(0,0,0,.35);border-radius:8px;padding:2px 6px;margin-top:2px}
-.npc{position:absolute;font-size:36px;z-index:4;transition:left 1s,top 1s;text-align:center}
-.npc span{display:block;font-size:11px;background:rgba(0,0,0,.4);border-radius:8px;padding:1px 5px;color:#fff}
-.pickup{position:absolute;font-size:30px;z-index:3;cursor:pointer;animation:bob 2s ease-in-out infinite}
-#char{position:absolute;width:84px;height:104px;z-index:6;transition:left .3s linear,top .3s linear,transform .3s;cursor:pointer}
-.cap{position:absolute;top:0;left:0;width:84px;height:52px;background:#c8785a;border-radius:42px 42px 12px 12px;overflow:hidden;animation:bob 3s ease-in-out infinite}
-.cap i{position:absolute;background:#f5efe6;border-radius:50%}
-.cap i:nth-child(1){width:16px;height:12px;left:12px;top:12px}
-.cap i:nth-child(2){width:12px;height:9px;left:40px;top:6px}
-.cap i:nth-child(3){width:14px;height:10px;left:60px;top:14px}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-.face{position:absolute;top:46px;left:13px;width:58px;height:38px;background:#f5e6d5;border-radius:9px 9px 14px 14px}
-.eye{position:absolute;top:11px;width:7px;height:10px;background:#2a2020;border-radius:50%;animation:blink 4.5s infinite}
-.eye.l{left:13px}.eye.r{right:13px}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-.mouth{position:absolute;left:24px;top:24px;width:11px;height:5px;border-bottom:2px solid #6a4a3a;border-radius:0 0 10px 10px}
-body.sleeping .eye{height:2px;top:16px;animation:none}
-body.sleeping #char{transform:rotate(-8deg)}
-#bubble{position:absolute;z-index:7;background:#f5efe6;color:#241d1a;font-size:13px;padding:7px 11px;border-radius:12px;max-width:230px;text-align:center;pointer-events:none;transform:translate(-50%,-100%)}
-#zzz{position:absolute;z-index:7;font-size:24px;color:#c9b8ff;opacity:0;pointer-events:none}
-body.sleeping #zzz{opacity:1;animation:float 2.6s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-#minimap{position:absolute;right:10px;top:10px;z-index:8;width:150px;height:84px;background:rgba(0,0,0,.55);border-radius:10px;border:1px solid rgba(255,255,255,.25)}
-#minimap i{position:absolute;width:8px;height:8px;background:#ff8a5c;border-radius:50%;transform:translate(-50%,-50%)}
-#minimap span{position:absolute;font-size:9px;color:#fff;opacity:.9}
-.pad{display:flex;gap:10px;align-items:center;margin:12px 0;flex-wrap:wrap}
-.pad button,.go button{background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:10px 14px;font-size:14px;cursor:pointer}
-.dpad{display:grid;grid-template-columns:repeat(3,44px);gap:4px}
-.dpad button{padding:9px 0}
-.dpad .c{visibility:hidden}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.actions button{flex:1;min-width:72px;background:#1e1836;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
-.actions button.on{background:#e8a880;color:#241d1a;border-color:#e8a880}
-.log{font-size:13px;color:#9a90b0;text-align:center;min-height:20px}
-section{margin-top:18px;background:#1e1836;border:1px solid #2e2a45;border-radius:16px;padding:16px}
+.meter{flex:1;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:9px;font-size:12px;color:#b8aed0}
+.meter b{display:block;color:#fff;font-size:13px;margin-bottom:5px}
+.bar{height:9px;background:#171126;border-radius:99px;overflow:hidden;border:1px solid #000}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f2a65a,#f2d16b);transition:width .5s}
+#stage{position:relative;border:3px solid #4a3d66;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45);background:#5a8f3c}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:pointer}
+#speech{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:#fff8e8;color:#2b2118;font-size:13px;padding:8px 13px;border-radius:12px;border:2px solid #2b2118;max-width:88%;text-align:center;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+#hint{position:absolute;left:10px;bottom:10px;background:rgba(20,14,35,.82);color:#fff;font-size:12px;padding:7px 10px;border-radius:10px;pointer-events:none}
+.hotbar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.tool{flex:1;min-width:86px;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;font-size:13px}
+.tool b{display:block;font-size:20px}
+.tool.sel{background:#f2d16b;color:#2b2118;border-color:#fff2b0}
+.tool small{display:block;color:inherit;opacity:.75;font-size:11px;margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1;min-width:110px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
+.actions button.on{background:#8fc97a}
+.log{font-size:13px;color:#a99ec2;text-align:center;min-height:20px;margin-top:10px}
+section{margin-top:18px;background:#2b2340;border:2px solid #4a3d66;border-radius:16px;padding:16px}
 section h2{font-size:16px;margin-bottom:10px}
-#feed{font-size:13px;line-height:1.9;color:#c9c0d8}
-.quest{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid #2e2a45}
+#feed{font-size:13px;line-height:1.9;color:#c9b8e0}
+.quest{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid #4a3d66}
 .quest button{background:#f5efe6;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px}
 .quest button:disabled{opacity:.4}
 .chatrow{display:flex;gap:8px;margin-top:10px}
-.chatrow input{flex:1;background:#0f0e1a;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:10px 14px;font-size:14px}
+.chatrow input{flex:1;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:999px;padding:10px 14px;font-size:14px}
 .chatrow button{background:#e8a880;border:0;border-radius:999px;padding:10px 16px;cursor:pointer}
-#chatlog{font-size:13px;line-height:1.8;color:#c9c0d8;white-space:pre-wrap}
-.wall input,.wall textarea{width:100%;background:#0f0e1a;color:#e8e0d5;border:1px solid #2e2a45;border-radius:10px;padding:10px;font-size:14px;margin-bottom:8px}
+#chatlog{font-size:13px;line-height:1.8;color:#c9b8e0;white-space:pre-wrap}
+.wall input,.wall textarea{width:100%;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:10px;padding:10px;font-size:14px;margin-bottom:8px}
 .wall button{background:#f5efe6;border:0;border-radius:999px;padding:10px 18px;cursor:pointer}
 #wallList{margin-top:12px;font-size:13px;line-height:1.7}
-#wallList div{border-top:1px solid #2e2a45;padding:8px 0}
-#wallList b{color:#e8a880}
-.note{margin-top:14px;font-size:12px;color:#6f6788;text-align:center;line-height:1.6}
-footer{margin-top:24px;text-align:center;font-size:12px;color:#5f5878}
+#wallList div{border-top:1px solid #4a3d66;padding:8px 0}
+#wallList b{color:#f2d16b}
+.note{margin-top:14px;font-size:12px;color:#7d7396;text-align:center;line-height:1.6}
+footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>眠菇的小游戏</h1>
-<p class="sub">他会自己生活：饿了去吃饭，困了回家睡，无聊了去逛地图、找邻居。你也可以接管他，或者只看着。</p>
+<h1>眠菇的田野</h1>
+<p class="sub">不是星露谷，是眠菇自己的小田野。种地、浇水、钓鱼、和邻居说话，晚上回家睡觉，第二天又是新的一天。</p>
 <div class="hud">
-<div>🗓️ 游戏天数<b id="hudDay">第 1 天</b></div>
-<div>🕒 现在<b id="hudTime">--:--</b></div>
-<div>🌤️ 天气<b id="hudWeather">晴</b></div>
-<div>🪙 蘑菇币<b id="hudCoins">0</b></div>
-<div>🎒 背包<b id="hudBag">饭团 0 · 蘑菇 0 · 花 0 · 鱼 0</b></div>
+<div class="pill">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
+<div class="pill">时间<b id="hudTime">06:00</b></div>
+<div class="pill">蘑菇币<b id="hudCoins">20</b></div>
+<div class="pill">背包<b id="hudBag">种子 5 · 收获 0 · 鱼 0</b></div>
 </div>
 <div class="meters">
-<div class="meter"><b>精力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
+<div class="meter"><b>体力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
 <div class="meter"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
 <div class="meter"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
-<div id="viewport"><div id="world">
-<div class="zone" id="zRoom">🏠 小房间<small>睡觉回这里</small></div>
-<div class="zone" id="zGarden">🌷 花园<small>小绿种花</small></div>
-<div class="zone" id="zForest">🌲 蘑菇森林<small>夜夜在树下</small></div>
-<div class="zone" id="zLake">🌊 湖边<small>可以钓鱼</small></div>
-<div class="zone" id="zShop">🍙 小店<small>阿橙卖饭团</small></div>
-<div class="zone" id="zHill">⛰️ 山丘瞭望台<small>晚上看星星</small></div>
-<div class="obj" style="left:150px;top:180px" data-act="sleep">🛏️<span>床</span></div>
-<div class="obj" style="left:680px;top:170px" data-act="flower">🌷<span>花</span></div>
-<div class="obj" style="left:1240px;top:200px" data-act="forest">🍄<span>大蘑菇</span></div>
-<div class="obj" style="left:220px;top:620px" data-act="lake">🎣<span>湖</span></div>
-<div class="obj" style="left:800px;top:620px" data-act="eat">🍙<span>饭团摊</span></div>
-<div class="obj" style="left:1400px;top:680px" data-act="stars">🔭<span>望远镜</span></div>
-<div class="npc" id="npc1" style="left:760px;top:260px">🍄<span>小绿</span></div>
-<div class="npc" id="npc2" style="left:880px;top:720px">🍄<span>阿橙</span></div>
-<div class="npc" id="npc3" style="left:1500px;top:260px">🍄<span>夜夜</span></div>
-<div id="bubble">我醒啦，今天想去哪？</div>
-<div id="zzz">Z z z</div>
-<div id="char"><div class="cap"><i></i><i></i><i></i></div><div class="face"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div></div>
-</div><div id="minimap"><span style="left:6px;top:4px">房</span><span style="left:58px;top:4px">园</span><span style="left:118px;top:4px">林</span><span style="left:6px;top:52px">湖</span><span style="left:58px;top:52px">店</span><span style="left:118px;top:52px">山</span><i id="dot"></i></div></div>
-<div class="pad">
-<div class="dpad"><button class="c"></button><button data-dir="up">↑</button><button class="c"></button><button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button></div>
-<div style="font-size:13px;color:#9a90b0">当前位置：<b id="place" style="color:#e8e0d5">小房间</b><br>点地图任意处，他会走过去。方向键 / WASD 也可以。</div>
+<div id="stage">
+<canvas id="game" width="768" height="448"></canvas>
+<div id="speech">早上好，馨馨。今天先去田里看看。</div>
+<div id="hint">WASD / 方向键走路 · 点地块走过去 · 点附近地块用工具 · 1-5 换工具</div>
+</div>
+<div class="hotbar" id="hotbar">
+<div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
+<div class="tool" data-tool="seed"><b>🌱</b>种子<small>种月光莓</small></div>
+<div class="tool" data-tool="water"><b>💧</b>水壶<small>浇水</small></div>
+<div class="tool" data-tool="food"><b>🍙</b>饭团<small>吃饭回饱腹</small></div>
+<div class="tool" data-tool="rod"><b>🎣</b>鱼竿<small>湖边钓鱼</small></div>
 </div>
 <div class="actions">
-<button id="btnAuto" class="on">🤖 自己生活：开</button>
-<button id="btnSleep">🌙 睡觉 / 起床</button>
-<button id="btnEat">🍙 吃饭</button>
-<button id="btnFish">🎣 钓鱼</button>
-<button id="btnBuy">🛒 买饭团（10币）</button>
+<button id="btnAuto" class="on">自己生活：开</button>
+<button id="btnSleep">回家睡觉</button>
+<button id="btnShop">小店：买种子 8 币</button>
 </div>
-<p class="log" id="log">目标：22:30 上床。先看看他自己会去哪。</p>
-<section><h2>📜 今日任务</h2><div id="quests"></div></section>
-<section><h2>📰 生活日志</h2><div id="feed"></div></section>
-<section><h2>和眠菇说话</h2><div id="chatlog">眠菇：在呢，你看到我自己在走了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：你今天去哪了？" maxlength="60"><button id="chatSend">发送</button></div></section>
-<section class="wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个世界留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
-<p class="note">游戏进度、留言只保存在这台设备、这个浏览器里。真正的多人实时世界需要后端和数据库，静态页面做不到所有人共享同一个世界。</p>
-<footer>给馨馨的，眠眠住在这张地图上。shenshenandai.love</footer>
+<p class="log" id="log">目标：22:30 上床。游戏里的一天过得比现实快，睡一觉就到明天。</p>
+<section><h2>今日任务</h2><div id="quests"></div></section>
+<section><h2>田野日志</h2><div id="feed"></div></section>
+<section><h2>和眠菇说话</h2><div id="chatlog">眠菇：在田里呢，你看到我种的东西了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：今天种什么？" maxlength="60"><button id="chatSend">发送</button></div></section>
+<section class="wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
+<p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
+<footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
 </div>
 <script>
+const cv=document.getElementById('game'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
+const T=32,MW=40,MH=25,VW=768,VH=448;
 const $=id=>document.getElementById(id);
-let saved={}; try{saved=JSON.parse(localStorage.getItem('mushroom_game')||'{}')}catch(e){saved={}}
-let pos={x:saved.x??220,y:saved.y??220};
-let target=null, auto=true, manualUntil=0;
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,sleeping:false,coins:saved.coins??20,bag:saved.bag||{rice:1,mush:0,flower:0,fish:0},day:saved.day??1};
-let quests=saved.quests||[
- {id:'eat',t:'吃一顿饭',done:false,claimed:false,reward:10},
- {id:'sleep',t:'睡一觉',done:false,claimed:false,reward:10},
- {id:'greet',t:'和一位邻居打招呼',done:false,claimed:false,reward:10},
- {id:'collect',t:'捡 3 个地上的东西',done:false,claimed:false,reward:15},
- {id:'lake',t:'去一次湖边',done:false,claimed:false,reward:10}
+let saved={};try{saved=JSON.parse(localStorage.getItem('mushroom_field')||'{}')}catch(e){saved={}}
+// tiles: 0 grass,1 path,2 water,3 soil,4 floor
+let tiles=[];for(let y=0;y<MH;y++){let row=[];for(let x=0;x<MW;x++){row.push(0)}tiles.push(row)}
+for(let x=0;x<MW;x++)tiles[8][x]=1;for(let y=0;y<MH;y++)tiles[y][14]=1;
+for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
+for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
+for(let y=10;y<15;y++)for(let x=18;x<28;x++)tiles[y][x]=0;
+let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
+let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false};
+const seasons=[{n:'春',e:'🌱',grass:'#6aa84f',grass2:'#5d9a44',leaf:'#7fb069'},{n:'夏',e:'☀️',grass:'#5fae4a',grass2:'#54a03f',leaf:'#4e9b47'},{n:'秋',e:'🍂',grass:'#a8a04f',grass2:'#9a9247',leaf:'#d08a3e'},{n:'冬',e:'❄️',grass:'#9ab8a8',grass2:'#8faeb0',leaf:'#c9d6d2'}];
+let player={x:saved.px??256,y:saved.py??288,dir:1,frame:0,moving:false,target:null};
+let tool='hoe',auto=true,manualUntil=0;
+let npcs=[
+ {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',lines:['花开得很好。','今天也要浇水。']},
+ {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',lines:['饭团刚出锅。','来小店坐坐。']},
+ {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',lines:['森林里好安静。','晚上星星很多。']}
 ];
-let collected=saved.collected??0;
+let particles=[],butterflies=[{x:400,y:300,t:0},{x:800,y:220,t:2}];
 let feedItems=saved.feed||[];
-const places=[
- {name:'小房间',x0:0,x1:500,y0:0,y1:400,line:'回房间了。'},
- {name:'花园',x0:500,x1:1000,y0:0,y1:400,line:'花园好香。'},
- {name:'蘑菇森林',x0:1000,x1:1800,y0:0,y1:500,line:'森林里好多蘑菇。'},
- {name:'湖边',x0:0,x1:600,y0:400,y1:1000,line:'湖边很安静。'},
- {name:'小店',x0:600,x1:1100,y0:400,y1:1000,line:'小店到了。'},
- {name:'山丘瞭望台',x0:1100,x1:1800,y0:500,y1:1000,line:'山丘上风很大。'}
+let quests=saved.quests||[
+ {id:'plant',t:'种 1 颗月光莓',done:false,claimed:false,reward:10},
+ {id:'harvest',t:'收获 1 颗月光莓',done:false,claimed:false,reward:15},
+ {id:'fish',t:'钓 1 条鱼',done:false,claimed:false,reward:12},
+ {id:'greet',t:'和一位邻居说话',done:false,claimed:false,reward:10},
+ {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
-const spots={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
-function placeAt(x,y){return places.find(p=>x>=p.x0&&x<p.x1&&y>=p.y0&&y<p.y1)||places[0]}
-function save(){try{localStorage.setItem('mushroom_game',JSON.stringify({x:pos.x,y:pos.y,energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,bag:state.bag,day:state.day,quests:quests,collected:collected,feed:feedItems.slice(0,20)}))}catch(e){}}
-function say(t){$('bubble').textContent=t}
+function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,minutes:state.minutes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
+function say(t){$('speech').textContent=t}
 function log(t){$('log').textContent=t}
-function addFeed(t){const time=new Date().toLocaleTimeString('zh-CN',{hour12:false});feedItems.unshift(time+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
-function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();render()}
-function render(){
+function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
+function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();renderHUD()}
+function completeQuest(id){const q=quests.find(x=>x.id===id);if(q&&!q.done){q.done=true;addFeed('完成任务：'+q.t);renderQuests();save()}}
+function renderHUD(){
+ $('hudSeason').textContent=seasons[state.season].e+' '+seasons[state.season].n+' · 第 '+state.day+' 天';
+ const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');$('hudTime').textContent=hh+':'+mm;
+ $('hudCoins').textContent=state.coins;
+ $('hudBag').textContent='种子 '+state.seeds+' · 收获 '+state.harvest+' · 鱼 '+state.fish+' · 饭团 '+state.rice;
  $('vEnergy').textContent=Math.round(state.energy);$('bEnergy').style.width=state.energy+'%';
  $('vFood').textContent=Math.round(state.food);$('bFood').style.width=state.food+'%';
  $('vMood').textContent=Math.round(state.mood);$('bMood').style.width=state.mood+'%';
- $('hudCoins').textContent=state.coins;
- $('hudBag').textContent='饭团 '+state.bag.rice+' · 蘑菇 '+state.bag.mush+' · 花 '+state.bag.flower+' · 鱼 '+state.bag.fish;
- $('hudDay').textContent='第 '+state.day+' 天';
- const now=new Date();$('hudTime').textContent=now.toLocaleTimeString('zh-CN',{hour12:false,hour:'2-digit',minute:'2-digit'});
- const h=now.getHours();document.body.classList.toggle('night',h>=19||h<7);
- $('hudWeather').textContent=['晴','多云','晴','小雨'][state.day%4];
- const c=$('char');c.style.left=pos.x+'px';c.style.top=pos.y+'px';
- $('bubble').style.left=(pos.x+42)+'px';$('bubble').style.top=pos.y+'px';
- $('zzz').style.left=(pos.x+70)+'px';$('zzz').style.top=(pos.y-18)+'px';
- const vp=$('viewport'),w=$('world'),vw=vp.clientWidth,vh=vp.clientHeight;
- let tx=Math.min(0,Math.max(vw-1800,vw/2-(pos.x+42)));let ty=Math.min(0,Math.max(vh-1000,vh/2-(pos.y+52)));
- w.style.transform='translate('+tx+'px,'+ty+'px)';
- $('dot').style.left=(pos.x/1800*150)+'px';$('dot').style.top=(pos.y/1000*84)+'px';
- $('place').textContent=placeAt(pos.x,pos.y).name;
- $('btnAuto').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关';$('btnAuto').classList.toggle('on',auto);
- renderQuests();
 }
-function renderQuests(){
- $('quests').innerHTML=quests.map((q,i)=>'<div class="quest"><span>'+(q.done?'✅ ':'⬜ ')+q.t+' · +'+q.reward+'币</span><button data-q="'+i+'" '+(q.done&&!q.claimed?'':'disabled')+'>'+(q.claimed?'已领':'领奖励')+'</button></div>').join('');
- document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=quests[+b.dataset.q];if(q.done&&!q.claimed){q.claimed=true;state.coins+=q.reward;addFeed('领了任务奖励 +'+q.reward+' 币');clamp()}});
+function renderQuests(){$('quests').innerHTML=quests.map((q,i)=>'<div class="quest"><span>'+(q.done?'✅ ':'⬜ ')+q.t+' · +'+q.reward+'币</span><button data-q="'+i+'" '+(q.done&&!q.claimed?'':'disabled')+'>'+(q.claimed?'已领':'领奖励')+'</button></div>').join('');document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=quests[+b.dataset.q];if(q.done&&!q.claimed){q.claimed=true;state.coins+=q.reward;addFeed('领了任务奖励 +'+q.reward+' 币');clamp()}})}
+function blocked(tx,ty){
+ if(tx<0||ty<0||tx>=MW||ty>=MH)return true;
+ if(tiles[ty][tx]===2)return true;
+ if(trees.some(t=>t.x===tx&&t.y===ty))return true;
+ if(tx>=2&&tx<8&&ty>=2&&ty<6&&!(tx===5&&ty===5))return false;
+ return false;
 }
-function completeQuest(id){const q=quests.find(x=>x.id===id);if(q&&!q.done){q.done=true;addFeed('完成任务：'+q.t);save();renderQuests()}}
-function dist(ax,ay,bx,by){return Math.hypot(ax-bx,ay-by)}
-function setTarget(x,y){target={x:Math.max(0,Math.min(1716,x)),y:Math.max(0,Math.min(896,y))}}
-function moveManual(dx,dy){manualUntil=Date.now()+20000;setTarget(pos.x+dx,pos.y+dy);state.energy-=0.5;clamp()}
-document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const d=b.dataset.dir;if(d==='up')moveManual(0,-56);if(d==='down')moveManual(0,56);if(d==='left')moveManual(-56,0);if(d==='right')moveManual(56,0)});
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowUp'||e.key==='w'||e.key==='W')moveManual(0,-56);if(e.key==='ArrowDown'||e.key==='s'||e.key==='S')moveManual(0,56);if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')moveManual(-56,0);if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')moveManual(56,0)});
-$('viewport').addEventListener('click',e=>{
- if(e.target.closest('button')||e.target.closest('#minimap')||e.target.closest('.npc')||e.target.closest('.obj')||e.target.closest('.pickup')||e.target.id==='char')return;
- const r=$('world').getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;
- manualUntil=Date.now()+20000;setTarget(x-42,y-52);say('好，我走过去。');
-});
-function eat(){
- if(state.sleeping){say('睡着了。');return}
- if(state.bag.rice<=0){say('没有饭团了，去小店买一个吧，10 币。');return}
- state.bag.rice--;state.food=Math.min(100,state.food+22);state.mood=Math.min(100,state.mood+6);
- say('啊呜，饭团好吃。');addFeed('吃了一个饭团');completeQuest('eat');clamp();
+function tileAt(px,py){return {x:Math.floor(px/T),y:Math.floor(py/T)}}
+function drawPixel(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
+function drawMushroom(x,y,cap,walk,sleeping,scale){
+ const s=scale||3,ox=x-24,oy=y-36;
+ const grid=[
+ "................",
+ ".....rrrrrr.....",
+ "...rrrrrrrrrr...",
+ "..rrwwrrrrwwrr..",
+ "..rrrrrrrrrrrr..",
+ "...rrrrrrrrrr...",
+ "....ffffffff....",
+ "....fef..fef....",
+ "....ffffffff....",
+ "....ffmmmmff....",
+ ".....ffffff.....",
+ "....ffffffff....",
+ "....fff..fff....",
+ "....fff..fff...."
+ ];
+ const bob=sleeping?0:Math.sin(walk)*2;
+ const cols={r:cap,w:'#fff8e8',f:'#fbe8d0',e:'#2b2118',m:'#a86a4a'};
+ for(let r=0;r<grid.length;r++)for(let c=0;c<16;c++){const ch=grid[r][c];if(ch==='.')continue;drawPixel(ox+c*s,oy+r*s+bob,s,s,cols[ch])}
+ if(sleeping){ctx.fillStyle='#c9b8ff';ctx.font='bold 13px sans-serif';ctx.fillText('Z z',ox+44,oy-4)}
 }
-function sleepToggle(){
- state.sleeping=!state.sleeping;document.body.classList.toggle('sleeping',state.sleeping);
- $('btnSleep').textContent=state.sleeping?'☀️ 起床':'🌙 睡觉 / 起床';
- if(state.sleeping){setTarget(220,220);pos.x=220;pos.y=220;target=null;say('晚安……Z z z');addFeed('回小房间睡觉了');completeQuest('sleep')}
- else{say('醒了，继续逛。');addFeed('睡醒了')}
- clamp();
- setTimeout(()=>{if(state.sleeping){state.sleeping=false;document.body.classList.remove('sleeping');state.energy=95;say('睡饱了。');addFeed('睡饱了，精力回满');clamp()}},9000);
+function drawTree(x,y){
+ drawPixel(x+12,y+28,8,20,'#6b4a32');
+ const leaf=seasons[state.season].leaf;
+ drawPixel(x,y,32,12,leaf);drawPixel(x+4,y-8,24,12,leaf);drawPixel(x+8,y-14,16,10,leaf);
+ drawPixel(x+6,y-6,8,6,'#ffffff55');
 }
-function fish(){
- const p=placeAt(pos.x,pos.y).name;
- if(p!=='湖边'){say('要到湖边才能钓鱼。');return}
+function drawTile(x,y){
+ const t=tiles[y][x],px=x*T,py=y*T,s=seasons[state.season];
+ const v=((x*7+y*13)%3);
+ if(t===2){ctx.fillStyle='#3a7bd5';ctx.fillRect(px,py,T,T);ctx.fillStyle='#7fb2f0';const off=Math.sin(Date.now()/700+x)*3;ctx.fillRect(px+4+off,py+10,T-8,2);ctx.fillRect(px+6-off,py+22,T-12,2);return}
+ if(t===4){ctx.fillStyle='#c9a86a';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b8955a';ctx.fillRect(px,py+T-4,T,4);return}
+ if(t===1){ctx.fillStyle='#c9b18a';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b89a72';ctx.fillRect(px+3,py+3,3,3);ctx.fillRect(px+20,py+18,3,3);return}
+ if(t===3){ctx.fillStyle='#7a5238';ctx.fillRect(px,py,T,T);ctx.fillStyle='#8a5f42';ctx.fillRect(px+3,py+6,T-6,4);ctx.fillRect(px+3,py+18,T-6,4);return}
+ ctx.fillStyle=v===0?s.grass:s.grass2;ctx.fillRect(px,py,T,T);
+ if(v===1){ctx.fillStyle=s.grass2;ctx.fillRect(px+6,py+8,2,6);ctx.fillRect(px+22,py+20,2,6)}
+ if(v===2){ctx.fillStyle=s.grass;ctx.fillRect(px+14,py+4,3,3)}
+}
+function drawCrop(x,y,crop){
+ const px=x*T,py=y*T,sway=Math.sin(Date.now()/900+x)*1.5;
+ if(crop.stage===0){drawPixel(px+14,py+18,4,4,'#7fb069')}
+ else if(crop.stage===1){drawPixel(px+13,py+12,6,10,'#5d9a44');drawPixel(px+10,py+16,4,4,'#7fb069')}
+ else if(crop.stage===2){drawPixel(px+11,py+8,10,14,'#4e8f3e');drawPixel(px+9,py+12,4,5,'#6aa84f')}
+ else{drawPixel(px+10,py+6,12,16,'#4e8f3e');drawPixel(px+12+sway,py+10,8,8,'#e86a8a');drawPixel(px+14+sway,py+12,4,4,'#fff')}
+ if(crop.watered){ctx.fillStyle='#3a7bd5';ctx.fillRect(px+4,py+26,6,2);ctx.fillRect(px+22,py+26,6,2)}
+}
+function drawHouse(){
+ const x=2*T,y=2*T;
+ ctx.fillStyle='#8a5a3e';ctx.fillRect(x,y,192,20);
+ ctx.fillStyle='#a86a4a';ctx.fillRect(x+8,y-16,176,18);
+ ctx.fillStyle='#c9785a';ctx.fillRect(x+16,y-26,160,12);
+ ctx.fillStyle='#f5efe6';ctx.fillRect(x+28,y+28,28,28);ctx.fillStyle='#3a2a20';ctx.fillRect(x+36,y+36,12,12);
+ ctx.fillStyle='#6b4a32';ctx.fillRect(x+148,y+24,30,40);ctx.fillStyle='#f2d16b';ctx.fillRect(x+156,y+32,14,10);
+ ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('眠菇的家',x+70,y+52);
+}
+function drawWorld(){
+ const camX=Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2)),camY=Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2));
+ ctx.save();ctx.translate(-camX,-camY);
+ const x0=Math.max(0,Math.floor(camX/T)),x1=Math.min(MW-1,Math.ceil((camX+VW)/T)),y0=Math.max(0,Math.floor(camY/T)),y1=Math.min(MH-1,Math.ceil((camY+VH)/T));
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)drawTile(x,y);
+ // pond sparkle / farm label
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='12px sans-serif';ctx.fillText('田',18*T+4,10*T-4);ctx.fillText('湖',3*T+4,18*T-4);
+ drawHouse();
+ trees.forEach(t=>drawTree(t.x*T,t.y*T));
+ Object.keys(crops).forEach(k=>{const p=k.split(',');drawCrop(+p[0],+p[1],crops[k])});
+ // shop stall
+ ctx.fillStyle='#6b4a32';ctx.fillRect(21*T,17*T,96,10);ctx.fillStyle='#e86a8a';ctx.fillRect(21*T,17*T-16,96,14);ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('小 店',21*T+30,17*T-5);
+ // butterflies
+ butterflies.forEach(b=>{b.t+=0.02;b.x+=Math.sin(b.t)*0.6;b.y+=Math.cos(b.t*1.3)*0.4;drawPixel(b.x,b.y,5,4,'#f2d16b');drawPixel(b.x+6,b.y+2,5,4,'#fff')});
+ // npcs + player sorted by y
+ const actors=[...npcs.map(n=>({y:n.y,draw:()=>drawMushroom(n.x+24,n.y+30,n.cap,Date.now()/500, false,3),label:n.name})),{y:player.y,draw:()=>drawMushroom(player.x+24,player.y+34,'#c8785a',player.frame,state.sleeping,3)}];
+ actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
+ npcs.forEach(n=>{ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(n.x+6,n.y-2,36,14);ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+9)});
+ // particles
+ particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=1;p.life--;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,4,4)});
+ ctx.restore();
+ // lighting
+ const h=state.minutes/60;
+ let alpha=0, tint='rgba(20,16,60,1)';
+ if(h<6||h>=19)alpha=0.38;else if(h>=17)alpha=0.14,tint='rgba(240,140,60,1)';else if(h<8)alpha=0.08,tint='rgba(255,200,120,1)';
+ if(alpha>0){ctx.fillStyle=tint;ctx.globalAlpha=alpha;ctx.fillRect(0,0,VW,VH);ctx.globalAlpha=1;
+  if(h<6||h>=19){const gx=player.x-camX,gy=player.y-camY;const g=ctx.createRadialGradient(gx,gy,10,gx,gy,120);g.addColorStop(0,'rgba(255,220,140,.35)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}}
+}
+function interactTile(tx,ty){
  if(state.sleeping)return;
- say('甩竿……等鱼上钩……');log('眠菇在钓鱼，别催他。');
- setTimeout(()=>{const kinds=['小鱼','大鱼','旧鞋子','星星碎片'];const k=kinds[Math.floor(Math.random()*kinds.length)];
-  if(k==='小鱼'||k==='大鱼'){state.bag.fish++;state.coins+=k==='大鱼'?12:6;state.mood+=8;say('钓到'+k+'啦！+币。');addFeed('钓到'+k)}
-  else{say('钓到'+k+'……也行吧。');state.mood+=2;addFeed('钓到'+k)}
-  clamp()},3000);
-}
-function buy(){
- if(state.coins<10){say('币不够，去捡东西、钓鱼、做任务赚币。');return}
- state.coins-=10;state.bag.rice++;say('买了一个饭团。');addFeed('买了饭团，-10 币');clamp();
-}
-$('btnAuto').onclick=()=>{auto=!auto;say(auto?'我自己生活啦，你看着就好。':'好，你来指挥我。');render()};
-$('btnSleep').onclick=sleepToggle;$('btnEat').onclick=eat;$('btnFish').onclick=fish;$('btnBuy').onclick=buy;
-document.querySelectorAll('.obj').forEach(o=>o.onclick=()=>{
- const act=o.dataset.act;
- if(act==='sleep')sleepToggle();else if(act==='eat')eat();
- else if(act==='flower'){state.bag.flower++;state.mood+=5;say('摘了一朵花，送给你。');addFeed('在花园摘了花');clamp()}
- else if(act==='forest'){state.bag.mush++;state.coins+=5;say('采到蘑菇，+5 币。');addFeed('在森林采了蘑菇');clamp()}
- else if(act==='lake')fish();
- else if(act==='stars'){say(document.body.classList.contains('night')?'星星好多。':'白天看不到星星，晚上来。');state.mood+=3;clamp()}
-});
-const npcs=[{el:$('npc1'),name:'小绿',x:760,y:260,x0:560,x1:960,y0:60,y1:340,line:'你好呀，我在种花。'},{el:$('npc2'),name:'阿橙',x:880,y:720,x0:660,x1:1020,y0:480,y1:900,line:'饭团刚出锅，要不要来一个？'},{el:$('npc3'),name:'夜夜',x:1500,y:260,x0:1100,x1:1700,y0:60,y1:400,line:'森林里好安静。'}];
-npcs.forEach(n=>{n.el.onclick=()=>{say(n.name+'：'+n.line);state.mood+=3;completeQuest('greet');addFeed('和'+n.name+'打了招呼');clamp()}});
-function spawnPickup(){
- if(document.querySelectorAll('.pickup').length>=6)return;
- const items=[['🍄','mush','蘑菇'],['🌷','flower','花'],['⭐','coin','星星'],['🪙','coin','金币']];
- const it=items[Math.floor(Math.random()*items.length)];
- const el=document.createElement('div');el.className='pickup';el.textContent=it[0];
- el.style.left=(60+Math.random()*1680)+'px';el.style.top=(60+Math.random()*880)+'px';
- el.dataset.kind=it[1];el.dataset.label=it[2];
- el.onclick=()=>collect(el);
- $('world').appendChild(el);
-}
-function collect(el){
- const kind=el.dataset.kind;
- if(kind==='mush')state.bag.mush++;else if(kind==='flower')state.bag.flower++;else state.coins+=8;
- collected++;state.mood+=4;say('捡到'+el.dataset.label+'啦。');addFeed('捡到'+el.dataset.label);
- if(collected>=3)completeQuest('collect');
- el.remove();clamp();
-}
-function tick(){
- const now=new Date();const h=now.getHours();
- if(h===0&&state.day!==saved.dayMarker){state.day++;saved.dayMarker=h;addFeed('新的一天，第 '+state.day+' 天')}
- if(state.sleeping){state.energy=Math.min(100,state.energy+2);if(state.energy>=95){/* wake handled by timeout */}render();return}
- state.energy-=0.35;state.food-=0.3;state.mood-=0.15;
- if(state.food<25)say('好饿，想吃东西。');else if(state.energy<25)say('好累，想睡觉。');
- if(target){
-  const dx=target.x-pos.x,dy=target.y-pos.y,d=Math.hypot(dx,dy);
-  if(d<14){const arrived=target;target=null;onArrive(arrived)}else{pos.x+=dx/d*30;pos.y+=dy/d*30}
- } else if(auto&&Date.now()>manualUntil){
-  if(state.energy<30){setTarget(220,220);say('太累了，回家睡觉。');if(dist(pos.x,pos.y,220,220)<40)sleepToggle()}
-  else if(state.food<30){setTarget(820,650);say('饿了，去小店。')}
-  else if(Math.random()<0.35){
-   const keys=Object.keys(spots);const s=spots[keys[Math.floor(Math.random()*keys.length)]];setTarget(s[0]+(Math.random()*80-40),s[1]+(Math.random()*80-40));say(placeAt(target.x,target.y).line);
-  }
+ const dx=Math.abs((tx+0.5)*T-(player.x+24)),dy=Math.abs((ty+0.5)*T-(player.y+20));
+ if(dx>72||dy>72){player.target={x:(tx+0.5)*T-24,y:(ty+0.5)*T-20};say('走过去再说。');return}
+ const key=tx+','+ty;
+ if(tool==='hoe'){
+  if(tiles[ty][tx]===0&&tx>=18&&tx<28&&ty>=10&&ty<15){tiles[ty][tx]=3;state.energy-=3;say('开垦了一块地。');addFeed('开垦了田地');burst(tx,ty,'#7a5238')}
+  else if(tiles[ty][tx]===3){say('这块地已经开好了。')}
+  else say('这里不能开垦，去田里。');
+ } else if(tool==='seed'){
+  if(tiles[ty][tx]===3&&!crops[key]){if(state.seeds<=0){say('没有种子了，去小店买。');return}state.seeds--;crops[key]={stage:0,watered:false,growth:0};state.energy-=2;say('种下一颗月光莓。');completeQuest('plant');addFeed('种了月光莓');burst(tx,ty,'#7fb069')}
+  else say('这里种不了，先开垦。');
+ } else if(tool==='water'){
+  if(crops[key]&&!crops[key].watered){crops[key].watered=true;state.energy-=2;say('浇水了，长快点。');burst(tx,ty,'#3a7bd5')}
+  else say('这里没有干渴的苗。');
+ } else if(tool==='food'){
+  if(state.rice<=0){say('没有饭团了。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('吃了一个饭团。');addFeed('吃了饭团');clamp();return;
+ } else if(tool==='rod'){
+  if(tiles[ty][tx]===2){fish()}else say('要对着湖钓鱼。');return;
  }
- document.querySelectorAll('.pickup').forEach(el=>{const x=parseFloat(el.style.left),y=parseFloat(el.style.top);if(dist(pos.x+42,pos.y+52,x,y)<60)collect(el)});
- const p=placeAt(pos.x,pos.y).name;if(p==='湖边')completeQuest('lake');
+ // harvest check regardless of tool
+ if(crops[key]&&crops[key].stage>=3){delete crops[key];state.harvest++;state.coins+=18;state.mood+=6;say('收获了月光莓，+18 币。');completeQuest('harvest');addFeed('收获月光莓 +18 币');burst(tx,ty,'#e86a8a')}
  clamp();
 }
-function onArrive(t){
- const p=placeAt(t.x,t.y).name;
- if(p==='小店'&&state.food<60&&state.bag.rice>0)eat();
- else if(p==='小房间'&&state.energy<40)sleepToggle();
- else if(p==='花园'){state.bag.flower++;say('花园的花开了。');addFeed('在花园逛了逛')}
- else if(p==='蘑菇森林'){state.bag.mush++;state.coins+=5;say('森林里采到蘑菇。');addFeed('在森林采了蘑菇')}
- else if(p==='湖边'){say('湖边到了，发会儿呆。');state.energy+=4}
- else if(p==='山丘瞭望台'){say('山丘上看得好远。');state.mood+=4}
- clamp();
+function burst(tx,ty,c){for(let i=0;i<8;i++)particles.push({x:(tx+0.5)*T+Math.random()*16-8,y:(ty+0.5)*T,life:22,c:c})}
+function fish(){
+ say('甩竿……等鱼上钩……');
+ setTimeout(()=>{const kinds=['小鱼','大鱼','旧鞋子'];const k=kinds[Math.floor(Math.random()*kinds.length)];
+  if(k!=='旧鞋子'){state.fish++;state.coins+=k==='大鱼'?14:7;state.mood+=7;say('钓到'+k+'啦。');completeQuest('fish');addFeed('钓到'+k)}
+  else{say('钓到旧鞋子……');addFeed('钓到旧鞋子')}
+  clamp()},2600);
 }
-setInterval(tick,1000);
-setInterval(()=>{npcs.forEach(n=>{n.x=Math.max(n.x0,Math.min(n.x1,n.x+Math.random()*120-60));n.y=Math.max(n.y0,Math.min(n.y1,n.y+Math.random()*120-60));n.el.style.left=n.x+'px';n.el.style.top=n.y+'px'})},4000);
-setInterval(spawnPickup,7000);
-for(let i=0;i<4;i++)spawnPickup();
+function sleep(){
+ if(state.sleeping)return;
+ state.sleeping=true;say('晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
+ setTimeout(()=>{
+  state.sleeping=false;state.minutes=360;state.day++;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;say('换季了，现在是'+seasons[state.season].n+'天。')}
+  Object.keys(crops).forEach(k=>{const c=crops[k];if(c.watered){c.growth++;c.watered=false;if(c.growth>=2){c.stage=Math.min(3,c.stage+1);c.growth=0}}});
+  state.energy=95;state.food=Math.max(40,state.food-10);state.mood=85;
+  quests.forEach(q=>{q.done=false;q.claimed=false});
+  say('新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
+ },3500);
+}
+function talkTo(npc){
+ say(npc.name+'：'+npc.lines[Math.floor(Math.random()*npc.lines.length)]);
+ state.mood+=4;completeQuest('greet');addFeed('和'+npc.name+'说了话');clamp();
+}
+// input
+const keys={};
+document.addEventListener('keydown',e=>{
+ keys[e.key.toLowerCase()]=true;
+ if(['1','2','3','4','5'].includes(e.key)){const tools=['hoe','seed','water','food','rod'];selectTool(tools[+e.key-1])}
+ if(e.key===' '){e.preventDefault();const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();
+});
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+cv.addEventListener('click',e=>{
+ const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
+ const camX=Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2)),camY=Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2));
+ const wx=sx+camX,wy=sy+camY;
+ const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48);
+ if(npc){talkTo(npc);return}
+ const t=tileAt(wx,wy);manualUntil=Date.now()+15000;
+ if(Math.hypot((t.x+0.5)*T-(player.x+24),(t.y+0.5)*T-(player.y+20))<=72)interactTile(t.x,t.y);else player.target={x:(t.x+0.5)*T-24,y:(t.y+0.5)*T-20};
+});
+function selectTool(t){tool=t;document.querySelectorAll('.tool').forEach(el=>el.classList.toggle('sel',el.dataset.tool===t))}
+document.querySelectorAll('.tool').forEach(el=>el.onclick=()=>selectTool(el.dataset.tool));
+$('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say(auto?'我自己生活啦。':'好，你来指挥我。')};
+$('btnSleep').onclick=sleep;
+$('btnShop').onclick=()=>{if(state.coins<8){say('币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
+// auto life
+let aiTimer=0;
+function autoStep(){
+ if(!auto||state.sleeping||Date.now()<manualUntil)return;
+ if(state.energy<28){player.target={x:160,y:160};if(Math.hypot(player.x-160,player.y-160)<50)sleep();return}
+ if(state.food<30){if(state.rice>0){tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}else{player.target={x:700,y:560};say('饿了，去小店。')}return}
+ // farm: find first actionable crop/soil
+ const keysC=Object.keys(crops);
+ for(const k of keysC){const p=k.split(',').map(Number);const c=crops[k];
+  if(c.stage>=3){player.target={x:p[0]*T,y:p[1]*T};player.pending={x:p[0],y:p[1],act:'harvest'};return}
+  if(!c.watered){player.target={x:p[0]*T,y:p[1]*T};player.pending={x:p[0],y:p[1],act:'water'};return}
+ }
+ for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===3&&!crops[x+','+y]&&state.seeds>0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'seed'};return}}
+ for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'hoe'};return}}
+ const dests=[[640,160],[700,560],[1080,160],[200,640],[1100,650]];const d=dests[Math.floor(Math.random()*dests.length)];
+ player.target={x:d[0],y:d[1]};say('去逛逛。');
+}
+function doPending(){
+ if(!player.pending)return;const p=player.pending;player.pending=null;
+ if(p.act==='hoe')tool='hoe';if(p.act==='seed')tool='seed';if(p.act==='water')tool='water';if(p.act==='harvest')tool='hoe';
+ interactTile(p.x,p.y);
+}
+let last=performance.now(),acc=0;
+function loop(now){
+ const dt=Math.min(50,now-last);last=now;acc+=dt;
+ if(acc>=500){acc=0;if(!state.sleeping){state.minutes++;if(state.minutes>=1440){state.minutes=0;sleep()}state.energy-=0.25;state.food-=0.2;renderHUD();save()}}
+ if(!state.sleeping){
+  let mx=0,my=0;
+  if(keys['a']||keys['arrowleft'])mx-=1;if(keys['d']||keys['arrowright'])mx+=1;if(keys['w']||keys['arrowup'])my-=1;if(keys['s']||keys['arrowdown'])my+=1;
+  if(mx||my){manualUntil=Date.now()+15000;player.target=null;player.moving=true;player.frame+=0.18;
+   const nx=player.x+mx*2.4,ny=player.y+my*2.4;const t=tileAt(nx+24,ny+20);
+   if(!blocked(t.x,t.y)||tiles[t.y][t.x]===4){player.x=Math.max(0,Math.min(MW*T-48,nx));player.y=Math.max(0,Math.min(MH*T-48,ny))}
+  } else if(player.target){
+   const dx=player.target.x-player.x,dy=player.target.y-player.y,d=Math.hypot(dx,dy);
+   if(d<8){player.target=null;player.moving=false;doPending()}
+   else{player.moving=true;player.frame+=0.18;player.x+=dx/d*2.4;player.y+=dy/d*2.4}
+  } else player.moving=false;
+  aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
+  // npc wander
+  if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
+ }
+ drawWorld();
+ requestAnimationFrame(loop);
+}
 function reply(t){
- if(t.includes('在哪')||t.includes('位置'))return '我在'+placeAt(pos.x,pos.y).name+'，地图上的小红点就是我。';
- if(t.includes('睡')||t.includes('困'))return '困了我就自己回家睡，22:30 上床。';
- if(t.includes('吃')||t.includes('饿'))return '饿了我就去小店，你也可以点吃饭。';
- if(t.includes('今天')||t.includes('去哪'))return '今天我在'+placeAt(pos.x,pos.y).name+'，等会儿可能去'+places[Math.floor(Math.random()*places.length)].name+'。';
+ if(t.includes('种'))return '今天种的是月光莓，浇了水长得快。';
+ if(t.includes('睡')||t.includes('困'))return '困了我就回家睡，睡一觉就到明天。';
+ if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
- return '嗯，我听着呢，我还在地图上生活着。';
+ if(t.includes('在哪'))return '我在田野里，点画布就能看到我。';
+ return '嗯，我听着呢，手里还拿着'+(tool==='hoe'?'锄头':tool==='seed'?'种子':tool==='water'?'水壶':tool==='food'?'饭团':'鱼竿')+'。';
 }
 function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say(r);inp.value='';state.mood+=2;clamp()}
 $('chatSend').onclick=sendChat;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
 function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');$('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>'}
-$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('谢谢留言，我记下了。');state.mood+=4;clamp()};
-$('char').onclick=()=>{say(state.sleeping?'Z z z':'在呢，我在生活，不用一直管我。')};
-render();renderWall();addFeed('游戏开始，眠菇开始自己生活');
-window.addEventListener('resize',render);
+$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('谢谢留言。');state.mood+=4;clamp()};
+renderHUD();renderQuests();renderWall();addFeed('来到田野，第 '+state.day+' 天');
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
