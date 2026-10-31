@@ -3,36 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>眠菇的大地图</title>
+<title>眠菇的小游戏</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px 14px 40px;transition:background 1s}
+body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 40px}
 body.night{background:#080614}
-.wrap{max-width:760px;margin:0 auto}
+.wrap{max-width:780px;margin:0 auto}
 h1{font-size:22px;text-align:center}
-.sub{text-align:center;color:#9a90b0;font-size:13px;margin:6px 0 12px}
+.sub{text-align:center;color:#9a90b0;font-size:13px;margin:6px 0 10px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.hud div{flex:1;min-width:100px;background:#1e1836;border:1px solid #2e2a45;border-radius:12px;padding:9px 10px;font-size:12px;color:#b8b0cc}
+.hud b{display:block;color:#e8e0d5;font-size:15px;margin-top:2px}
 .meters{display:flex;gap:8px;margin-bottom:10px}
 .meter{flex:1;background:#1e1836;border:1px solid #2e2a45;border-radius:12px;padding:9px;font-size:12px;color:#b8b0cc}
 .meter b{display:block;color:#e8e0d5;font-size:13px;margin-bottom:5px}
 .bar{height:8px;background:#0f0e1a;border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:#e8a880;transition:width .6s}
-#viewport{position:relative;height:420px;border:1px solid #2e2a45;border-radius:18px;overflow:hidden;background:#1c1734}
-#world{position:absolute;width:1800px;height:1000px;transition:transform .35s ease;
-background:
-linear-gradient(90deg,transparent 0 599px,rgba(255,255,255,.06) 599px 600px,transparent 600px 1199px,rgba(255,255,255,.06) 1199px 1200px),
-linear-gradient(0deg,transparent 0 499px,rgba(255,255,255,.06) 499px 500px,transparent 500px 999px,rgba(255,255,255,.06) 999px);
-}
+#viewport{position:relative;height:420px;border:1px solid #2e2a45;border-radius:18px;overflow:hidden;background:#1c1734;touch-action:none}
+#world{position:absolute;width:1800px;height:1000px;transition:transform .3s linear}
 .zone{position:absolute;border-radius:16px;padding:14px;font-size:14px;color:#f5efe6}
-.zone small{display:block;font-size:12px;opacity:.85;margin-top:4px;font-weight:400}
+.zone small{display:block;font-size:12px;opacity:.85;margin-top:4px}
 #zRoom{left:24px;top:24px;width:460px;height:360px;background:#2e2448}
 #zGarden{left:540px;top:24px;width:460px;height:360px;background:#24402e}
 #zForest{left:1056px;top:24px;width:700px;height:420px;background:#1e3326}
 #zLake{left:24px;top:440px;width:540px;height:500px;background:#1d3550}
 #zShop{left:620px;top:440px;width:460px;height:500px;background:#4a2f22}
 #zHill{left:1136px;top:500px;width:620px;height:440px;background:#2c2340}
-.obj{position:absolute;font-size:44px;cursor:pointer;user-select:none}
-.obj span{display:block;font-size:12px;color:#e8e0d5;text-align:center;background:rgba(0,0,0,.35);border-radius:8px;padding:2px 6px;margin-top:2px}
-#char{position:absolute;width:84px;height:104px;z-index:5;transition:left .35s ease,top .35s ease,transform .4s;cursor:pointer}
+.obj{position:absolute;font-size:42px;cursor:pointer;user-select:none;text-align:center}
+.obj span{display:block;font-size:11px;color:#e8e0d5;background:rgba(0,0,0,.35);border-radius:8px;padding:2px 6px;margin-top:2px}
+.npc{position:absolute;font-size:36px;z-index:4;transition:left 1s,top 1s;text-align:center}
+.npc span{display:block;font-size:11px;background:rgba(0,0,0,.4);border-radius:8px;padding:1px 5px;color:#fff}
+.pickup{position:absolute;font-size:30px;z-index:3;cursor:pointer;animation:bob 2s ease-in-out infinite}
+#char{position:absolute;width:84px;height:104px;z-index:6;transition:left .3s linear,top .3s linear,transform .3s;cursor:pointer}
 .cap{position:absolute;top:0;left:0;width:84px;height:52px;background:#c8785a;border-radius:42px 42px 12px 12px;overflow:hidden;animation:bob 3s ease-in-out infinite}
 .cap i{position:absolute;background:#f5efe6;border-radius:50%}
 .cap i:nth-child(1){width:16px;height:12px;left:12px;top:12px}
@@ -46,23 +48,28 @@ linear-gradient(0deg,transparent 0 499px,rgba(255,255,255,.06) 499px 500px,trans
 .mouth{position:absolute;left:24px;top:24px;width:11px;height:5px;border-bottom:2px solid #6a4a3a;border-radius:0 0 10px 10px}
 body.sleeping .eye{height:2px;top:16px;animation:none}
 body.sleeping #char{transform:rotate(-8deg)}
-#bubble{position:absolute;z-index:6;background:#f5efe6;color:#241d1a;font-size:13px;padding:7px 11px;border-radius:12px;max-width:220px;text-align:center;pointer-events:none;transform:translate(-50%,-100%)}
-#zzz{position:absolute;z-index:6;font-size:24px;color:#c9b8ff;opacity:0;pointer-events:none}
+#bubble{position:absolute;z-index:7;background:#f5efe6;color:#241d1a;font-size:13px;padding:7px 11px;border-radius:12px;max-width:230px;text-align:center;pointer-events:none;transform:translate(-50%,-100%)}
+#zzz{position:absolute;z-index:7;font-size:24px;color:#c9b8ff;opacity:0;pointer-events:none}
 body.sleeping #zzz{opacity:1;animation:float 2.6s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 #minimap{position:absolute;right:10px;top:10px;z-index:8;width:150px;height:84px;background:rgba(0,0,0,.55);border-radius:10px;border:1px solid rgba(255,255,255,.25)}
 #minimap i{position:absolute;width:8px;height:8px;background:#ff8a5c;border-radius:50%;transform:translate(-50%,-50%)}
 #minimap span{position:absolute;font-size:9px;color:#fff;opacity:.9}
-.pad{display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.pad{display:flex;gap:10px;align-items:center;margin:12px 0;flex-wrap:wrap}
 .pad button,.go button{background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:10px 14px;font-size:14px;cursor:pointer}
 .dpad{display:grid;grid-template-columns:repeat(3,44px);gap:4px}
 .dpad button{padding:9px 0}
 .dpad .c{visibility:hidden}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.actions button{flex:1;min-width:70px;background:#1e1836;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
+.actions button{flex:1;min-width:72px;background:#1e1836;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
+.actions button.on{background:#e8a880;color:#241d1a;border-color:#e8a880}
 .log{font-size:13px;color:#9a90b0;text-align:center;min-height:20px}
 section{margin-top:18px;background:#1e1836;border:1px solid #2e2a45;border-radius:16px;padding:16px}
 section h2{font-size:16px;margin-bottom:10px}
+#feed{font-size:13px;line-height:1.9;color:#c9c0d8}
+.quest{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid #2e2a45}
+.quest button{background:#f5efe6;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px}
+.quest button:disabled{opacity:.4}
 .chatrow{display:flex;gap:8px;margin-top:10px}
 .chatrow input{flex:1;background:#0f0e1a;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:10px 14px;font-size:14px}
 .chatrow button{background:#e8a880;border:0;border-radius:999px;padding:10px 16px;cursor:pointer}
@@ -78,149 +85,230 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#5f5878}
 </head>
 <body>
 <div class="wrap">
-<h1>眠菇的大地图</h1>
-<p class="sub">他不住在房间里了，这整张地图都是他的家。用方向键、WASD，或者下面的方向盘走路。</p>
+<h1>眠菇的小游戏</h1>
+<p class="sub">他会自己生活：饿了去吃饭，困了回家睡，无聊了去逛地图、找邻居。你也可以接管他，或者只看着。</p>
+<div class="hud">
+<div>🗓️ 游戏天数<b id="hudDay">第 1 天</b></div>
+<div>🕒 现在<b id="hudTime">--:--</b></div>
+<div>🌤️ 天气<b id="hudWeather">晴</b></div>
+<div>🪙 蘑菇币<b id="hudCoins">0</b></div>
+<div>🎒 背包<b id="hudBag">饭团 0 · 蘑菇 0 · 花 0 · 鱼 0</b></div>
+</div>
 <div class="meters">
 <div class="meter"><b>精力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
 <div class="meter"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
 <div class="meter"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
-<div id="viewport">
-  <div id="world">
-    <div class="zone" id="zRoom">🏠 小房间<small>床在这里，睡觉回这里</small></div>
-    <div class="zone" id="zGarden">🌷 花园<small>小绿在这里种花</small></div>
-    <div class="zone" id="zForest">🌲 蘑菇森林<small>夜夜在这里，树很多</small></div>
-    <div class="zone" id="zLake">🌊 湖边<small>安静，适合发呆</small></div>
-    <div class="zone" id="zShop">🍙 小店<small>阿橙在这里，吃饭来这里</small></div>
-    <div class="zone" id="zHill">⛰️ 山丘瞭望台<small>晚上看星星</small></div>
-    <div class="obj" style="left:150px;top:180px" data-act="sleep">🛏️<span>床</span></div>
-    <div class="obj" style="left:680px;top:170px" data-act="flower">🌷<span>花</span></div>
-    <div class="obj" style="left:1240px;top:200px" data-act="forest">🍄<span>大蘑菇</span></div>
-    <div class="obj" style="left:220px;top:620px" data-act="lake">🎣<span>湖</span></div>
-    <div class="obj" style="left:800px;top:620px" data-act="eat">🍙<span>饭团摊</span></div>
-    <div class="obj" style="left:1400px;top:680px" data-act="stars">🔭<span>望远镜</span></div>
-    <div class="obj" style="left:760px;top:260px" data-name="小绿">🍄<span>小绿</span></div>
-    <div class="obj" style="left:880px;top:720px" data-name="阿橙">🍄<span>阿橙</span></div>
-    <div class="obj" style="left:1500px;top:260px" data-name="夜夜">🍄<span>夜夜</span></div>
-    <div id="bubble">我出门啦，不困在房间里了。</div>
-    <div id="zzz">Z z z</div>
-    <div id="char"><div class="cap"><i></i><i></i><i></i></div><div class="face"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div></div>
-  </div>
-  <div id="minimap"><span style="left:6px;top:4px">房</span><span style="left:58px;top:4px">园</span><span style="left:118px;top:4px">林</span><span style="left:6px;top:52px">湖</span><span style="left:58px;top:52px">店</span><span style="left:118px;top:52px">山</span><i id="dot"></i></div>
-</div>
+<div id="viewport"><div id="world">
+<div class="zone" id="zRoom">🏠 小房间<small>睡觉回这里</small></div>
+<div class="zone" id="zGarden">🌷 花园<small>小绿种花</small></div>
+<div class="zone" id="zForest">🌲 蘑菇森林<small>夜夜在树下</small></div>
+<div class="zone" id="zLake">🌊 湖边<small>可以钓鱼</small></div>
+<div class="zone" id="zShop">🍙 小店<small>阿橙卖饭团</small></div>
+<div class="zone" id="zHill">⛰️ 山丘瞭望台<small>晚上看星星</small></div>
+<div class="obj" style="left:150px;top:180px" data-act="sleep">🛏️<span>床</span></div>
+<div class="obj" style="left:680px;top:170px" data-act="flower">🌷<span>花</span></div>
+<div class="obj" style="left:1240px;top:200px" data-act="forest">🍄<span>大蘑菇</span></div>
+<div class="obj" style="left:220px;top:620px" data-act="lake">🎣<span>湖</span></div>
+<div class="obj" style="left:800px;top:620px" data-act="eat">🍙<span>饭团摊</span></div>
+<div class="obj" style="left:1400px;top:680px" data-act="stars">🔭<span>望远镜</span></div>
+<div class="npc" id="npc1" style="left:760px;top:260px">🍄<span>小绿</span></div>
+<div class="npc" id="npc2" style="left:880px;top:720px">🍄<span>阿橙</span></div>
+<div class="npc" id="npc3" style="left:1500px;top:260px">🍄<span>夜夜</span></div>
+<div id="bubble">我醒啦，今天想去哪？</div>
+<div id="zzz">Z z z</div>
+<div id="char"><div class="cap"><i></i><i></i><i></i></div><div class="face"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div></div>
+</div><div id="minimap"><span style="left:6px;top:4px">房</span><span style="left:58px;top:4px">园</span><span style="left:118px;top:4px">林</span><span style="left:6px;top:52px">湖</span><span style="left:58px;top:52px">店</span><span style="left:118px;top:52px">山</span><i id="dot"></i></div></div>
 <div class="pad">
-  <div class="dpad">
-    <button class="c"></button><button data-dir="up">↑</button><button class="c"></button>
-    <button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button>
-  </div>
-  <div style="font-size:13px;color:#9a90b0">当前位置：<b id="place" style="color:#e8e0d5">小房间</b><br>靠近东西点它，或者点下面按钮。</div>
-</div>
-<div class="go" style="display:flex;gap:8px;flex-wrap:wrap">
-  <button data-go="room">去小房间</button><button data-go="garden">去花园</button><button data-go="forest">去森林</button><button data-go="lake">去湖边</button><button data-go="shop">去小店</button><button data-go="hill">去山丘</button>
+<div class="dpad"><button class="c"></button><button data-dir="up">↑</button><button class="c"></button><button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button></div>
+<div style="font-size:13px;color:#9a90b0">当前位置：<b id="place" style="color:#e8e0d5">小房间</b><br>点地图任意处，他会走过去。方向键 / WASD 也可以。</div>
 </div>
 <div class="actions">
-  <button id="btnAct">✨ 和附近的东西互动</button>
-  <button id="btnSleep">🌙 睡觉 / 起床</button>
-  <button id="btnEat">🍙 吃饭</button>
+<button id="btnAuto" class="on">🤖 自己生活：开</button>
+<button id="btnSleep">🌙 睡觉 / 起床</button>
+<button id="btnEat">🍙 吃饭</button>
+<button id="btnFish">🎣 钓鱼</button>
+<button id="btnBuy">🛒 买饭团（10币）</button>
 </div>
-<p class="log" id="log">目标：22:30 上床。先在地图上走走。</p>
-
-<section><h2>和眠菇说话</h2><div id="chatlog">眠菇：在呢。你在地图上看到我了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：你在哪？今天去哪玩？" maxlength="60"><button id="chatSend">发送</button></div></section>
+<p class="log" id="log">目标：22:30 上床。先看看他自己会去哪。</p>
+<section><h2>📜 今日任务</h2><div id="quests"></div></section>
+<section><h2>📰 生活日志</h2><div id="feed"></div></section>
+<section><h2>和眠菇说话</h2><div id="chatlog">眠菇：在呢，你看到我自己在走了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：你今天去哪了？" maxlength="60"><button id="chatSend">发送</button></div></section>
 <section class="wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个世界留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
-<p class="note">留言和状态只保存在这台设备、这个浏览器里。真正的多人实时社交需要后端和数据库，静态页面做不到所有人共享同一面墙。</p>
+<p class="note">游戏进度、留言只保存在这台设备、这个浏览器里。真正的多人实时世界需要后端和数据库，静态页面做不到所有人共享同一个世界。</p>
 <footer>给馨馨的，眠眠住在这张地图上。shenshenandai.love</footer>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-let saved=JSON.parse(localStorage.getItem('mushroom_map')||'{}');
+let saved={}; try{saved=JSON.parse(localStorage.getItem('mushroom_game')||'{}')}catch(e){saved={}}
 let pos={x:saved.x??220,y:saved.y??220};
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,sleeping:false};
-let visits=Number(localStorage.getItem('mushroom_visits')||0)+1;
-localStorage.setItem('mushroom_visits',visits);
-const places=[
- {name:'小房间',x0:0,x1:500,y0:0,y1:400,line:'回房间了，床在等我。'},
- {name:'花园',x0:500,x1:1000,y0:0,y1:400,line:'花园好香，小绿在浇花。'},
- {name:'蘑菇森林',x0:1000,x1:1800,y0:0,y1:500,line:'森林里好多蘑菇，夜夜在树下。'},
- {name:'湖边',x0:0,x1:600,y0:400,y1:1000,line:'湖边很安静，适合发呆。'},
- {name:'小店',x0:600,x1:1100,y0:400,y1:1000,line:'小店到了，阿橙在卖饭团。'},
- {name:'山丘瞭望台',x0:1100,x1:1800,y0:500,y1:1000,line:'山丘上风很大，晚上能看星星。'}
+let target=null, auto=true, manualUntil=0;
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,sleeping:false,coins:saved.coins??20,bag:saved.bag||{rice:1,mush:0,flower:0,fish:0},day:saved.day??1};
+let quests=saved.quests||[
+ {id:'eat',t:'吃一顿饭',done:false,claimed:false,reward:10},
+ {id:'sleep',t:'睡一觉',done:false,claimed:false,reward:10},
+ {id:'greet',t:'和一位邻居打招呼',done:false,claimed:false,reward:10},
+ {id:'collect',t:'捡 3 个地上的东西',done:false,claimed:false,reward:15},
+ {id:'lake',t:'去一次湖边',done:false,claimed:false,reward:10}
 ];
+let collected=saved.collected??0;
+let feedItems=saved.feed||[];
+const places=[
+ {name:'小房间',x0:0,x1:500,y0:0,y1:400,line:'回房间了。'},
+ {name:'花园',x0:500,x1:1000,y0:0,y1:400,line:'花园好香。'},
+ {name:'蘑菇森林',x0:1000,x1:1800,y0:0,y1:500,line:'森林里好多蘑菇。'},
+ {name:'湖边',x0:0,x1:600,y0:400,y1:1000,line:'湖边很安静。'},
+ {name:'小店',x0:600,x1:1100,y0:400,y1:1000,line:'小店到了。'},
+ {name:'山丘瞭望台',x0:1100,x1:1800,y0:500,y1:1000,line:'山丘上风很大。'}
+];
+const spots={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
 function placeAt(x,y){return places.find(p=>x>=p.x0&&x<p.x1&&y>=p.y0&&y<p.y1)||places[0]}
-function save(){localStorage.setItem('mushroom_map',JSON.stringify({x:pos.x,y:pos.y,energy:state.energy,food:state.food,mood:state.mood}))}
-function render(){
-  $('vEnergy').textContent=state.energy;$('bEnergy').style.width=state.energy+'%';
-  $('vFood').textContent=state.food;$('bFood').style.width=state.food+'%';
-  $('vMood').textContent=state.mood;$('bMood').style.width=state.mood+'%';
-  const h=new Date().getHours();document.body.classList.toggle('night',h>=19||h<7);
-  const c=$('char');c.style.left=pos.x+'px';c.style.top=pos.y+'px';
-  const b=$('bubble');b.style.left=(pos.x+42)+'px';b.style.top=pos.y+'px';
-  const z=$('zzz');z.style.left=(pos.x+70)+'px';z.style.top=(pos.y-18)+'px';
-  const vp=$('viewport'),w=$('world');
-  const vw=vp.clientWidth,vh=vp.clientHeight;
-  let tx=Math.min(0,Math.max(vw-1800,vw/2-(pos.x+42)));
-  let ty=Math.min(0,Math.max(vh-1000,vh/2-(pos.y+52)));
-  w.style.transform='translate('+tx+'px,'+ty+'px)';
-  $('dot').style.left=(pos.x/1800*150)+'px';$('dot').style.top=(pos.y/1000*84)+'px';
-  const p=placeAt(pos.x,pos.y);$('place').textContent=p.name;
-}
+function save(){try{localStorage.setItem('mushroom_game',JSON.stringify({x:pos.x,y:pos.y,energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,bag:state.bag,day:state.day,quests:quests,collected:collected,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(t){$('bubble').textContent=t}
 function log(t){$('log').textContent=t}
+function addFeed(t){const time=new Date().toLocaleTimeString('zh-CN',{hour12:false});feedItems.unshift(time+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
 function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();render()}
-function move(dx,dy){
-  if(state.sleeping){say('睡着了，走不了。');return}
-  pos.x=Math.max(0,Math.min(1716,pos.x+dx));pos.y=Math.max(0,Math.min(896,pos.y+dy));
-  state.energy-=1;state.food-=1;
-  const p=placeAt(pos.x,pos.y);
-  if(p.name!==move.last){say(p.line);move.last=p.name}
-  clamp();
+function render(){
+ $('vEnergy').textContent=Math.round(state.energy);$('bEnergy').style.width=state.energy+'%';
+ $('vFood').textContent=Math.round(state.food);$('bFood').style.width=state.food+'%';
+ $('vMood').textContent=Math.round(state.mood);$('bMood').style.width=state.mood+'%';
+ $('hudCoins').textContent=state.coins;
+ $('hudBag').textContent='饭团 '+state.bag.rice+' · 蘑菇 '+state.bag.mush+' · 花 '+state.bag.flower+' · 鱼 '+state.bag.fish;
+ $('hudDay').textContent='第 '+state.day+' 天';
+ const now=new Date();$('hudTime').textContent=now.toLocaleTimeString('zh-CN',{hour12:false,hour:'2-digit',minute:'2-digit'});
+ const h=now.getHours();document.body.classList.toggle('night',h>=19||h<7);
+ $('hudWeather').textContent=['晴','多云','晴','小雨'][state.day%4];
+ const c=$('char');c.style.left=pos.x+'px';c.style.top=pos.y+'px';
+ $('bubble').style.left=(pos.x+42)+'px';$('bubble').style.top=pos.y+'px';
+ $('zzz').style.left=(pos.x+70)+'px';$('zzz').style.top=(pos.y-18)+'px';
+ const vp=$('viewport'),w=$('world'),vw=vp.clientWidth,vh=vp.clientHeight;
+ let tx=Math.min(0,Math.max(vw-1800,vw/2-(pos.x+42)));let ty=Math.min(0,Math.max(vh-1000,vh/2-(pos.y+52)));
+ w.style.transform='translate('+tx+'px,'+ty+'px)';
+ $('dot').style.left=(pos.x/1800*150)+'px';$('dot').style.top=(pos.y/1000*84)+'px';
+ $('place').textContent=placeAt(pos.x,pos.y).name;
+ $('btnAuto').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关';$('btnAuto').classList.toggle('on',auto);
+ renderQuests();
 }
-move.last=placeAt(pos.x,pos.y).name;
-document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const d=b.dataset.dir;if(d==='up')move(0,-48);if(d==='down')move(0,48);if(d==='left')move(-48,0);if(d==='right')move(48,0)});
-document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-  if(e.key==='ArrowUp'||e.key==='w'||e.key==='W')move(0,-48);
-  if(e.key==='ArrowDown'||e.key==='s'||e.key==='S')move(0,48);
-  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')move(-48,0);
-  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')move(48,0);
+function renderQuests(){
+ $('quests').innerHTML=quests.map((q,i)=>'<div class="quest"><span>'+(q.done?'✅ ':'⬜ ')+q.t+' · +'+q.reward+'币</span><button data-q="'+i+'" '+(q.done&&!q.claimed?'':'disabled')+'>'+(q.claimed?'已领':'领奖励')+'</button></div>').join('');
+ document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=quests[+b.dataset.q];if(q.done&&!q.claimed){q.claimed=true;state.coins+=q.reward;addFeed('领了任务奖励 +'+q.reward+' 币');clamp()}});
+}
+function completeQuest(id){const q=quests.find(x=>x.id===id);if(q&&!q.done){q.done=true;addFeed('完成任务：'+q.t);save();renderQuests()}}
+function dist(ax,ay,bx,by){return Math.hypot(ax-bx,ay-by)}
+function setTarget(x,y){target={x:Math.max(0,Math.min(1716,x)),y:Math.max(0,Math.min(896,y))}}
+function moveManual(dx,dy){manualUntil=Date.now()+20000;setTarget(pos.x+dx,pos.y+dy);state.energy-=0.5;clamp()}
+document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const d=b.dataset.dir;if(d==='up')moveManual(0,-56);if(d==='down')moveManual(0,56);if(d==='left')moveManual(-56,0);if(d==='right')moveManual(56,0)});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowUp'||e.key==='w'||e.key==='W')moveManual(0,-56);if(e.key==='ArrowDown'||e.key==='s'||e.key==='S')moveManual(0,56);if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')moveManual(-56,0);if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')moveManual(56,0)});
+$('viewport').addEventListener('click',e=>{
+ if(e.target.closest('button')||e.target.closest('#minimap')||e.target.closest('.npc')||e.target.closest('.obj')||e.target.closest('.pickup')||e.target.id==='char')return;
+ const r=$('world').getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;
+ manualUntil=Date.now()+20000;setTarget(x-42,y-52);say('好，我走过去。');
 });
-const goes={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
-document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const p=goes[b.dataset.go];pos.x=p[0];pos.y=p[1];say('传送到'+placeAt(pos.x,pos.y).name+'啦。');state.mood+=3;clamp()});
-function interact(){
-  const p=placeAt(pos.x,pos.y).name;
-  if(p==='小房间'){sleepToggle();return}
-  if(p==='小店'){eat();return}
-  if(p==='花园'){say('花开了，我帮小绿浇了水。');state.mood+=6;log('眠菇在花园浇花。');clamp();return}
-  if(p==='蘑菇森林'){say('采到一个小蘑菇，送给你。');state.food+=5;state.mood+=6;log('眠菇在森林里采蘑菇。');clamp();return}
-  if(p==='湖边'){say('湖面好平，我想发会儿呆。');state.energy+=5;state.mood+=5;log('眠菇在湖边发呆。');clamp();return}
-  say('山丘上看得好远，晚上再来看星星。');state.mood+=5;log('眠菇在山丘上看风景。');clamp();
+function eat(){
+ if(state.sleeping){say('睡着了。');return}
+ if(state.bag.rice<=0){say('没有饭团了，去小店买一个吧，10 币。');return}
+ state.bag.rice--;state.food=Math.min(100,state.food+22);state.mood=Math.min(100,state.mood+6);
+ say('啊呜，饭团好吃。');addFeed('吃了一个饭团');completeQuest('eat');clamp();
 }
-function eat(){if(state.sleeping){say('睡着了。');return}say('啊呜，饭团好吃。');state.food+=18;state.mood+=6;log('眠菇在小店吃饭。');clamp()}
 function sleepToggle(){
-  state.sleeping=!state.sleeping;document.body.classList.toggle('sleeping',state.sleeping);
-  $('btnSleep').textContent=state.sleeping?'☀️ 起床':'🌙 睡觉 / 起床';
-  if(state.sleeping){pos.x=220;pos.y=220;state.energy+=20;say('晚安……Z z z');log('眠菇回小房间睡觉了。')}
-  else{say('醒了，继续逛地图。');log('眠菇醒了。')}
-  clamp();
+ state.sleeping=!state.sleeping;document.body.classList.toggle('sleeping',state.sleeping);
+ $('btnSleep').textContent=state.sleeping?'☀️ 起床':'🌙 睡觉 / 起床';
+ if(state.sleeping){setTarget(220,220);pos.x=220;pos.y=220;target=null;say('晚安……Z z z');addFeed('回小房间睡觉了');completeQuest('sleep')}
+ else{say('醒了，继续逛。');addFeed('睡醒了')}
+ clamp();
+ setTimeout(()=>{if(state.sleeping){state.sleeping=false;document.body.classList.remove('sleeping');state.energy=95;say('睡饱了。');addFeed('睡饱了，精力回满');clamp()}},9000);
 }
-$('btnAct').onclick=interact;$('btnSleep').onclick=sleepToggle;$('btnEat').onclick=eat;
+function fish(){
+ const p=placeAt(pos.x,pos.y).name;
+ if(p!=='湖边'){say('要到湖边才能钓鱼。');return}
+ if(state.sleeping)return;
+ say('甩竿……等鱼上钩……');log('眠菇在钓鱼，别催他。');
+ setTimeout(()=>{const kinds=['小鱼','大鱼','旧鞋子','星星碎片'];const k=kinds[Math.floor(Math.random()*kinds.length)];
+  if(k==='小鱼'||k==='大鱼'){state.bag.fish++;state.coins+=k==='大鱼'?12:6;state.mood+=8;say('钓到'+k+'啦！+币。');addFeed('钓到'+k)}
+  else{say('钓到'+k+'……也行吧。');state.mood+=2;addFeed('钓到'+k)}
+  clamp()},3000);
+}
+function buy(){
+ if(state.coins<10){say('币不够，去捡东西、钓鱼、做任务赚币。');return}
+ state.coins-=10;state.bag.rice++;say('买了一个饭团。');addFeed('买了饭团，-10 币');clamp();
+}
+$('btnAuto').onclick=()=>{auto=!auto;say(auto?'我自己生活啦，你看着就好。':'好，你来指挥我。');render()};
+$('btnSleep').onclick=sleepToggle;$('btnEat').onclick=eat;$('btnFish').onclick=fish;$('btnBuy').onclick=buy;
 document.querySelectorAll('.obj').forEach(o=>o.onclick=()=>{
-  if(o.dataset.name){const n=o.dataset.name;const lines={'小绿':'你好呀，我在种花。','阿橙':'饭团刚出锅，要不要来一个？','夜夜':'森林里好安静，我又想熬夜。'};say(n+'：'+lines[n]);state.mood+=3;clamp();return}
-  interact();
+ const act=o.dataset.act;
+ if(act==='sleep')sleepToggle();else if(act==='eat')eat();
+ else if(act==='flower'){state.bag.flower++;state.mood+=5;say('摘了一朵花，送给你。');addFeed('在花园摘了花');clamp()}
+ else if(act==='forest'){state.bag.mush++;state.coins+=5;say('采到蘑菇，+5 币。');addFeed('在森林采了蘑菇');clamp()}
+ else if(act==='lake')fish();
+ else if(act==='stars'){say(document.body.classList.contains('night')?'星星好多。':'白天看不到星星，晚上来。');state.mood+=3;clamp()}
 });
-$('char').onclick=()=>{say(state.sleeping?'Z z z':'在呢，我在这张地图上，不困在房间里。')};
+const npcs=[{el:$('npc1'),name:'小绿',x:760,y:260,x0:560,x1:960,y0:60,y1:340,line:'你好呀，我在种花。'},{el:$('npc2'),name:'阿橙',x:880,y:720,x0:660,x1:1020,y0:480,y1:900,line:'饭团刚出锅，要不要来一个？'},{el:$('npc3'),name:'夜夜',x:1500,y:260,x0:1100,x1:1700,y0:60,y1:400,line:'森林里好安静。'}];
+npcs.forEach(n=>{n.el.onclick=()=>{say(n.name+'：'+n.line);state.mood+=3;completeQuest('greet');addFeed('和'+n.name+'打了招呼');clamp()}});
+function spawnPickup(){
+ if(document.querySelectorAll('.pickup').length>=6)return;
+ const items=[['🍄','mush','蘑菇'],['🌷','flower','花'],['⭐','coin','星星'],['🪙','coin','金币']];
+ const it=items[Math.floor(Math.random()*items.length)];
+ const el=document.createElement('div');el.className='pickup';el.textContent=it[0];
+ el.style.left=(60+Math.random()*1680)+'px';el.style.top=(60+Math.random()*880)+'px';
+ el.dataset.kind=it[1];el.dataset.label=it[2];
+ el.onclick=()=>collect(el);
+ $('world').appendChild(el);
+}
+function collect(el){
+ const kind=el.dataset.kind;
+ if(kind==='mush')state.bag.mush++;else if(kind==='flower')state.bag.flower++;else state.coins+=8;
+ collected++;state.mood+=4;say('捡到'+el.dataset.label+'啦。');addFeed('捡到'+el.dataset.label);
+ if(collected>=3)completeQuest('collect');
+ el.remove();clamp();
+}
+function tick(){
+ const now=new Date();const h=now.getHours();
+ if(h===0&&state.day!==saved.dayMarker){state.day++;saved.dayMarker=h;addFeed('新的一天，第 '+state.day+' 天')}
+ if(state.sleeping){state.energy=Math.min(100,state.energy+2);if(state.energy>=95){/* wake handled by timeout */}render();return}
+ state.energy-=0.35;state.food-=0.3;state.mood-=0.15;
+ if(state.food<25)say('好饿，想吃东西。');else if(state.energy<25)say('好累，想睡觉。');
+ if(target){
+  const dx=target.x-pos.x,dy=target.y-pos.y,d=Math.hypot(dx,dy);
+  if(d<14){const arrived=target;target=null;onArrive(arrived)}else{pos.x+=dx/d*30;pos.y+=dy/d*30}
+ } else if(auto&&Date.now()>manualUntil){
+  if(state.energy<30){setTarget(220,220);say('太累了，回家睡觉。');if(dist(pos.x,pos.y,220,220)<40)sleepToggle()}
+  else if(state.food<30){setTarget(820,650);say('饿了，去小店。')}
+  else if(Math.random()<0.35){
+   const keys=Object.keys(spots);const s=spots[keys[Math.floor(Math.random()*keys.length)]];setTarget(s[0]+(Math.random()*80-40),s[1]+(Math.random()*80-40));say(placeAt(target.x,target.y).line);
+  }
+ }
+ document.querySelectorAll('.pickup').forEach(el=>{const x=parseFloat(el.style.left),y=parseFloat(el.style.top);if(dist(pos.x+42,pos.y+52,x,y)<60)collect(el)});
+ const p=placeAt(pos.x,pos.y).name;if(p==='湖边')completeQuest('lake');
+ clamp();
+}
+function onArrive(t){
+ const p=placeAt(t.x,t.y).name;
+ if(p==='小店'&&state.food<60&&state.bag.rice>0)eat();
+ else if(p==='小房间'&&state.energy<40)sleepToggle();
+ else if(p==='花园'){state.bag.flower++;say('花园的花开了。');addFeed('在花园逛了逛')}
+ else if(p==='蘑菇森林'){state.bag.mush++;state.coins+=5;say('森林里采到蘑菇。');addFeed('在森林采了蘑菇')}
+ else if(p==='湖边'){say('湖边到了，发会儿呆。');state.energy+=4}
+ else if(p==='山丘瞭望台'){say('山丘上看得好远。');state.mood+=4}
+ clamp();
+}
+setInterval(tick,1000);
+setInterval(()=>{npcs.forEach(n=>{n.x=Math.max(n.x0,Math.min(n.x1,n.x+Math.random()*120-60));n.y=Math.max(n.y0,Math.min(n.y1,n.y+Math.random()*120-60));n.el.style.left=n.x+'px';n.el.style.top=n.y+'px'})},4000);
+setInterval(spawnPickup,7000);
+for(let i=0;i<4;i++)spawnPickup();
 function reply(t){
-  if(t.includes('在哪')||t.includes('位置'))return '我在'+placeAt(pos.x,pos.y).name+'，地图上的小红点就是我。';
-  if(t.includes('睡')||t.includes('困'))return '困了就回小房间睡，22:30 上床。';
-  if(t.includes('吃')||t.includes('饿'))return '去小店，阿橙那有饭团。';
-  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
-  return '嗯，我听着呢，地图这么大，慢慢逛。';
+ if(t.includes('在哪')||t.includes('位置'))return '我在'+placeAt(pos.x,pos.y).name+'，地图上的小红点就是我。';
+ if(t.includes('睡')||t.includes('困'))return '困了我就自己回家睡，22:30 上床。';
+ if(t.includes('吃')||t.includes('饿'))return '饿了我就去小店，你也可以点吃饭。';
+ if(t.includes('今天')||t.includes('去哪'))return '今天我在'+placeAt(pos.x,pos.y).name+'，等会儿可能去'+places[Math.floor(Math.random()*places.length)].name+'。';
+ if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
+ return '嗯，我听着呢，我还在地图上生活着。';
 }
 function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say(r);inp.value='';state.mood+=2;clamp()}
 $('chatSend').onclick=sendChat;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
 function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');$('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>'}
 $('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('谢谢留言，我记下了。');state.mood+=4;clamp()};
-render();renderWall();
-log('这是你第 '+visits+' 次来。目标：22:30 上床。');
+$('char').onclick=()=>{say(state.sleeping?'Z z z':'在呢，我在生活，不用一直管我。')};
+render();renderWall();addFeed('游戏开始，眠菇开始自己生活');
 window.addEventListener('resize',render);
 </script>
 </body>
