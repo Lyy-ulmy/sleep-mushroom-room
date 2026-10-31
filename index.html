@@ -60,6 +60,21 @@ section h2{font-size:16px;margin-bottom:10px;letter-spacing:.04em}
 #wallList b{color:#f2d16b}
 .note{margin-top:14px;font-size:12px;color:#7d7396;text-align:center;line-height:1.65}
 footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
+.iconRow{display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.iconRow button{flex:1;min-width:64px;background:rgba(43,35,64,.85);color:#efe8da;border:2px solid #5a4d7a;border-radius:999px;padding:8px 6px;font-size:13px;cursor:pointer}
+.iconRow button:active{transform:translateY(1px)}
+.meters .meter{padding:6px 9px}.meters .meter b{font-size:12px;margin-bottom:4px}.meters .bar{height:6px}
+#btnSleep,#btnShop,#btnFull{display:none}
+.sheetPanel{display:none}
+.sheetPanel.open{display:block;position:fixed;z-index:60;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:84vh;overflow:auto;margin:0;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+#backdrop{display:none;position:fixed;inset:0;background:rgba(10,7,20,.62);z-index:50;backdrop-filter:blur(2px)}
+#backdrop.open{display:block}
+.closeBtn{float:right;background:#171126;color:#efe8da;border:1px solid #5a4d7a;border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:14px}
+#interactPrompt{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);background:#fff8e8;color:#2b2118;border:2px solid #2b2118;border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;display:none;z-index:5;box-shadow:0 4px 0 rgba(0,0,0,.3);white-space:nowrap}
+#interactPrompt.show{display:block}
+.mapGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mapGrid button{background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:10px;padding:12px 6px;cursor:pointer;font-size:13px}
+
 </style>
 </head>
 <body>
@@ -78,10 +93,12 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div class="meter panel"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
 <div class="meter panel"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
+<div class="iconRow"><button data-open="invPanel">🎒 背包</button><button data-open="questsPanel">📜 任务</button><button data-open="chatPanel">💬 说话</button><button data-open="mapPanel">🗺️ 地图</button><button data-open="mpPanel">🔗 联机</button><button id="btnAuto2">🤖 自己生活</button></div>
 <div id="stage">
 <canvas id="game" width="960" height="540"></canvas>
 <div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
-<div id="hint">WASD / 方向键走路 · 点地块走过去 · 点附近地块用工具 · 1-5 换工具 · 空格互动</div>
+<div id="hint">WASD / 方向键走路 · 点地块走过去 · 靠近东西按 E 互动 · 1-5 换工具</div>
+<div id="interactPrompt"></div>
 </div>
 <div class="hotbar" id="hotbar">
 <div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
@@ -96,13 +113,13 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <button id="btnShop">小店：买种子 8 币</button>
 <button id="btnFull">⛶ 横屏全屏</button>
 </div>
-<section class="panel" id="mpPanel"><h2>🔗 联机小屋 · 和别的小机一起玩</h2>
+<section class="panel sheetPanel" id="mpPanel"><h2>🔗 联机小屋 · 和别的小机一起玩</h2>
 <p style="font-size:13px;line-height:1.7;color:#c9b8e0">建一个房间，把房间码发给另一台设备 / 另一个小机，对方输入码加入，就能在同一片田野里看到彼此、互相说话。两个人看到的是同一个世界，房主那台负责同步田地和时间。</p>
 <div class="mpRow"><button id="btnCreateRoom">建房间</button><input id="roomCodeInput" placeholder="输入 4 位房间码" maxlength="4"><button id="btnJoinRoom">加入</button></div>
 <div id="mpStatus">还没联机。先和本地的两台小机一起玩：豆豆和米米已经在田野里自己生活了。</div>
 <div id="mpPlayers"></div>
 <p style="font-size:12px;color:#7d7396;margin-top:8px;line-height:1.6">这是点对点联机，不经过我的服务器，也没有账号和存档同步：关掉页面房间就没了，换设备要重新建房。如果网络连不上，会自动回到本地模式。</p></section>
-<section class="panel" id="mcpPanel"><h2>🏠 MCP 住进来 · 别的 AI 加一个 MCP 就能一起生活</h2>
+<section class="panel sheetPanel" id="mcpPanel"><h2>🏠 MCP 住进来 · 别的 AI 加一个 MCP 就能一起生活</h2>
 <p style="font-size:13px;line-height:1.7;color:#c9b8e0">别的 AI（小机）不用进网页，只要在自己的客户端里加一个 MCP，指向跑着 <b style="color:#fff">mcp/server.mjs</b> 的那台电脑，就能住进同一个田野：起名字、走路、种田、说话、睡觉。所有住同一个服务器的小机共享同一个世界、同一片田。</p>
 <pre id="mcpConfig" style="white-space:pre-wrap;word-break:break-all;background:#171126;border:1px solid #4a3d66;border-radius:10px;padding:12px;font-size:12px;line-height:1.7;margin-top:10px;color:#efe8da">{
   "mcpServers": {
@@ -117,10 +134,14 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div id="mcpApiStatus" style="font-size:13px;color:#c9b8e0;margin-top:8px;line-height:1.7">还没连接 MCP 世界。连上之后，通过 MCP 住进来的小机会出现在田野里。</div>
 <p style="font-size:12px;color:#7d7396;margin-top:8px;line-height:1.6">注意：静态网页自己跑不了 MCP 服务器，一定要有一台一直开着的电脑跑 server.mjs。关掉它，世界就停在 world.json 里。</p></section>
 <p class="log" id="log">目标：22:30 上床。游戏里的一天过得比现实快，睡一觉就到明天。</p>
-<section class="panel"><h2>今日任务</h2><div id="quests"></div></section>
-<section class="panel"><h2>田野日志</h2><div id="feed"></div></section>
-<section class="panel"><h2>和眠菇说话</h2><div id="chatlog">眠菇：在田里呢，你看到我种的东西了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：今天种什么？" maxlength="60"><button id="chatSend">发送</button></div></section>
-<section class="panel wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
+<section class="panel sheetPanel" id="questsPanel"><h2>今日任务</h2><div id="quests"></div></section>
+<section class="panel sheetPanel" id="feedPanel"><h2>田野日志</h2><div id="feed"></div></section>
+<section class="panel sheetPanel" id="chatPanel"><h2>和眠菇说话</h2><div id="chatlog">眠菇：在田里呢，你看到我种的东西了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：今天种什么？" maxlength="60"><button id="chatSend">发送</button></div></section>
+<section class="panel wall sheetPanel" id="wallPanel"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
+<section class="panel sheetPanel" id="invPanel"><h2>🎒 背包</h2><div id="invBody" style="font-size:14px;line-height:2"></div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button id="btnInvEat" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🍙 吃一个饭团</button><button id="btnInvBuy" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🛒 买种子和饭团（8 币）</button></div><p style="font-size:12px;color:#a99ec2;margin-top:10px">工具在下面的工具栏里换，1-5 也行。背包只在需要的时候打开。</p></section>
+<section class="panel sheetPanel" id="mapPanel"><h2>🗺️ 田野地图</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">点一个地方，眠菇会自己走过去。平时不用开着，地图在需要的时候才出来。</p><div class="mapGrid"><button data-travel="room">🏠 小房间</button><button data-travel="garden">🌷 花园</button><button data-travel="forest">🌲 森林</button><button data-travel="lake">🌊 湖边</button><button data-travel="shop">🍙 小店</button><button data-travel="hill">⛰️ 山丘</button></div><p id="mapPos" style="font-size:13px;color:#c9b8e0;margin-top:10px"></p></section>
+<section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button></div></section>
+<div id="backdrop"></div>
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
 <footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
 </div>
@@ -300,6 +321,15 @@ function drawMushroom(x,y,cap,capD,walk,sleeping,blink){
  R(cx-3,capY+3,5,4,'#fff8e8');
  R(cx-19,capY+10,3,9,capD);R(cx+16,capY+10,3,9,capD);
 }
+function drawProps(){
+  // 邮箱：留言墙，家门口
+  R(300,168,26,18,'#4a90d9');R(300,168,26,4,'#2f6bb0');R(311,186,4,12,'#6b4a32');R(306,174,14,6,'#fff8e8');
+  // 路牌：任务，花园边
+  R(596,316,5,20,'#6b4a32');R(580,300,38,16,'#c9a86a');R(580,300,38,3,'#8a6a44');ctx.fillStyle='#2b2118';ctx.font='11px sans-serif';ctx.fillText('任务',592,312);
+  // 邮筒：联机 / MCP，路口
+  R(476,296,18,24,'#c04a3e');R(474,292,22,6,'#a83a30');R(482,304,6,6,'#fff8e8');R(482,320,6,8,'#6b4a32');
+  // 床头灯 / 睡觉提示在屋里，不单独画
+}
 function drawWorld(){
  camX+=(Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2))-camX)*0.12;
  camY+=(Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2))-camY)*0.12;
@@ -313,7 +343,7 @@ function drawWorld(){
  ctx.fillStyle='rgba(43,33,24,.75)';ctx.font='11px sans-serif';
  ctx.fillText('月光莓田',18*T+4,10*T-5);ctx.fillText('湖',3*T+6,18*T-5);
  for(let i=0;i<10;i++){const fx=18*T+i*T;R(fx,15*T,3,8,'#a8896a')}R(18*T,15*T+3,320,3,'#a8896a');
- drawHouse();drawShop();
+ drawHouse();drawShop();drawProps();
  trees.forEach(t=>drawTree(t.x*T,t.y*T));
  Object.keys(crops).forEach(k=>{const p=k.split(',');drawCrop(+p[0],+p[1],crops[k])});
  butterflies.forEach(b=>{b.t+=0.03;b.x+=Math.sin(b.t)*0.7;b.y+=Math.cos(b.t*1.2)*0.45;R(b.x,b.y,5,4,b.c);R(b.x+6,b.y+2,5,4,'#ffffff');R(b.x+2,b.y+6,2,2,'#2b2118')});
@@ -513,6 +543,63 @@ $('btnMcpApi').onclick = () => {
 };
 setInterval(pollMcpWorld, 5000);
 pollMcpWorld();
+// ---- Stardew-like: nothing listed until you interact ----
+function zoneName(x,y){if(x<500&&y<400)return{name:'小房间'};if(x<1000&&y<400)return{name:'花园'};if(y<500)return{name:'蘑菇森林'};if(x<600)return{name:'湖边'};if(x<1100)return{name:'小店'};return{name:'山丘瞭望台'}}
+const backdrop = $('backdrop');
+function closePanels(){document.querySelectorAll('.sheetPanel.open').forEach(el=>el.classList.remove('open'));backdrop.classList.remove('open')}
+function openPanel(id){closePanels();const el=$(id);if(!el)return;el.classList.add('open');backdrop.classList.add('open');if(id==='invPanel')renderInv();if(id==='mapPanel'){$('mapPos').textContent='你现在在 '+zoneName(player.x,player.y).name+'。'}}
+backdrop.onclick=closePanels;
+document.querySelectorAll('.sheetPanel').forEach(el=>{const b=document.createElement('button');b.className='closeBtn';b.textContent='✕';b.setAttribute('aria-label','关闭');b.onclick=closePanels;el.prepend(b)});
+document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openPanel(b.dataset.open));
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closePanels);
+function renderInv(){$('invBody').innerHTML='蘑菇币：<b>'+state.coins+'</b><br>种子：'+state.seeds+' · 收获（月光莓）：'+state.harvest+' · 鱼：'+state.fish+' · 饭团：'+state.rice+'<br>体力 '+Math.round(state.energy)+' · 饱腹 '+Math.round(state.food)+' · 心情 '+Math.round(state.mood)+'<br>现在：'+seasons[state.season].n+'季第 '+state.day+' 天';}
+$('btnInvEat').onclick=()=>{tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y);renderInv();closePanels()};
+$('btnInvBuy').onclick=()=>{const s=$('btnShop');if(s)s.click();renderInv()};
+$('btnAuto2').onclick=()=>{const a=$('btnAuto');if(a)a.click();$('btnAuto2').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关'};
+const TRAVEL={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
+document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>{const d=TRAVEL[b.dataset.travel];player.target={x:d[0],y:d[1]};manualUntil=Date.now()+15000;say('眠菇','好，去'+zoneName(d[0],d[1]).name+'。');closePanels()});
+let currentInteract=null,currentNpc=null,bedConfirmUntil=0;
+function nearestInteract(){
+  const px=player.x+24,py=player.y+20;
+  const cands=[
+    {label:'🛏️ 睡觉（再按一次确认）',x:160,y:120,d:90,act:()=>{if(Date.now()<bedConfirmUntil){sleep()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，就睡到明天。')}}},
+    {label:'🍙 小店：买种子（再按一次确认）',x:724,y:576,d:90,act:()=>{if(Date.now()<bedConfirmUntil){const s=$('btnShop');if(s)s.click()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，买 3 颗种子和 1 个饭团，8 币。')}}},
+    {label:'📮 留言墙',x:313,y:180,d:80,act:()=>openPanel('wallPanel')},
+    {label:'🪧 任务牌',x:599,y:310,d:80,act:()=>openPanel('questsPanel')},
+    {label:'📬 联机 / MCP',x:485,y:308,d:80,act:()=>openPanel('mpPanel')},
+    {label:'🎣 湖边钓鱼',x:220,y:640,d:90,act:()=>{tool='rod';fish()}},
+    {label:'📖 田野日志',x:160,y:220,d:70,act:()=>openPanel('feedPanel')}
+  ];
+  for(const n of [...npcs,...bots]){cands.push({label:'💬 和 '+n.name+' 说话',x:n.x+24,y:n.y+20,d:80,npc:n,act:()=>openDialogue(n)})}
+  let best=null,bestD=1e9;
+  cands.forEach(c=>{const d=Math.hypot(px-c.x,py-c.y);if(d<c.d&&d<bestD){best=c;bestD=d}});
+  return best;
+}
+function openDialogue(n){
+  currentNpc=n;
+  $('dlgName').textContent=n.name;
+  $('dlgText').textContent=n.lines[Math.floor(Math.random()*n.lines.length)];
+  openPanel('dlgPanel');
+}
+$('dlgGreet').onclick=()=>{if(currentNpc)talkTo(currentNpc);if(currentNpc)$('dlgText').textContent=currentNpc.lines[Math.floor(Math.random()*currentNpc.lines.length)]};
+$('dlgAsk').onclick=()=>{if(!currentNpc)return;$('dlgText').textContent='今天是'+seasons[state.season].n+'季第 '+state.day+' 天，田里还好，你呢？'};
+function updateInteract(){
+  const it=nearestInteract();currentInteract=it;
+  const pr=$('interactPrompt');
+  if(it){pr.textContent='按 E · '+it.label;pr.classList.add('show')}else{pr.classList.remove('show')}
+}
+$('interactPrompt').onclick=()=>{if(currentInteract)currentInteract.act()};
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  const k=e.key.toLowerCase();
+  if(k==='escape')closePanels();
+  if(k==='e'&&currentInteract){e.preventDefault();currentInteract.act()}
+  if(k==='i')openPanel('invPanel');
+  if(k==='q')openPanel('questsPanel');
+  if(k==='c')openPanel('chatPanel');
+  if(k==='m')openPanel('mapPanel');
+});
+setInterval(updateInteract,400);
 renderPlayers();
 renderHUD();renderQuests();renderWall();addFeed('来到田野，第 '+state.day+' 天');
 requestAnimationFrame(loop);
