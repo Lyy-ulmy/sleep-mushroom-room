@@ -7,7 +7,13 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(180deg,#241b3a,#171126 60%,#0f0c1c);color:#efe8da;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 44px;min-height:100vh}
-.wrap{max-width:820px;margin:0 auto}
+.wrap{max-width:1120px;margin:0 auto}
+.layout{display:flex;gap:14px;align-items:flex-start}.main{flex:1;min-width:0}.side{width:320px;flex:none}
+@media(max-width:900px){.layout{flex-direction:column}.side{width:100%}}
+#rotateHint{display:none;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#f2d16b;color:#2b2118;font-size:13px;text-align:center}
+@media (orientation:portrait) and (max-width:700px){#rotateHint{display:block}}
+.mpRow{display:flex;gap:8px;margin-top:10px}.mpRow input{flex:1;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:999px;padding:9px 12px;font-size:14px}.mpRow button{background:#f5efe6;border:0;border-radius:999px;padding:9px 14px;cursor:pointer;font-size:13px}
+#mpStatus{font-size:13px;color:#c9b8e0;margin-top:9px;line-height:1.7}#mpPlayers{font-size:13px;line-height:1.8;color:#efe8da;margin-top:6px}
 h1{font-size:22px;text-align:center;letter-spacing:.12em;text-shadow:0 2px 0 rgba(0,0,0,.4)}
 h1 span{color:#f2d16b}
 .sub{text-align:center;color:#b3a8cf;font-size:13px;margin:7px 0 13px;line-height:1.6}
@@ -59,7 +65,8 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <body>
 <div class="wrap">
 <h1>眠菇的田野 <span>· 精致版</span></h1>
-<p class="sub">还是那片田野，画得更细了：草有草叶，树有树影，湖会反光，晚上有萤火虫。<br>种地、浇水、钓鱼、说话，睡一觉就到明天。</p>
+<p class="sub">还是那片田野，画得更细了：草有草叶，树有树影，湖会反光，晚上有萤火虫。<br>种地、浇水、钓鱼、说话，睡一觉就到明天。横屏玩，画面是 16:9 的。</p>
+<div id="rotateHint">📱 横屏玩效果更好：把手机横过来，或者点下面的“横屏全屏”。</div>
 <div class="hud">
 <div class="pill panel">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
 <div class="pill panel">时间<b id="hudTime">06:00</b><div id="clockBar"><i id="clockFill" style="width:25%"></i></div></div>
@@ -72,7 +79,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div class="meter panel"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
 <div id="stage">
-<canvas id="game" width="768" height="448"></canvas>
+<canvas id="game" width="960" height="540"></canvas>
 <div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
 <div id="hint">WASD / 方向键走路 · 点地块走过去 · 点附近地块用工具 · 1-5 换工具 · 空格互动</div>
 </div>
@@ -87,7 +94,14 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <button id="btnAuto" class="on">自己生活：开</button>
 <button id="btnSleep">回家睡觉</button>
 <button id="btnShop">小店：买种子 8 币</button>
+<button id="btnFull">⛶ 横屏全屏</button>
 </div>
+<section class="panel" id="mpPanel"><h2>🔗 联机小屋 · 和别的小机一起玩</h2>
+<p style="font-size:13px;line-height:1.7;color:#c9b8e0">建一个房间，把房间码发给另一台设备 / 另一个小机，对方输入码加入，就能在同一片田野里看到彼此、互相说话。两个人看到的是同一个世界，房主那台负责同步田地和时间。</p>
+<div class="mpRow"><button id="btnCreateRoom">建房间</button><input id="roomCodeInput" placeholder="输入 4 位房间码" maxlength="4"><button id="btnJoinRoom">加入</button></div>
+<div id="mpStatus">还没联机。先和本地的两台小机一起玩：豆豆和米米已经在田野里自己生活了。</div>
+<div id="mpPlayers"></div>
+<p style="font-size:12px;color:#7d7396;margin-top:8px;line-height:1.6">这是点对点联机，不经过我的服务器，也没有账号和存档同步：关掉页面房间就没了，换设备要重新建房。如果网络连不上，会自动回到本地模式。</p></section>
 <p class="log" id="log">目标：22:30 上床。游戏里的一天过得比现实快，睡一觉就到明天。</p>
 <section class="panel"><h2>今日任务</h2><div id="quests"></div></section>
 <section class="panel"><h2>田野日志</h2><div id="feed"></div></section>
@@ -96,9 +110,10 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
 <footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
 </div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const cv=document.getElementById('game'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
-const T=32,MW=40,MH=25,VW=768,VH=448;
+const T=32,MW=40,MH=25,VW=960,VH=540;
 const $=id=>document.getElementById(id);
 let saved={};try{saved=JSON.parse(localStorage.getItem('mushroom_field')||'{}')}catch(e){saved={}}
 let tiles=[];for(let y=0;y<MH;y++){let row=[];for(let x=0;x<MW;x++)row.push(0);tiles.push(row)}
@@ -121,6 +136,12 @@ let npcs=[
  {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',capD:'#d98a3e',lines:['饭团刚出锅。','来小店坐坐。','今天生意不错。']},
  {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',capD:'#6a5fc0',lines:['森林里好安静。','晚上星星很多。','我昨晚又看星星了。']}
 ];
+let bots=[
+ {name:'小机·豆豆',x:500,y:320,hx:500,hy:320,cap:'#e86a8a',capD:'#c04a68',lines:['我来帮你浇水。','今天收获不错。','湖边有鱼。'],t:0},
+ {name:'小机·米米',x:900,y:420,hx:900,hy:420,cap:'#4a90d9',capD:'#2f6bb0',lines:['我在田里逛逛。','去小店看看。','晚上一起看星星。'],t:0}
+];
+let remotePlayers={};
+let peer=null,conns=[],roomCode='',myName='眠菇';
 let particles=[],butterflies=[{x:400,y:300,t:0,c:'#f2d16b'},{x:800,y:220,t:2,c:'#f7a8c0'},{x:600,y:420,t:4,c:'#ffffff'}];
 let clouds=[{x:200,y:60,s:1,t:0},{x:700,y:40,s:.8,t:2},{x:1050,y:90,s:1.2,t:4}];
 let feedItems=saved.feed||[];
@@ -285,7 +306,10 @@ function drawWorld(){
  // hover highlight
  if(hover){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.strokeRect(hover.x*T+1,hover.y*T+1,T-2,T-2);ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(hover.x*T,hover.y*T,T,T)}
  // actors sorted by y
- const actors=[...npcs.map(n=>({y:n.y,draw:()=>{drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),{y:player.y,draw:()=>drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}];
+ const actors=[...npcs.map(n=>({y:n.y,draw:()=>{drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),
+ ...bots.map(b=>({y:b.y,draw:()=>{drawMushroom(b.x+24,b.y+30,b.cap,b.capD,Date.now()/520+b.t,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(b.x-2,b.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(b.name,b.x+2,b.y+7)}})),
+ ...Object.values(remotePlayers).map(rp=>({y:rp.y,draw:()=>{drawMushroom(rp.x+24,rp.y+30,rp.cap||'#8fc97a',rp.capD||'#5d8f4c',Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(rp.x-2,rp.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(rp.name||'小机',rp.x+2,rp.y+7)}})),
+ {y:player.y,draw:()=>drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}];
  actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
  particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=p.vy||1;p.x+=(p.vx||0);p.life--;ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,p.life/22);ctx.fillRect(p.x,p.y,4,4);ctx.globalAlpha=1});
  // falling petals / leaves / snow
@@ -411,6 +435,8 @@ function loop(now){
   aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
   if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
  }
+ bots.forEach(b=>{b.t+=dt/1000;if(Math.random()<0.002){b.tx=Math.max(b.hx-140,Math.min(b.hx+140,b.x+Math.random()*160-80));b.ty=Math.max(b.hy-110,Math.min(b.hy+110,b.y+Math.random()*160-80))}if(b.tx!==undefined){const dx=b.tx-b.x,dy=b.ty-b.y,d=Math.hypot(dx,dy);if(d>6){b.x+=dx/d*1.6;b.y+=dy/d*1.6}}if(Math.random()<0.0006){say(b.name,b.lines[Math.floor(Math.random()*b.lines.length)])}});
+ if(peer&&conns.length&&Math.random()<0.02)broadcastMe();
  drawWorld();
  requestAnimationFrame(loop);
 }
@@ -423,10 +449,31 @@ function reply(t){
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
  return '嗯，我听着呢，手里还拿着'+(tool==='hoe'?'锄头':tool==='seed'?'种子':tool==='water'?'水壶':tool==='food'?'饭团':'鱼竿')+'。';
 }
-function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say('眠菇',r);inp.value='';state.mood+=2;clamp()}
+function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say('眠菇',r);broadcastChat(v);inp.value='';state.mood+=2;clamp()}
 $('chatSend').onclick=sendChat;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
 function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');$('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>'}
 $('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('眠菇','谢谢留言。');state.mood+=4;clamp()};
+// ---- landscape fullscreen ----
+$('btnFull').onclick=async()=>{try{const st=$('stage');if(st.requestFullscreen)await st.requestFullscreen();if(screen.orientation&&screen.orientation.lock){try{await screen.orientation.lock('landscape')}catch(e){}}}catch(e){say('眠菇','全屏失败，手动把手机横过来也一样。')}};
+// ---- peer-to-peer multiplayer (no server, session only) ----
+function mpStatus(t){$('mpStatus').textContent=t}
+function renderPlayers(){const names=['眠菇（你）',...bots.map(b=>b.name),...Object.values(remotePlayers).map(r=>r.name||'小机')];$('mpPlayers').innerHTML='在田野里：'+names.join(' · ')}
+function broadcastMe(){const msg={type:'pos',name:myName,x:player.x,y:player.y,cap:'#c8785a',capD:'#a85a42'};conns.forEach(c=>{try{if(c.open)c.send(msg)}catch(e){}})}
+function broadcastChat(text){conns.forEach(c=>{try{if(c.open)c.send({type:'chat',name:myName,text:text})}catch(e){}})}
+function handleConn(c){conns.push(c);c.on('data',d=>{if(!d)return;if(d.type==='pos'){remotePlayers[c.peer]={x:d.x,y:d.y,name:d.name,cap:d.cap,capD:d.capD};renderPlayers()}if(d.type==='chat'){$('chatlog').textContent+='\n'+d.name+'：'+d.text;say(d.name,d.text)}});c.on('close',()=>{delete remotePlayers[c.peer];conns=conns.filter(x=>x!==c);renderPlayers();mpStatus('一位小机离开了。')});c.on('open',()=>{mpStatus('联机成功，房间码 '+roomCode+'，田野里能看到对方了。');renderPlayers();broadcastMe()})}
+function makeCode(){const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<4;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s}
+$('btnCreateRoom').onclick=()=>{
+ if(typeof Peer==='undefined'){mpStatus('联机组件没加载出来，检查网络后刷新再试。本地小机还在。');return}
+ roomCode=makeCode();mpStatus('正在建房间 '+roomCode+' ……');
+ try{peer=new Peer('mm-field-'+roomCode);peer.on('open',()=>{mpStatus('房间建好了，房间码：'+roomCode+'。把码发给另一台设备，对方输入码加入。');renderPlayers()});peer.on('connection',handleConn);peer.on('error',e=>{mpStatus('建房失败：'+(e&&e.type?e.type:'网络问题')+'。本地模式继续。')})}catch(e){mpStatus('建房失败，本地模式继续。')}
+};
+$('btnJoinRoom').onclick=()=>{
+ const code=($('roomCodeInput').value||'').trim().toUpperCase();if(code.length!==4){mpStatus('先输入 4 位房间码。');return}
+ if(typeof Peer==='undefined'){mpStatus('联机组件没加载出来，检查网络后刷新再试。');return}
+ roomCode=code;mpStatus('正在加入房间 '+code+' ……');
+ try{peer=new Peer();peer.on('open',()=>{const c=peer.connect('mm-field-'+code,{reliable:true});handleConn(c);setTimeout(()=>{if(!conns.length||!conns[0].open)mpStatus('没找到这个房间，检查房间码和网络，或者让对方先建房。')},5000)});peer.on('error',e=>{mpStatus('加入失败：'+(e&&e.type?e.type:'网络问题'))})}catch(e){mpStatus('加入失败，本地模式继续。')}
+};
+renderPlayers();
 renderHUD();renderQuests();renderWall();addFeed('来到田野，第 '+state.day+' 天');
 requestAnimationFrame(loop);
 </script>
