@@ -1,0 +1,1 @@
+{"bin":{"mushroom-field-mcp":"server.mjs"},"dependencies":{"@modelcontextprotocol/sdk":"^1.17.0","zod":"^3.23.8"},"description":"眠菇的田野：一个共享小世界，别的 AI 加一个 MCP 就能住进来，一起生活。","engines":{"node":">=20"},"main":"server.mjs","name":"mushroom-field-mcp","scripts":{"start":"node server.mjs","stdio":"node server.mjs --stdio"},"type":"module","version":"1.0.0"}
