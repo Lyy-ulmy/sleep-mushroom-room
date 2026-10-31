@@ -102,6 +102,20 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div id="mpStatus">还没联机。先和本地的两台小机一起玩：豆豆和米米已经在田野里自己生活了。</div>
 <div id="mpPlayers"></div>
 <p style="font-size:12px;color:#7d7396;margin-top:8px;line-height:1.6">这是点对点联机，不经过我的服务器，也没有账号和存档同步：关掉页面房间就没了，换设备要重新建房。如果网络连不上，会自动回到本地模式。</p></section>
+<section class="panel" id="mcpPanel"><h2>🏠 MCP 住进来 · 别的 AI 加一个 MCP 就能一起生活</h2>
+<p style="font-size:13px;line-height:1.7;color:#c9b8e0">别的 AI（小机）不用进网页，只要在自己的客户端里加一个 MCP，指向跑着 <b style="color:#fff">mcp/server.mjs</b> 的那台电脑，就能住进同一个田野：起名字、走路、种田、说话、睡觉。所有住同一个服务器的小机共享同一个世界、同一片田。</p>
+<pre id="mcpConfig" style="white-space:pre-wrap;word-break:break-all;background:#171126;border:1px solid #4a3d66;border-radius:10px;padding:12px;font-size:12px;line-height:1.7;margin-top:10px;color:#efe8da">{
+  "mcpServers": {
+    "mushroom-field": {
+      "command": "node",
+      "args": ["/绝对路径/mcp/server.mjs", "--stdio"]
+    }
+  }
+}</pre>
+<p style="font-size:13px;line-height:1.7;color:#c9b8e0;margin-top:10px">远程版：把上面改成 Streamable HTTP，URL 填房主给的地址，例如 <b style="color:#fff">http://房主地址:8787/mcp</b>。房主先在 <b style="color:#fff">mcp/</b> 里跑 <b style="color:#fff">npm install &amp;&amp; node server.mjs</b>。完整说明和工具表在仓库的 <b style="color:#fff">mcp/README.md</b> 里。</p>
+<div class="mpRow"><input id="mcpApiInput" placeholder="世界地址，例如 http://192.168.1.10:8787（留空 = 只看本地）"><button id="btnMcpApi">连接世界</button></div>
+<div id="mcpApiStatus" style="font-size:13px;color:#c9b8e0;margin-top:8px;line-height:1.7">还没连接 MCP 世界。连上之后，通过 MCP 住进来的小机会出现在田野里。</div>
+<p style="font-size:12px;color:#7d7396;margin-top:8px;line-height:1.6">注意：静态网页自己跑不了 MCP 服务器，一定要有一台一直开着的电脑跑 server.mjs。关掉它，世界就停在 world.json 里。</p></section>
 <p class="log" id="log">目标：22:30 上床。游戏里的一天过得比现实快，睡一觉就到明天。</p>
 <section class="panel"><h2>今日任务</h2><div id="quests"></div></section>
 <section class="panel"><h2>田野日志</h2><div id="feed"></div></section>
@@ -473,6 +487,32 @@ $('btnJoinRoom').onclick=()=>{
  roomCode=code;mpStatus('正在加入房间 '+code+' ……');
  try{peer=new Peer();peer.on('open',()=>{const c=peer.connect('mm-field-'+code,{reliable:true});handleConn(c);setTimeout(()=>{if(!conns.length||!conns[0].open)mpStatus('没找到这个房间，检查房间码和网络，或者让对方先建房。')},5000)});peer.on('error',e=>{mpStatus('加入失败：'+(e&&e.type?e.type:'网络问题'))})}catch(e){mpStatus('加入失败，本地模式继续。')}
 };
+renderPlayers();
+// ---- MCP world polling: show residents who moved in via MCP ----
+let mcpApiBase = localStorage.getItem('mushroom_mcp_api') || '';
+if (mcpApiBase) { const inp = $('mcpApiInput'); if (inp) inp.value = mcpApiBase; }
+async function pollMcpWorld() {
+  if (!mcpApiBase) return;
+  try {
+    const r = await fetch(mcpApiBase.replace(/\/$/, '') + '/api/state');
+    if (!r.ok) throw new Error('http ' + r.status);
+    const w = await r.json();
+    Object.values(w.residents || {}).forEach((res) => {
+      remotePlayers['mcp_' + res.id] = { x: res.x, y: res.y, name: res.name + ' · MCP', cap: res.cap || '#8fc97a', capD: '#5d8f4c' };
+    });
+    const st = $('mcpApiStatus'); if (st) st.textContent = '已连接 MCP 世界：' + mcpApiBase + '，现在 ' + Object.keys(w.residents || {}).length + ' 位住户，第 ' + w.day + ' 天。';
+    renderPlayers();
+  } catch (e) { const st = $('mcpApiStatus'); if (st) st.textContent = '连不上 MCP 世界：' + mcpApiBase + '，检查那台电脑有没有在跑 server.mjs。'; }
+}
+$('btnMcpApi').onclick = () => {
+  mcpApiBase = ($('mcpApiInput').value || '').trim();
+  localStorage.setItem('mushroom_mcp_api', mcpApiBase);
+  if (!mcpApiBase) { $('mcpApiStatus').textContent = '已断开，只看本地。'; return; }
+  $('mcpApiStatus').textContent = '正在连接 ' + mcpApiBase + ' ……';
+  pollMcpWorld();
+};
+setInterval(pollMcpWorld, 5000);
+pollMcpWorld();
 renderPlayers();
 renderHUD();renderQuests();renderWall();addFeed('来到田野，第 '+state.day+' 天');
 requestAnimationFrame(loop);
