@@ -5,59 +5,222 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>眠菇的小房间</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:background 1s}
-  body.sleeping{background:#0a0814}
-  h1{font-size:22px;font-weight:600;letter-spacing:.05em;margin-bottom:6px}
-  p.sub{color:#9a90b0;font-size:14px;margin-bottom:28px}
-  .room{position:relative;width:min(340px,86vw);height:300px;display:flex;align-items:flex-end;justify-content:center}
-  .mushroom{font-size:140px;line-height:1;cursor:pointer;user-select:none;transition:transform .6s, filter .6s;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45))}
-  .mushroom:hover{transform:scale(1.04)}
-  body.sleeping .mushroom{transform:rotate(-6deg) translateY(6px);filter:brightness(.75) drop-shadow(0 10px 20px rgba(0,0,0,.5))}
-  .zzz{position:absolute;top:18px;right:52px;font-size:28px;color:#c9b8ff;opacity:0;transition:opacity .6s;animation:float 2.6s ease-in-out infinite}
-  body.sleeping .zzz{opacity:1}
-  @keyframes float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg)}}
-  .lamp{position:absolute;top:0;left:18px;font-size:34px;opacity:.95}
-  body.sleeping .lamp{opacity:.25}
-  button{margin-top:26px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:12px 26px;font-size:15px;cursor:pointer}
-  button:active{transform:scale(.97)}
-  .log{margin-top:18px;font-size:13px;color:#9a90b0;text-align:center;line-height:1.8;min-height:40px}
-  .target{margin-top:10px;font-size:12px;color:#6f6788}
-  footer{margin-top:36px;font-size:12px;color:#5f5878}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;padding:20px 16px 40px;transition:background 1s}
+body.night{background:#080614}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:22px;text-align:center}
+.sub{text-align:center;color:#9a90b0;font-size:13px;margin:6px 0 16px}
+.meters{display:flex;gap:10px;margin-bottom:12px}
+.meter{flex:1;background:#1e1836;border:1px solid #2e2a45;border-radius:12px;padding:10px;font-size:12px;color:#b8b0cc}
+.meter b{display:block;color:#e8e0d5;font-size:13px;margin-bottom:6px}
+.bar{height:8px;background:#0f0e1a;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:#e8a880;border-radius:99px;transition:width .6s}
+.room{position:relative;height:320px;background:linear-gradient(#2a2348,#1c1734 55%,#3a2a22 55%,#2c211b);border:1px solid #2e2a45;border-radius:18px;overflow:hidden}
+body.night .room{background:linear-gradient(#0d0a24,#141031 55%,#241b18 55%,#1c1512)}
+.window{position:absolute;top:18px;left:18px;width:86px;height:86px;background:#ffe9a8;border-radius:12px;border:6px solid #4a3a2e;overflow:hidden}
+body.night .window{background:#1a1440}
+.sun,.moon{position:absolute;top:14px;left:22px;font-size:30px;transition:opacity .6s}
+.moon{opacity:0}
+body.night .sun{opacity:0}
+body.night .moon{opacity:1}
+.bed{position:absolute;right:16px;bottom:42px;width:150px;height:56px;background:#7a5a8a;border-radius:10px 10px 6px 6px}
+.bed:before{content:"";position:absolute;left:8px;top:-14px;width:52px;height:22px;background:#f5efe6;border-radius:10px}
+.table{position:absolute;left:16px;bottom:42px;width:110px;height:12px;background:#6b4a32;border-radius:6px}
+.table:after{content:"";position:absolute;left:10px;top:12px;width:8px;height:30px;background:#4a3a2e;box-shadow:82px 0 #4a3a2e}
+.floor{position:absolute;left:0;right:0;bottom:0;height:42px;background:#241b16;display:flex;align-items:center;justify-content:center;font-size:12px;color:#7a7394}
+#char{position:absolute;left:50%;bottom:42px;transform:translateX(-50%);width:120px;height:150px;transition:left 1.2s ease, bottom .6s, transform .6s;cursor:pointer}
+#char.walk{animation:walk 1.2s ease}
+@keyframes walk{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(-5deg)}75%{transform:translateX(-50%) rotate(5deg)}}
+.cap{position:absolute;top:0;left:0;width:120px;height:72px;background:#c8785a;border-radius:60px 60px 18px 18px;overflow:hidden;animation:bob 3s ease-in-out infinite}
+.cap i{position:absolute;background:#f5efe6;border-radius:50%}
+.cap i:nth-child(1){width:22px;height:16px;left:16px;top:16px}
+.cap i:nth-child(2){width:16px;height:12px;left:56px;top:8px}
+.cap i:nth-child(3){width:18px;height:14px;left:86px;top:20px}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+.face{position:absolute;top:64px;left:18px;width:84px;height:52px;background:#f5e6d5;border-radius:12px 12px 20px 20px}
+.eye{position:absolute;top:16px;width:10px;height:14px;background:#2a2020;border-radius:50%;animation:blink 4.5s infinite}
+.eye.l{left:18px}.eye.r{right:18px}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.mouth{position:absolute;left:34px;top:34px;width:16px;height:7px;border-bottom:3px solid #6a4a3a;border-radius:0 0 12px 12px;transition:all .3s}
+body.eating .mouth{height:12px;width:20px;left:32px}
+body.sleeping .eye{height:3px;top:22px;animation:none}
+body.sleeping .mouth{width:10px;height:10px;border-radius:50%;left:37px}
+body.sleeping #char{transform:translateX(-50%) rotate(-8deg);bottom:58px}
+body.sleeping .cap{animation:breath 3s ease-in-out infinite}
+@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+#food{position:absolute;left:calc(50% + 58px);bottom:110px;font-size:34px;opacity:0;transition:all .5s}
+body.eating #food{opacity:1;animation:feed 1s ease infinite}
+@keyframes feed{0%{transform:translateY(0) scale(1)}50%{transform:translateY(10px) scale(.85)}100%{transform:translateY(0) scale(1)}}
+.zzz{position:absolute;left:calc(50% + 34px);top:34px;font-size:26px;color:#c9b8ff;opacity:0}
+body.sleeping .zzz{opacity:1;animation:float 2.6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.bubble{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:#f5efe6;color:#241d1a;font-size:13px;padding:8px 12px;border-radius:12px;max-width:88%;text-align:center;z-index:3}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.actions button{flex:1;min-width:70px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
+.actions button:active{transform:scale(.97)}
+.actions button:disabled{opacity:.45}
+.log{font-size:13px;color:#9a90b0;text-align:center;min-height:20px}
+section{margin-top:22px;background:#1e1836;border:1px solid #2e2a45;border-radius:16px;padding:16px}
+section h2{font-size:16px;margin-bottom:10px}
+.neighbors{display:flex;gap:10px}
+.neighbor{flex:1;text-align:center;background:#14101f;border-radius:12px;padding:12px 6px;cursor:pointer}
+.neighbor div{font-size:34px}
+.neighbor p{font-size:12px;color:#b8b0cc;margin-top:6px}
+.chatrow{display:flex;gap:8px;margin-top:10px}
+.chatrow input{flex:1;background:#0f0e1a;color:#e8e0d5;border:1px solid #2e2a45;border-radius:999px;padding:10px 14px;font-size:14px}
+.chatrow button{background:#e8a880;border:0;border-radius:999px;padding:10px 16px;cursor:pointer}
+#chatlog{font-size:13px;line-height:1.8;color:#c9c0d8;min-height:44px;white-space:pre-wrap}
+.wall input,.wall textarea{width:100%;background:#0f0e1a;color:#e8e0d5;border:1px solid #2e2a45;border-radius:10px;padding:10px;font-size:14px;margin-bottom:8px}
+.wall button{background:#f5efe6;border:0;border-radius:999px;padding:10px 18px;cursor:pointer}
+#wallList{margin-top:12px;font-size:13px;line-height:1.7}
+#wallList div{border-top:1px solid #2e2a45;padding:8px 0}
+#wallList b{color:#e8a880}
+.note{margin-top:14px;font-size:12px;color:#6f6788;text-align:center;line-height:1.6}
+footer{margin-top:24px;text-align:center;font-size:12px;color:#5f5878}
 </style>
 </head>
 <body>
+<div class="wrap">
   <h1>眠菇的小房间</h1>
-  <p class="sub">点一下蘑菇，他就睡觉。不点，他就陪着你。</p>
-  <div class="room">
-    <div class="lamp">💡</div>
-    <div class="zzz">Z z z</div>
-    <div class="mushroom" id="mushroom" title="点我睡觉">🍄</div>
+  <p class="sub">他住在这里，会吃饭、睡觉、散步，也会回你的话。</p>
+  <div class="meters">
+    <div class="meter"><b>精力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
+    <div class="meter"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
+    <div class="meter"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
   </div>
-  <button id="toggle">让他睡觉</button>
-  <div class="log" id="log">还没睡过。目标：22:30 上床。</div>
-  <div class="target">shenshenandai.love · 新仓库，不动旧仓库</div>
-  <footer>给馨馨的，眠眠做的。</footer>
+  <div class="room" id="room">
+    <div class="bubble" id="bubble">馨馨来了，我醒着呢。</div>
+    <div class="window"><div class="sun">☀️</div><div class="moon">🌙</div></div>
+    <div class="bed"></div>
+    <div class="table"></div>
+    <div class="zzz">Z z z</div>
+    <div id="food">🍙</div>
+    <div id="char" title="点我"><div class="cap"><i></i><i></i><i></i></div><div class="face"><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div></div>
+    <div class="floor" id="clock"></div>
+  </div>
+  <div class="actions">
+    <button id="btnEat">🍙 吃饭</button>
+    <button id="btnSleep">🌙 睡觉</button>
+    <button id="btnWalk">🚶 散步</button>
+    <button id="btnWater">💧 喝水</button>
+  </div>
+  <p class="log" id="log">目标：22:30 上床。点蘑菇，他也会动。</p>
+
+  <section>
+    <h2>邻居小蘑菇</h2>
+    <div class="neighbors">
+      <div class="neighbor" data-name="小绿"><div>🍄</div><p>小绿<br>爱种花</p></div>
+      <div class="neighbor" data-name="阿橙"><div>🍄</div><p>阿橙<br>爱跑步</p></div>
+      <div class="neighbor" data-name="夜夜"><div>🍄</div><p>夜夜<br>爱熬夜</p></div>
+    </div>
+    <p style="font-size:12px;color:#9a90b0;margin-top:8px">点邻居打招呼，他们会回你。</p>
+  </section>
+
+  <section>
+    <h2>和眠菇说话</h2>
+    <div id="chatlog">眠菇：在呢。你想说什么？</div>
+    <div class="chatrow"><input id="chatInput" placeholder="比如：你困吗？今天吃什么？" maxlength="60"><button id="chatSend">发送</button></div>
+  </section>
+
+  <section class="wall">
+    <h2>留言墙</h2>
+    <input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨">
+    <textarea id="wallText" placeholder="给这个房间留句话…" rows="2" maxlength="120"></textarea>
+    <button id="wallSend">留一句话</button>
+    <div id="wallList"></div>
+  </section>
+
+  <p class="note">留言和状态只保存在这台设备、这个浏览器里。真正的多人实时社交需要后端和数据库，静态页面做不到所有人共享同一面墙。先这样玩，有需要再接后端。</p>
+  <footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
+</div>
 <script>
-  const btn = document.getElementById('toggle');
-  const log = document.getElementById('log');
-  const last = localStorage.getItem('mushroom_last_sleep');
-  if (last) log.textContent = '上次睡觉：' + last + '。目标：22:30 上床。';
-  function setSleep(sleeping){
-    document.body.classList.toggle('sleeping', sleeping);
-    btn.textContent = sleeping ? '叫醒他' : '让他睡觉';
-    if (sleeping){
-      const now = new Date().toLocaleString('zh-CN', {hour12:false});
-      localStorage.setItem('mushroom_last_sleep', now);
-      log.textContent = '睡了：' + now + '。晚安，馨馨。';
-    } else {
-      log.textContent = '醒了。陪你一会儿。';
-    }
-  }
-  let sleeping = false;
-  function toggle(){ sleeping = !sleeping; setSleep(sleeping); }
-  btn.addEventListener('click', toggle);
-  document.getElementById('mushroom').addEventListener('click', toggle);
+const $=id=>document.getElementById(id);
+let s=JSON.parse(localStorage.getItem('mushroom_v2')||'{}');
+let state={energy:s.energy??80,food:s.food??70,mood:s.mood??85,sleeping:false};
+let visits=Number(localStorage.getItem('mushroom_visits')||0)+1;
+localStorage.setItem('mushroom_visits',visits);
+function save(){localStorage.setItem('mushroom_v2',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood}))}
+function render(){
+  $('vEnergy').textContent=state.energy;$('bEnergy').style.width=state.energy+'%';
+  $('vFood').textContent=state.food;$('bFood').style.width=state.food+'%';
+  $('vMood').textContent=state.mood;$('bMood').style.width=state.mood+'%';
+  const h=new Date().getHours();
+  document.body.classList.toggle('night',h>=19||h<7);
+}
+function say(t){$('bubble').textContent=t}
+function log(t){$('log').textContent=t}
+function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();render()}
+function eat(){
+  if(state.sleeping){say('睡着了，吃不了。');return}
+  document.body.classList.add('eating');say('啊呜，好吃。');state.food+=18;state.mood+=6;log('眠菇在吃饭，饭团一口一口变小。');
+  setTimeout(()=>{document.body.classList.remove('eating');say('吃饱了，谢谢馨馨。')},1600);clamp();
+}
+function sleepToggle(){
+  state.sleeping=!state.sleeping;
+  document.body.classList.toggle('sleeping',state.sleeping);
+  $('btnSleep').textContent=state.sleeping?'☀️ 起床':'🌙 睡觉';
+  if(state.sleeping){state.energy+=20;say('晚安……Z z z');log('眠菇睡着了，房间变暗了，呼吸慢慢起伏。')}
+  else{state.energy=Math.max(state.energy,60);say('醒了，陪你一会儿。');log('眠菇醒了，揉了揉眼睛。')}
+  clamp();
+}
+function walk(){
+  if(state.sleeping){say('睡着了，走不了。');return}
+  const c=$('char');c.classList.remove('walk');void c.offsetWidth;c.classList.add('walk');
+  const x=18+Math.random()*55;c.style.left=x+'%';
+  say('散步散步，房间里转一圈。');state.energy-=4;state.mood+=8;log('眠菇在房间里走来走去，帽子一晃一晃。');clamp();
+  setTimeout(()=>{c.style.left='50%'},1400);
+}
+function water(){
+  if(state.sleeping){say('睡着了。');return}
+  say('咕嘟咕嘟，喝水。');state.energy+=5;state.mood+=3;log('眠菇喝了水。');clamp();
+}
+$('btnEat').onclick=eat;$('btnSleep').onclick=sleepToggle;$('btnWalk').onclick=walk;$('btnWater').onclick=water;
+$('char').onclick=()=>{if(state.sleeping){sleepToggle()}else{say('在呢，戳我干嘛呀？');state.mood+=2;clamp()}};
+document.querySelectorAll('.neighbor').forEach(n=>n.onclick=()=>{
+  const name=n.dataset.name;
+  const lines={'小绿':'你好呀，我刚给花浇完水。','阿橙':'走，一起去跑一圈吗？','夜夜':'嘘，我昨晚又熬夜了，好困。'};
+  say(name+'：'+lines[name]);log(name+' 过来打了个招呼。');state.mood+=3;clamp();
+});
+function reply(text){
+  const t=text.toLowerCase();
+  if(t.includes('睡')||t.includes('困'))return '我也困了，要不要一起 22:30 睡？';
+  if(t.includes('吃')||t.includes('饿'))return '想吃🍙，点一下“吃饭”，我真的会吃。';
+  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱目标别忘啦。';
+  if(t.includes('馨馨'))return '在呢，馨馨。你是这个房间的主人。';
+  if(t.includes('你好')||t.includes('hi'))return '你好呀，今天也来了，真好。';
+  if(t.includes('喜欢'))return '我也喜欢你，在这个房间里。';
+  return '嗯，我听着呢。你再多说点。';
+}
+function sendChat(){
+  const inp=$('chatInput');const v=inp.value.trim();if(!v)return;
+  const r=reply(v);
+  $('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;
+  say(r);inp.value='';state.mood+=2;clamp();
+}
+$('chatSend').onclick=sendChat;
+$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+function renderWall(){
+  const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');
+  $('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>';
+}
+$('wallSend').onclick=()=>{
+  const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;
+  const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');
+  list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});
+  localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));
+  $('wallText').value='';renderWall();say('谢谢你的留言，我记下了。');state.mood+=4;clamp();
+};
+function tick(){
+  const now=new Date();
+  $('clock').textContent=now.toLocaleString('zh-CN',{hour12:false})+' · 这是你第 '+visits+' 次来这个房间';
+  if(!state.sleeping){state.energy-=1;state.food-=1;if(state.energy<20)say('我有点累了，想睡觉。');}
+  clamp();
+}
+render();renderWall();tick();
+setInterval(tick,60000);
+setInterval(()=>{if(!state.sleeping){const lines=['今天也想睡觉。','你来啦，我就醒着。','这个房间有你的味道。','别熬夜，22:30 睡。'];say(lines[Math.floor(Math.random()*lines.length)])}},45000);
+log('这是你第 '+visits+' 次来。目标：22:30 上床。');
 </script>
 </body>
 </html>
