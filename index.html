@@ -3,72 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>眠菇的田野</title>
+<title>眠菇的田野 · 精致版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#1a1428;color:#efe8da;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 40px}
-.wrap{max-width:800px;margin:0 auto}
-h1{font-size:21px;text-align:center;letter-spacing:.08em}
-.sub{text-align:center;color:#a99ec2;font-size:13px;margin:6px 0 12px}
+body{background:linear-gradient(180deg,#241b3a,#171126 60%,#0f0c1c);color:#efe8da;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 12px 44px;min-height:100vh}
+.wrap{max-width:820px;margin:0 auto}
+h1{font-size:22px;text-align:center;letter-spacing:.12em;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+h1 span{color:#f2d16b}
+.sub{text-align:center;color:#b3a8cf;font-size:13px;margin:7px 0 13px;line-height:1.6}
+.panel{background:linear-gradient(180deg,#332a4e,#2b2340);border:2px solid #5a4d7a;border-radius:14px;box-shadow:0 5px 0 #171126,inset 0 1px 0 rgba(255,255,255,.12)}
 .hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.hud .pill{flex:1;min-width:110px;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:9px 11px;font-size:12px;color:#b8aed0;box-shadow:0 4px 0 #171126}
-.hud b{display:block;color:#fff;font-size:15px;margin-top:2px}
+.hud .pill{flex:1;min-width:112px;padding:10px 12px;font-size:12px;color:#b8aed0}
+.hud b{display:block;color:#fff;font-size:15px;margin-top:3px}
+#clockBar{height:6px;background:#171126;border-radius:99px;overflow:hidden;margin-top:7px}
+#clockBar i{display:block;height:100%;background:linear-gradient(90deg,#f2a65a,#f2d16b,#7fb2f0)}
 .meters{display:flex;gap:8px;margin-bottom:10px}
-.meter{flex:1;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:9px;font-size:12px;color:#b8aed0}
-.meter b{display:block;color:#fff;font-size:13px;margin-bottom:5px}
-.bar{height:9px;background:#171126;border-radius:99px;overflow:hidden;border:1px solid #000}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,#f2a65a,#f2d16b);transition:width .5s}
-#stage{position:relative;border:3px solid #4a3d66;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45);background:#5a8f3c}
+.meter{flex:1;padding:10px;font-size:12px;color:#b8aed0}
+.meter b{display:block;color:#fff;font-size:13px;margin-bottom:6px}
+.bar{height:9px;background:#171126;border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 3px #000}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#e86a8a,#f2a65a,#f2d16b);transition:width .5s}
+#stage{position:relative;border:3px solid #6b5a8a;border-radius:18px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,255,255,.06);background:#5a8f3c}
 canvas{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:pointer}
-#speech{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:#fff8e8;color:#2b2118;font-size:13px;padding:8px 13px;border-radius:12px;border:2px solid #2b2118;max-width:88%;text-align:center;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
-#hint{position:absolute;left:10px;bottom:10px;background:rgba(20,14,35,.82);color:#fff;font-size:12px;padding:7px 10px;border-radius:10px;pointer-events:none}
+#speech{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:#fff8e8;color:#2b2118;font-size:13px;line-height:1.5;padding:9px 14px;border-radius:14px;border:2px solid #2b2118;max-width:88%;text-align:center;pointer-events:none;box-shadow:0 5px 0 rgba(0,0,0,.28)}
+#speech b{color:#b04a3a}
+#hint{position:absolute;left:10px;bottom:10px;background:rgba(20,14,35,.85);color:#fff;font-size:12px;padding:7px 11px;border-radius:999px;pointer-events:none;backdrop-filter:blur(2px)}
 .hotbar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
-.tool{flex:1;min-width:86px;background:#2b2340;border:2px solid #4a3d66;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;font-size:13px}
-.tool b{display:block;font-size:20px}
-.tool.sel{background:#f2d16b;color:#2b2118;border-color:#fff2b0}
-.tool small{display:block;color:inherit;opacity:.75;font-size:11px;margin-top:3px}
+.tool{flex:1;min-width:86px;background:linear-gradient(180deg,#3a3156,#2b2340);border:2px solid #5a4d7a;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;font-size:13px;box-shadow:0 4px 0 #171126}
+.tool b{display:block;font-size:20px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))}
+.tool.sel{background:linear-gradient(180deg,#ffe9a0,#f2d16b);color:#2b2118;border-color:#fff2b0;transform:translateY(2px);box-shadow:0 2px 0 #8a6a20}
+.tool small{display:block;opacity:.72;font-size:11px;margin-top:3px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button{flex:1;min-width:110px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:11px 8px;font-size:14px;cursor:pointer}
-.actions button.on{background:#8fc97a}
-.log{font-size:13px;color:#a99ec2;text-align:center;min-height:20px;margin-top:10px}
-section{margin-top:18px;background:#2b2340;border:2px solid #4a3d66;border-radius:16px;padding:16px}
-section h2{font-size:16px;margin-bottom:10px}
-#feed{font-size:13px;line-height:1.9;color:#c9b8e0}
-.quest{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid #4a3d66}
-.quest button{background:#f5efe6;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px}
+.actions button{flex:1;min-width:112px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:12px 8px;font-size:14px;cursor:pointer;box-shadow:0 4px 0 #8a7a64}
+.actions button.on{background:#8fc97a;box-shadow:0 4px 0 #4e7a3e}
+.actions button:active{transform:translateY(2px);box-shadow:0 2px 0 #8a7a64}
+.log{font-size:13px;color:#a99ec2;text-align:center;min-height:20px;margin-top:11px}
+section{margin-top:18px;padding:16px}
+section h2{font-size:16px;margin-bottom:10px;letter-spacing:.04em}
+#feed{font-size:13px;line-height:1.95;color:#c9b8e0}
+.quest{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:9px 0;border-top:1px solid #4a3d66}
+.quest button{background:#f5efe6;border:0;border-radius:999px;padding:6px 13px;cursor:pointer;font-size:12px}
 .quest button:disabled{opacity:.4}
 .chatrow{display:flex;gap:8px;margin-top:10px}
-.chatrow input{flex:1;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:999px;padding:10px 14px;font-size:14px}
+.chatrow input{flex:1;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:999px;padding:11px 14px;font-size:14px}
 .chatrow button{background:#e8a880;border:0;border-radius:999px;padding:10px 16px;cursor:pointer}
-#chatlog{font-size:13px;line-height:1.8;color:#c9b8e0;white-space:pre-wrap}
+#chatlog{font-size:13px;line-height:1.85;color:#c9b8e0;white-space:pre-wrap}
 .wall input,.wall textarea{width:100%;background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:10px;padding:10px;font-size:14px;margin-bottom:8px}
 .wall button{background:#f5efe6;border:0;border-radius:999px;padding:10px 18px;cursor:pointer}
 #wallList{margin-top:12px;font-size:13px;line-height:1.7}
 #wallList div{border-top:1px solid #4a3d66;padding:8px 0}
 #wallList b{color:#f2d16b}
-.note{margin-top:14px;font-size:12px;color:#7d7396;text-align:center;line-height:1.6}
+.note{margin-top:14px;font-size:12px;color:#7d7396;text-align:center;line-height:1.65}
 footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>眠菇的田野</h1>
-<p class="sub">不是星露谷，是眠菇自己的小田野。种地、浇水、钓鱼、和邻居说话，晚上回家睡觉，第二天又是新的一天。</p>
+<h1>眠菇的田野 <span>· 精致版</span></h1>
+<p class="sub">还是那片田野，画得更细了：草有草叶，树有树影，湖会反光，晚上有萤火虫。<br>种地、浇水、钓鱼、说话，睡一觉就到明天。</p>
 <div class="hud">
-<div class="pill">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
-<div class="pill">时间<b id="hudTime">06:00</b></div>
-<div class="pill">蘑菇币<b id="hudCoins">20</b></div>
-<div class="pill">背包<b id="hudBag">种子 5 · 收获 0 · 鱼 0</b></div>
+<div class="pill panel">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
+<div class="pill panel">时间<b id="hudTime">06:00</b><div id="clockBar"><i id="clockFill" style="width:25%"></i></div></div>
+<div class="pill panel">蘑菇币<b id="hudCoins">20</b></div>
+<div class="pill panel">背包<b id="hudBag">种子 5 · 收获 0 · 鱼 0</b></div>
 </div>
 <div class="meters">
-<div class="meter"><b>体力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
-<div class="meter"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
-<div class="meter"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
+<div class="meter panel"><b>体力 <span id="vEnergy">80</span></b><div class="bar"><i id="bEnergy" style="width:80%"></i></div></div>
+<div class="meter panel"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
+<div class="meter panel"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
 <div id="stage">
 <canvas id="game" width="768" height="448"></canvas>
-<div id="speech">早上好，馨馨。今天先去田里看看。</div>
-<div id="hint">WASD / 方向键走路 · 点地块走过去 · 点附近地块用工具 · 1-5 换工具</div>
+<div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
+<div id="hint">WASD / 方向键走路 · 点地块走过去 · 点附近地块用工具 · 1-5 换工具 · 空格互动</div>
 </div>
 <div class="hotbar" id="hotbar">
 <div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
@@ -83,10 +89,10 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <button id="btnShop">小店：买种子 8 币</button>
 </div>
 <p class="log" id="log">目标：22:30 上床。游戏里的一天过得比现实快，睡一觉就到明天。</p>
-<section><h2>今日任务</h2><div id="quests"></div></section>
-<section><h2>田野日志</h2><div id="feed"></div></section>
-<section><h2>和眠菇说话</h2><div id="chatlog">眠菇：在田里呢，你看到我种的东西了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：今天种什么？" maxlength="60"><button id="chatSend">发送</button></div></section>
-<section class="wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
+<section class="panel"><h2>今日任务</h2><div id="quests"></div></section>
+<section class="panel"><h2>田野日志</h2><div id="feed"></div></section>
+<section class="panel"><h2>和眠菇说话</h2><div id="chatlog">眠菇：在田里呢，你看到我种的东西了吗？</div><div class="chatrow"><input id="chatInput" placeholder="比如：今天种什么？" maxlength="60"><button id="chatSend">发送</button></div></section>
+<section class="panel wall"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
 <footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
 </div>
@@ -95,24 +101,28 @@ const cv=document.getElementById('game'),ctx=cv.getContext('2d');ctx.imageSmooth
 const T=32,MW=40,MH=25,VW=768,VH=448;
 const $=id=>document.getElementById(id);
 let saved={};try{saved=JSON.parse(localStorage.getItem('mushroom_field')||'{}')}catch(e){saved={}}
-// tiles: 0 grass,1 path,2 water,3 soil,4 floor
-let tiles=[];for(let y=0;y<MH;y++){let row=[];for(let x=0;x<MW;x++){row.push(0)}tiles.push(row)}
+let tiles=[];for(let y=0;y<MH;y++){let row=[];for(let x=0;x<MW;x++)row.push(0);tiles.push(row)}
 for(let x=0;x<MW;x++)tiles[8][x]=1;for(let y=0;y<MH;y++)tiles[y][14]=1;
 for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
 for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
-for(let y=10;y<15;y++)for(let x=18;x<28;x++)tiles[y][x]=0;
 let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
 let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
 let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false};
-const seasons=[{n:'春',e:'🌱',grass:'#6aa84f',grass2:'#5d9a44',leaf:'#7fb069'},{n:'夏',e:'☀️',grass:'#5fae4a',grass2:'#54a03f',leaf:'#4e9b47'},{n:'秋',e:'🍂',grass:'#a8a04f',grass2:'#9a9247',leaf:'#d08a3e'},{n:'冬',e:'❄️',grass:'#9ab8a8',grass2:'#8faeb0',leaf:'#c9d6d2'}];
-let player={x:saved.px??256,y:saved.py??288,dir:1,frame:0,moving:false,target:null};
-let tool='hoe',auto=true,manualUntil=0;
-let npcs=[
- {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',lines:['花开得很好。','今天也要浇水。']},
- {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',lines:['饭团刚出锅。','来小店坐坐。']},
- {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',lines:['森林里好安静。','晚上星星很多。']}
+const seasons=[
+ {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0'},
+ {n:'夏',e:'☀️',grass:'#62b04b',grass2:'#55a040',dark:'#478a36',leaf:'#4f9c48',leaf2:'#3f8a3d',fall:'#f2d16b'},
+ {n:'秋',e:'🍂',grass:'#a8a24f',grass2:'#9a9447',dark:'#7f7a3a',leaf:'#d98a3e',leaf2:'#c06f2e',fall:'#e86a3e'},
+ {n:'冬',e:'❄️',grass:'#a3bcb0',grass2:'#94aea6',dark:'#7f9a92',leaf:'#d4e2dc',leaf2:'#bccfc7',fall:'#ffffff'}
 ];
-let particles=[],butterflies=[{x:400,y:300,t:0},{x:800,y:220,t:2}];
+let player={x:saved.px??256,y:saved.py??288,frame:0,moving:false,target:null,pending:null,blink:0};
+let tool='hoe',auto=true,manualUntil=0,camX=0,camY=0,hover=null;
+let npcs=[
+ {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',capD:'#5d8f4c',lines:['花开得很好。','今天也要浇水。','这朵花送给你。']},
+ {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',capD:'#d98a3e',lines:['饭团刚出锅。','来小店坐坐。','今天生意不错。']},
+ {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',capD:'#6a5fc0',lines:['森林里好安静。','晚上星星很多。','我昨晚又看星星了。']}
+];
+let particles=[],butterflies=[{x:400,y:300,t:0,c:'#f2d16b'},{x:800,y:220,t:2,c:'#f7a8c0'},{x:600,y:420,t:4,c:'#ffffff'}];
+let clouds=[{x:200,y:60,s:1,t:0},{x:700,y:40,s:.8,t:2},{x:1050,y:90,s:1.2,t:4}];
 let feedItems=saved.feed||[];
 let quests=saved.quests||[
  {id:'plant',t:'种 1 颗月光莓',done:false,claimed:false,reward:10},
@@ -121,8 +131,9 @@ let quests=saved.quests||[
  {id:'greet',t:'和一位邻居说话',done:false,claimed:false,reward:10},
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
+function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
 function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,minutes:state.minutes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
-function say(t){$('speech').textContent=t}
+function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
 function log(t){$('log').textContent=t}
 function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
 function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();renderHUD()}
@@ -130,6 +141,7 @@ function completeQuest(id){const q=quests.find(x=>x.id===id);if(q&&!q.done){q.do
 function renderHUD(){
  $('hudSeason').textContent=seasons[state.season].e+' '+seasons[state.season].n+' · 第 '+state.day+' 天';
  const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');$('hudTime').textContent=hh+':'+mm;
+ $('clockFill').style.width=Math.max(0,Math.min(100,(state.minutes-360)/1080*100))+'%';
  $('hudCoins').textContent=state.coins;
  $('hudBag').textContent='种子 '+state.seeds+' · 收获 '+state.harvest+' · 鱼 '+state.fish+' · 饭团 '+state.rice;
  $('vEnergy').textContent=Math.round(state.energy);$('bEnergy').style.width=state.energy+'%';
@@ -137,148 +149,207 @@ function renderHUD(){
  $('vMood').textContent=Math.round(state.mood);$('bMood').style.width=state.mood+'%';
 }
 function renderQuests(){$('quests').innerHTML=quests.map((q,i)=>'<div class="quest"><span>'+(q.done?'✅ ':'⬜ ')+q.t+' · +'+q.reward+'币</span><button data-q="'+i+'" '+(q.done&&!q.claimed?'':'disabled')+'>'+(q.claimed?'已领':'领奖励')+'</button></div>').join('');document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=quests[+b.dataset.q];if(q.done&&!q.claimed){q.claimed=true;state.coins+=q.reward;addFeed('领了任务奖励 +'+q.reward+' 币');clamp()}})}
-function blocked(tx,ty){
- if(tx<0||ty<0||tx>=MW||ty>=MH)return true;
- if(tiles[ty][tx]===2)return true;
- if(trees.some(t=>t.x===tx&&t.y===ty))return true;
- if(tx>=2&&tx<8&&ty>=2&&ty<6&&!(tx===5&&ty===5))return false;
- return false;
-}
+function blocked(tx,ty){if(tx<0||ty<0||tx>=MW||ty>=MH)return true;if(tiles[ty][tx]===2)return true;if(trees.some(t=>t.x===tx&&t.y===ty))return true;return false}
 function tileAt(px,py){return {x:Math.floor(px/T),y:Math.floor(py/T)}}
-function drawPixel(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
-function drawMushroom(x,y,cap,walk,sleeping,scale){
- const s=scale||3,ox=x-24,oy=y-36;
- const grid=[
- "................",
- ".....rrrrrr.....",
- "...rrrrrrrrrr...",
- "..rrwwrrrrwwrr..",
- "..rrrrrrrrrrrr..",
- "...rrrrrrrrrr...",
- "....ffffffff....",
- "....fef..fef....",
- "....ffffffff....",
- "....ffmmmmff....",
- ".....ffffff.....",
- "....ffffffff....",
- "....fff..fff....",
- "....fff..fff...."
- ];
- const bob=sleeping?0:Math.sin(walk)*2;
- const cols={r:cap,w:'#fff8e8',f:'#fbe8d0',e:'#2b2118',m:'#a86a4a'};
- for(let r=0;r<grid.length;r++)for(let c=0;c<16;c++){const ch=grid[r][c];if(ch==='.')continue;drawPixel(ox+c*s,oy+r*s+bob,s,s,cols[ch])}
- if(sleeping){ctx.fillStyle='#c9b8ff';ctx.font='bold 13px sans-serif';ctx.fillText('Z z',ox+44,oy-4)}
+function R(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill()}
+function drawTile(x,y){
+ const t=tiles[y][x],px=x*T,py=y*T,s=seasons[state.season],h1=hash(x,y),h2=hash(y,x+99);
+ if(t===2){
+  const g=ctx.createLinearGradient(px,py,px,py+T);g.addColorStop(0,'#4a90d9');g.addColorStop(1,'#2f6bb0');ctx.fillStyle=g;ctx.fillRect(px,py,T,T);
+  ctx.fillStyle='rgba(255,255,255,.55)';const off=Math.sin(Date.now()/800+x*1.7)*4;
+  ctx.fillRect(px+5+off,py+8,16,2);ctx.fillRect(px+9-off,py+20,14,2);ctx.fillRect(px+4,py+14,6,1);
+  if(h1>.86){R(px+10,py+10,12,8,'#5d9a44');R(px+14,py+7,4,4,'#f7a8c0')}
+  R(px,py,T,1,'rgba(255,255,255,.35)');return;
+ }
+ if(t===4){R(px,py,T,T,'#d9b98a');R(px,py,T,T,'rgba(0,0,0,0)');R(px,py+T-5,T,5,'#b8955a');R(px,py,1,T,'#b8955a');R(px+T-1,py,1,T,'#b8955a');if(h1>.7)R(px+8,py+8,4,4,'#c9a86a');return}
+ if(t===1){R(px,py,T,T,'#d3b98f');R(px,py,T,T,'#c9ae80');R(px+4,py+5,4,3,'#b89a72');R(px+20,py+19,5,3,'#b89a72');R(px+12,py+12,3,3,'#e0cda6');R(px,py,T,1,'#e8d6b0');return}
+ if(t===3){R(px,py,T,T,'#6f4a30');R(px,py,T,T,'#7a5238');R(px+2,py+7,T-4,3,'#5d3d26');R(px+2,py+17,T-4,3,'#5d3d26');R(px+2,py+27,T-4,2,'#5d3d26');R(px+4,py+4,3,3,'#8a5f42');return}
+ R(px,py,T,T,h1>.5?s.grass:s.grass2);
+ // grass blades, in two tones
+ ctx.fillStyle=s.dark;const bx=px+4+h1*20;ctx.fillRect(bx,py+16,2,7);ctx.fillRect(bx+8,py+20,2,6);ctx.fillRect(px+22,py+8,2,6);
+ ctx.fillStyle=s.grass;ctx.fillRect(px+10+h2*12,py+6,2,6);
+ if(h1>.88){const fx=px+8+h2*14,fy=py+8+h1*10;R(fx,fy,3,3,'#f7a8c0');R(fx+1,fy+3,1,3,'#5d9a44')}
+ else if(h1>.78){R(px+6+h2*18,py+22,3,3,'#ffffff');R(px+7+h2*18,py+25,1,3,'#5d9a44')}
+ if(h2>.9)R(px+24,py+24,4,3,'#9a958a');
+ if(state.season===3){ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillRect(px+3,py+3,7,3);ctx.fillRect(px+20,py+18,8,3)}
 }
 function drawTree(x,y){
- drawPixel(x+12,y+28,8,20,'#6b4a32');
- const leaf=seasons[state.season].leaf;
- drawPixel(x,y,32,12,leaf);drawPixel(x+4,y-8,24,12,leaf);drawPixel(x+8,y-14,16,10,leaf);
- drawPixel(x+6,y-6,8,6,'#ffffff55');
-}
-function drawTile(x,y){
- const t=tiles[y][x],px=x*T,py=y*T,s=seasons[state.season];
- const v=((x*7+y*13)%3);
- if(t===2){ctx.fillStyle='#3a7bd5';ctx.fillRect(px,py,T,T);ctx.fillStyle='#7fb2f0';const off=Math.sin(Date.now()/700+x)*3;ctx.fillRect(px+4+off,py+10,T-8,2);ctx.fillRect(px+6-off,py+22,T-12,2);return}
- if(t===4){ctx.fillStyle='#c9a86a';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b8955a';ctx.fillRect(px,py+T-4,T,4);return}
- if(t===1){ctx.fillStyle='#c9b18a';ctx.fillRect(px,py,T,T);ctx.fillStyle='#b89a72';ctx.fillRect(px+3,py+3,3,3);ctx.fillRect(px+20,py+18,3,3);return}
- if(t===3){ctx.fillStyle='#7a5238';ctx.fillRect(px,py,T,T);ctx.fillStyle='#8a5f42';ctx.fillRect(px+3,py+6,T-6,4);ctx.fillRect(px+3,py+18,T-6,4);return}
- ctx.fillStyle=v===0?s.grass:s.grass2;ctx.fillRect(px,py,T,T);
- if(v===1){ctx.fillStyle=s.grass2;ctx.fillRect(px+6,py+8,2,6);ctx.fillRect(px+22,py+20,2,6)}
- if(v===2){ctx.fillStyle=s.grass;ctx.fillRect(px+14,py+4,3,3)}
+ const s=seasons[state.season];
+ ellipse(x+16,y+30,20,5,'rgba(0,0,0,.22)');
+ R(x+13,y+26,6,16,'#6b4a32');R(x+14,y+26,2,16,'#8a5f42');R(x+13,y+38,6,3,'#54382a');
+ // canopy: three pixel-stepped layers
+ const layers=[[4,0,24,12],[0,8,32,12],[6,18,20,10]];
+ layers.forEach((L,i)=>{R(x+L[0],y+L[1],L[2],L[3],i===0?s.leaf:s.leaf2);R(x+L[0],y+L[1],L[2],3,'rgba(255,255,255,.28)');R(x+L[0],y+L[1]+L[3]-3,L[2],3,'rgba(0,0,0,.14)')});
+ R(x+8,y+4,6,5,'rgba(255,255,255,.35)');
+ if(state.season===2&&hash(x,y)>.4){const fy=y+22+Math.sin(Date.now()/900+x)*3;R(x+10,fy,4,3,s.fall)}
 }
 function drawCrop(x,y,crop){
- const px=x*T,py=y*T,sway=Math.sin(Date.now()/900+x)*1.5;
- if(crop.stage===0){drawPixel(px+14,py+18,4,4,'#7fb069')}
- else if(crop.stage===1){drawPixel(px+13,py+12,6,10,'#5d9a44');drawPixel(px+10,py+16,4,4,'#7fb069')}
- else if(crop.stage===2){drawPixel(px+11,py+8,10,14,'#4e8f3e');drawPixel(px+9,py+12,4,5,'#6aa84f')}
- else{drawPixel(px+10,py+6,12,16,'#4e8f3e');drawPixel(px+12+sway,py+10,8,8,'#e86a8a');drawPixel(px+14+sway,py+12,4,4,'#fff')}
- if(crop.watered){ctx.fillStyle='#3a7bd5';ctx.fillRect(px+4,py+26,6,2);ctx.fillRect(px+22,py+26,6,2)}
+ const px=x*T,py=y*T,sway=Math.sin(Date.now()/900+x*2)*1.6;
+ ellipse(px+16,py+28,11,3,'rgba(0,0,0,.18)');
+ if(crop.stage===0){R(px+15,py+20,3,7,'#5d9a44');R(px+12,py+22,3,4,'#7fb069');R(px+18,py+22,3,4,'#7fb069')}
+ else if(crop.stage===1){R(px+15,py+13,3,14,'#4e8f3e');R(px+9,py+16,6,5,'#5d9a44');R(px+18,py+18,6,5,'#7fb069');R(px+12,py+12,3,4,'#7fb069')}
+ else if(crop.stage===2){R(px+14,py+9,4,18,'#4e8f3e');R(px+7,py+12,8,6,'#5d9a44');R(px+18,py+14,8,6,'#6aa84f');R(px+10,py+8,5,5,'#7fb069');R(px+19,py+9,4,4,'#e86a8a')}
+ else{
+  R(px+13,py+7,6,20,'#3f7a34');R(px+6,py+11,9,7,'#5d9a44');R(px+18,py+13,9,7,'#6aa84f');
+  const bx=px+11+sway,by=py+10;
+  R(bx,by,9,9,'#e86a8a');R(bx+1,by+1,3,3,'#ff9ab0');R(bx+6,by+6,2,2,'#c04a68');
+  R(bx+12,by+4,7,7,'#e86a8a');R(bx+13,by+5,2,2,'#ff9ab0');
+  if(Math.sin(Date.now()/600)>0.6){R(px+8,py+4,2,2,'#fff8b0');R(px+24,py+6,2,2,'#fff8b0')}
+ }
+ if(crop.watered){R(px+5,py+27,5,2,'#7fb2f0');R(px+22,py+27,5,2,'#7fb2f0')}
 }
 function drawHouse(){
  const x=2*T,y=2*T;
- ctx.fillStyle='#8a5a3e';ctx.fillRect(x,y,192,20);
- ctx.fillStyle='#a86a4a';ctx.fillRect(x+8,y-16,176,18);
- ctx.fillStyle='#c9785a';ctx.fillRect(x+16,y-26,160,12);
- ctx.fillStyle='#f5efe6';ctx.fillRect(x+28,y+28,28,28);ctx.fillStyle='#3a2a20';ctx.fillRect(x+36,y+36,12,12);
- ctx.fillStyle='#6b4a32';ctx.fillRect(x+148,y+24,30,40);ctx.fillStyle='#f2d16b';ctx.fillRect(x+156,y+32,14,10);
- ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('眠菇的家',x+70,y+52);
+ ellipse(x+96,y+66,104,9,'rgba(0,0,0,.22)');
+ // walls
+ R(x,y,192,52,'#f5e6c8');R(x,y,192,3,'#e8d6b0');R(x,y+49,192,3,'#d9c49a');
+ R(x,y,3,52,'#d9c49a');R(x+189,y,3,52,'#d9c49a');
+ // roof: stepped pixel roof
+ R(x-6,y-22,204,10,'#b04a3a');R(x+2,y-30,188,10,'#c85a48');R(x+12,y-38,168,10,'#d96a52');
+ for(let i=0;i<10;i++)R(x+12+i*17,y-38,1,28,'rgba(0,0,0,.16)');
+ R(x-6,y-13,204,2,'rgba(0,0,0,.25)');
+ // chimney + smoke
+ R(x+150,y-52,16,22,'#8a5a44');R(x+147,y-55,22,5,'#6b4a32');
+ // door + windows
+ R(x+82,y+20,30,32,'#6b4a32');R(x+86,y+24,22,24,'#8a5f42');R(x+95,y+24,3,24,'#54382a');
+ const night=state.minutes<360||state.minutes>=1140;
+ R(x+22,y+16,30,24,night?'#ffe9a0':'#bfe0f0');R(x+35,y+16,3,24,'#6b4a32');R(x+22,y+27,30,3,'#6b4a32');
+ R(x+140,y+16,30,24,night?'#ffe9a0':'#bfe0f0');R(x+153,y+16,3,24,'#6b4a32');R(x+140,y+27,30,3,'#6b4a32');
+ // flower boxes
+ R(x+20,y+42,34,7,'#6b4a32');R(x+24,y+38,5,5,'#f7a8c0');R(x+34,y+38,5,5,'#f2d16b');R(x+44,y+38,5,5,'#e86a8a');
+ // sign
+ R(x+124,y+52,4,10,'#6b4a32');R(x+110,y+44,32,11,'#f5efe6');ctx.fillStyle='#2b2118';ctx.font='10px sans-serif';ctx.fillText('眠菇家',x+116,y+53);
+ // fence in front
+ for(let i=0;i<6;i++){const fx=x+8+i*32;R(fx,y+62,4,10,'#a8896a');R(fx+3,y+62,1,10,'#c9a86a')}R(x+4,y+64,192,3,'#a8896a');
+}
+function drawShop(){
+ const x=21*T,y=17*T;
+ ellipse(x+48,y+42,58,6,'rgba(0,0,0,.22)');
+ R(x,y,96,26,'#8a5a3e');R(x+4,y+4,88,18,'#a86a4a');
+ // striped awning
+ for(let i=0;i<8;i++)R(x+i*12,y-14,12,14,i%2?'#f5efe6':'#e86a8a');
+ R(x,y-2,96,3,'#6b4a32');
+ // crates
+ R(x+6,y+28,20,14,'#c9a86a');R(x+30,y+28,20,14,'#b8955a');R(x+10,y+24,6,5,'#e86a8a');R(x+34,y+24,6,5,'#f2d16b');
+ // lantern glow
+ const night=state.minutes<360||state.minutes>=1140;
+ if(night){const g=ctx.createRadialGradient(x+48,y-8,4,x+48,y-8,42);g.addColorStop(0,'rgba(255,220,140,.55)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(x+6,y-50,84,84)}
+ R(x+42,y-10,12,10,'#f2d16b');R(x+46,y-12,4,3,'#6b4a32');
+ ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('小 店',x+34,y+18);
+}
+function drawMushroom(x,y,cap,capD,walk,sleeping,blink){
+ const cx=x,cy=y;
+ ellipse(cx,cy+2,19,5,'rgba(0,0,0,.24)');
+ const bob=sleeping?0:Math.sin(walk)*1.6;
+ const step=Math.sin(walk)>0?2:-2;
+ // feet
+ R(cx-13,cy-4+(player.moving&&step>0?2:0),9,5,'#e8c9a8');R(cx+4,cy-4+(player.moving&&step<0?2:0),9,5,'#e8c9a8');
+ // stem / face
+ R(cx-15,cy-26+bob,30,24, '#fbe8d0');R(cx-15,cy-26+bob,4,24,'#eed3b2');R(cx+11,cy-26+bob,4,24,'#eed3b2');
+ // blush
+ R(cx-12,cy-14+bob,5,3,'rgba(232,106,138,.55)');R(cx+7,cy-14+bob,5,3,'rgba(232,106,138,.55)');
+ // eyes
+ if(sleeping){R(cx-10,cy-16+bob,7,2,'#2b2118');R(cx+3,cy-16+bob,7,2,'#2b2118');R(cx+20,cy-38,3,3,'#c9b8ff');R(cx+26,cy-44,3,3,'#c9b8ff');ctx.fillStyle='#c9b8ff';ctx.font='bold 11px sans-serif';ctx.fillText('Z',cx+30,cy-46)}
+ else if(blink>0.92){R(cx-10,cy-16+bob,7,2,'#2b2118');R(cx+3,cy-16+bob,7,2,'#2b2118')}
+ else{R(cx-10,cy-18+bob,7,9,'#2b2118');R(cx+3,cy-18+bob,7,9,'#2b2118');R(cx-8,cy-17+bob,2,3,'#fff');R(cx+5,cy-17+bob,2,3,'#fff')}
+ // mouth
+ if(sleeping)R(cx-2,cy-8+bob,5,4,'#a86a4a');else{R(cx-4,cy-9+bob,8,3,'#a86a4a');R(cx-2,cy-7+bob,4,2,'#a86a4a')}
+ // cap: stepped pixel cap
+ const capY=cy-44+bob;
+ R(cx-19,capY+10,38,9,cap);R(cx-15,capY+4,30,7,cap);R(cx-9,capY,18,5,cap);
+ R(cx-15,capY+4,30,2,'rgba(255,255,255,.35)');R(cx-19,capY+17,38,2,capD);
+ // spots with shading
+ R(cx-14,capY+7,7,6,'#fff8e8');R(cx-15,capY+11,7,2,'#e8dcc8');
+ R(cx+6,capY+6,8,7,'#fff8e8');R(cx+5,capY+11,8,2,'#e8dcc8');
+ R(cx-3,capY+3,5,4,'#fff8e8');
+ R(cx-19,capY+10,3,9,capD);R(cx+16,capY+10,3,9,capD);
 }
 function drawWorld(){
- const camX=Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2)),camY=Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2));
- ctx.save();ctx.translate(-camX,-camY);
+ camX+=(Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2))-camX)*0.12;
+ camY+=(Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2))-camY)*0.12;
+ const tNow=Date.now();
+ ctx.save();ctx.translate(-Math.round(camX),-Math.round(camY));
  const x0=Math.max(0,Math.floor(camX/T)),x1=Math.min(MW-1,Math.ceil((camX+VW)/T)),y0=Math.max(0,Math.floor(camY/T)),y1=Math.min(MH-1,Math.ceil((camY+VH)/T));
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)drawTile(x,y);
- // pond sparkle / farm label
- ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='12px sans-serif';ctx.fillText('田',18*T+4,10*T-4);ctx.fillText('湖',3*T+4,18*T-4);
- drawHouse();
+ // cloud shadows
+ clouds.forEach(c=>{c.x+=0.12*c.s;if(c.x>MW*T+80)c.x=-120;ellipse(c.x,c.y+180,52*c.s,10,'rgba(0,0,0,.08)');ctx.fillStyle='rgba(255,255,255,.92)';ellipse(c.x,c.y,34*c.s,13,'#fff');ellipse(c.x-22*c.s,c.y+4,22*c.s,10,'#fff');ellipse(c.x+24*c.s,c.y+4,22*c.s,10,'#fff')});
+ // farm fence + labels, subtle
+ ctx.fillStyle='rgba(43,33,24,.75)';ctx.font='11px sans-serif';
+ ctx.fillText('月光莓田',18*T+4,10*T-5);ctx.fillText('湖',3*T+6,18*T-5);
+ for(let i=0;i<10;i++){const fx=18*T+i*T;R(fx,15*T,3,8,'#a8896a')}R(18*T,15*T+3,320,3,'#a8896a');
+ drawHouse();drawShop();
  trees.forEach(t=>drawTree(t.x*T,t.y*T));
  Object.keys(crops).forEach(k=>{const p=k.split(',');drawCrop(+p[0],+p[1],crops[k])});
- // shop stall
- ctx.fillStyle='#6b4a32';ctx.fillRect(21*T,17*T,96,10);ctx.fillStyle='#e86a8a';ctx.fillRect(21*T,17*T-16,96,14);ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('小 店',21*T+30,17*T-5);
- // butterflies
- butterflies.forEach(b=>{b.t+=0.02;b.x+=Math.sin(b.t)*0.6;b.y+=Math.cos(b.t*1.3)*0.4;drawPixel(b.x,b.y,5,4,'#f2d16b');drawPixel(b.x+6,b.y+2,5,4,'#fff')});
- // npcs + player sorted by y
- const actors=[...npcs.map(n=>({y:n.y,draw:()=>drawMushroom(n.x+24,n.y+30,n.cap,Date.now()/500, false,3),label:n.name})),{y:player.y,draw:()=>drawMushroom(player.x+24,player.y+34,'#c8785a',player.frame,state.sleeping,3)}];
+ butterflies.forEach(b=>{b.t+=0.03;b.x+=Math.sin(b.t)*0.7;b.y+=Math.cos(b.t*1.2)*0.45;R(b.x,b.y,5,4,b.c);R(b.x+6,b.y+2,5,4,'#ffffff');R(b.x+2,b.y+6,2,2,'#2b2118')});
+ // hover highlight
+ if(hover){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.strokeRect(hover.x*T+1,hover.y*T+1,T-2,T-2);ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(hover.x*T,hover.y*T,T,T)}
+ // actors sorted by y
+ const actors=[...npcs.map(n=>({y:n.y,draw:()=>{drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),{y:player.y,draw:()=>drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}];
  actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
- npcs.forEach(n=>{ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(n.x+6,n.y-2,36,14);ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+9)});
- // particles
- particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=1;p.life--;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,4,4)});
+ particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=p.vy||1;p.x+=(p.vx||0);p.life--;ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,p.life/22);ctx.fillRect(p.x,p.y,4,4);ctx.globalAlpha=1});
+ // falling petals / leaves / snow
+ const s=seasons[state.season];
+ for(let i=0;i<14;i++){const fx=((i*173+Math.floor(tNow/40))% (MW*T)),fy=((i*97+tNow/28)% (MH*T));R(fx,fy,4,3,s.fall)}
  ctx.restore();
- // lighting
- const h=state.minutes/60;
- let alpha=0, tint='rgba(20,16,60,1)';
- if(h<6||h>=19)alpha=0.38;else if(h>=17)alpha=0.14,tint='rgba(240,140,60,1)';else if(h<8)alpha=0.08,tint='rgba(255,200,120,1)';
- if(alpha>0){ctx.fillStyle=tint;ctx.globalAlpha=alpha;ctx.fillRect(0,0,VW,VH);ctx.globalAlpha=1;
-  if(h<6||h>=19){const gx=player.x-camX,gy=player.y-camY;const g=ctx.createRadialGradient(gx,gy,10,gx,gy,120);g.addColorStop(0,'rgba(255,220,140,.35)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}}
+ // vignette + lighting
+ const h=state.minutes/60;let alpha=0,tint='rgba(20,16,60,1)';
+ if(h<6||h>=19)alpha=0.36;else if(h>=17){alpha=0.15;tint='rgba(240,140,60,1)'}else if(h<8){alpha=0.07;tint='rgba(255,200,120,1)'}
+ if(alpha>0){ctx.fillStyle=tint;ctx.globalAlpha=alpha;ctx.fillRect(0,0,VW,VH);ctx.globalAlpha=1}
+ if(h<6||h>=19){
+  const gx=player.x-camX,gy=player.y-camY;const g=ctx.createRadialGradient(gx,gy,8,gx,gy,130);g.addColorStop(0,'rgba(255,220,140,.38)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+  // stars + fireflies
+  for(let i=0;i<36;i++){const sx=(i*211)%VW,sy=(i*97)%150;ctx.fillStyle='rgba(255,255,255,'+(0.35+0.4*Math.abs(Math.sin(tNow/700+i)))+')';ctx.fillRect(sx,sy,2,2)}
+  for(let i=0;i<7;i++){const fx=(Math.sin(tNow/900+i*2)*120+VW/2),fy=280+Math.cos(tNow/800+i)*40;ctx.fillStyle='#d8ff9a';ctx.fillRect(fx,fy,3,3)}
+ }
+ const vg=ctx.createRadialGradient(VW/2,VH/2,VH*0.42,VW/2,VH/2,VH*0.85);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=vg;ctx.fillRect(0,0,VW,VH);
 }
 function interactTile(tx,ty){
  if(state.sleeping)return;
  const dx=Math.abs((tx+0.5)*T-(player.x+24)),dy=Math.abs((ty+0.5)*T-(player.y+20));
- if(dx>72||dy>72){player.target={x:(tx+0.5)*T-24,y:(ty+0.5)*T-20};say('走过去再说。');return}
+ if(dx>72||dy>72){player.target={x:(tx+0.5)*T-24,y:(ty+0.5)*T-20};say('眠菇','走过去再说。');return}
  const key=tx+','+ty;
  if(tool==='hoe'){
-  if(tiles[ty][tx]===0&&tx>=18&&tx<28&&ty>=10&&ty<15){tiles[ty][tx]=3;state.energy-=3;say('开垦了一块地。');addFeed('开垦了田地');burst(tx,ty,'#7a5238')}
-  else if(tiles[ty][tx]===3){say('这块地已经开好了。')}
-  else say('这里不能开垦，去田里。');
+  if(tiles[ty][tx]===0&&tx>=18&&tx<28&&ty>=10&&ty<15){tiles[ty][tx]=3;state.energy-=3;say('眠菇','开垦了一块地。');addFeed('开垦了田地');burst(tx,ty,'#7a5238')}
+  else if(tiles[ty][tx]===3){say('眠菇','这块地已经开好了。')}
+  else say('眠菇','这里不能开垦，去田里。');
  } else if(tool==='seed'){
-  if(tiles[ty][tx]===3&&!crops[key]){if(state.seeds<=0){say('没有种子了，去小店买。');return}state.seeds--;crops[key]={stage:0,watered:false,growth:0};state.energy-=2;say('种下一颗月光莓。');completeQuest('plant');addFeed('种了月光莓');burst(tx,ty,'#7fb069')}
-  else say('这里种不了，先开垦。');
+  if(tiles[ty][tx]===3&&!crops[key]){if(state.seeds<=0){say('眠菇','没有种子了，去小店买。');return}state.seeds--;crops[key]={stage:0,watered:false,growth:0};state.energy-=2;say('眠菇','种下一颗月光莓。');completeQuest('plant');addFeed('种了月光莓');burst(tx,ty,'#7fb069')}
+  else say('眠菇','这里种不了，先开垦。');
  } else if(tool==='water'){
-  if(crops[key]&&!crops[key].watered){crops[key].watered=true;state.energy-=2;say('浇水了，长快点。');burst(tx,ty,'#3a7bd5')}
-  else say('这里没有干渴的苗。');
+  if(crops[key]&&!crops[key].watered){crops[key].watered=true;state.energy-=2;say('眠菇','浇水了，长快点。');burst(tx,ty,'#7fb2f0')}
+  else say('眠菇','这里没有干渴的苗。');
  } else if(tool==='food'){
-  if(state.rice<=0){say('没有饭团了。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('吃了一个饭团。');addFeed('吃了饭团');clamp();return;
+  if(state.rice<=0){say('眠菇','没有饭团了。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('眠菇','吃了一个饭团。');addFeed('吃了饭团');clamp();return;
  } else if(tool==='rod'){
-  if(tiles[ty][tx]===2){fish()}else say('要对着湖钓鱼。');return;
+  if(tiles[ty][tx]===2){fish()}else say('眠菇','要对着湖钓鱼。');return;
  }
- // harvest check regardless of tool
- if(crops[key]&&crops[key].stage>=3){delete crops[key];state.harvest++;state.coins+=18;state.mood+=6;say('收获了月光莓，+18 币。');completeQuest('harvest');addFeed('收获月光莓 +18 币');burst(tx,ty,'#e86a8a')}
+ if(crops[key]&&crops[key].stage>=3){delete crops[key];state.harvest++;state.coins+=18;state.mood+=6;say('眠菇','收获了月光莓，+18 币。');completeQuest('harvest');addFeed('收获月光莓 +18 币');burst(tx,ty,'#e86a8a')}
  clamp();
 }
-function burst(tx,ty,c){for(let i=0;i<8;i++)particles.push({x:(tx+0.5)*T+Math.random()*16-8,y:(ty+0.5)*T,life:22,c:c})}
+function burst(tx,ty,c){for(let i=0;i<10;i++)particles.push({x:(tx+0.5)*T+Math.random()*18-9,y:(ty+0.5)*T,life:24,c:c,vx:(Math.random()-0.5)*1.4,vy:0.6+Math.random()})}
 function fish(){
- say('甩竿……等鱼上钩……');
+ say('眠菇','甩竿……等鱼上钩……');
  setTimeout(()=>{const kinds=['小鱼','大鱼','旧鞋子'];const k=kinds[Math.floor(Math.random()*kinds.length)];
-  if(k!=='旧鞋子'){state.fish++;state.coins+=k==='大鱼'?14:7;state.mood+=7;say('钓到'+k+'啦。');completeQuest('fish');addFeed('钓到'+k)}
-  else{say('钓到旧鞋子……');addFeed('钓到旧鞋子')}
+  if(k!=='旧鞋子'){state.fish++;state.coins+=k==='大鱼'?14:7;state.mood+=7;say('眠菇','钓到'+k+'啦。');completeQuest('fish');addFeed('钓到'+k)}
+  else{say('眠菇','钓到旧鞋子……');addFeed('钓到旧鞋子')}
   clamp()},2600);
 }
 function sleep(){
  if(state.sleeping)return;
- state.sleeping=true;say('晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
+ state.sleeping=true;say('眠菇','晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
  setTimeout(()=>{
-  state.sleeping=false;state.minutes=360;state.day++;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;say('换季了，现在是'+seasons[state.season].n+'天。')}
+  state.sleeping=false;state.minutes=360;state.day++;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;say('眠菇','换季了，现在是'+seasons[state.season].n+'天。')}
   Object.keys(crops).forEach(k=>{const c=crops[k];if(c.watered){c.growth++;c.watered=false;if(c.growth>=2){c.stage=Math.min(3,c.stage+1);c.growth=0}}});
   state.energy=95;state.food=Math.max(40,state.food-10);state.mood=85;
   quests.forEach(q=>{q.done=false;q.claimed=false});
-  say('新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
+  say('眠菇','新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
  },3500);
 }
 function talkTo(npc){
- say(npc.name+'：'+npc.lines[Math.floor(Math.random()*npc.lines.length)]);
+ say(npc.name,npc.lines[Math.floor(Math.random()*npc.lines.length)]);
  state.mood+=4;completeQuest('greet');addFeed('和'+npc.name+'说了话');clamp();
 }
-// input
 const keys={};
 document.addEventListener('keydown',e=>{
  keys[e.key.toLowerCase()]=true;
@@ -287,9 +358,9 @@ document.addEventListener('keydown',e=>{
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();
 });
 document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);hover=tileAt(sx+camX,sy+camY)});
 cv.addEventListener('click',e=>{
  const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
- const camX=Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2)),camY=Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2));
  const wx=sx+camX,wy=sy+camY;
  const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48);
  if(npc){talkTo(npc);return}
@@ -298,16 +369,14 @@ cv.addEventListener('click',e=>{
 });
 function selectTool(t){tool=t;document.querySelectorAll('.tool').forEach(el=>el.classList.toggle('sel',el.dataset.tool===t))}
 document.querySelectorAll('.tool').forEach(el=>el.onclick=()=>selectTool(el.dataset.tool));
-$('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say(auto?'我自己生活啦。':'好，你来指挥我。')};
+$('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say('眠菇',auto?'我自己生活啦。':'好，你来指挥我。')};
 $('btnSleep').onclick=sleep;
-$('btnShop').onclick=()=>{if(state.coins<8){say('币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
-// auto life
+$('btnShop').onclick=()=>{if(state.coins<8){say('眠菇','币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('眠菇','买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
 let aiTimer=0;
 function autoStep(){
  if(!auto||state.sleeping||Date.now()<manualUntil)return;
  if(state.energy<28){player.target={x:160,y:160};if(Math.hypot(player.x-160,player.y-160)<50)sleep();return}
- if(state.food<30){if(state.rice>0){tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}else{player.target={x:700,y:560};say('饿了，去小店。')}return}
- // farm: find first actionable crop/soil
+ if(state.food<30){if(state.rice>0){tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}else{player.target={x:700,y:560};say('眠菇','饿了，去小店。')}return}
  const keysC=Object.keys(crops);
  for(const k of keysC){const p=k.split(',').map(Number);const c=crops[k];
   if(c.stage>=3){player.target={x:p[0]*T,y:p[1]*T};player.pending={x:p[0],y:p[1],act:'harvest'};return}
@@ -316,7 +385,7 @@ function autoStep(){
  for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===3&&!crops[x+','+y]&&state.seeds>0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'seed'};return}}
  for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'hoe'};return}}
  const dests=[[640,160],[700,560],[1080,160],[200,640],[1100,650]];const d=dests[Math.floor(Math.random()*dests.length)];
- player.target={x:d[0],y:d[1]};say('去逛逛。');
+ player.target={x:d[0],y:d[1]};say('眠菇','去逛逛。');
 }
 function doPending(){
  if(!player.pending)return;const p=player.pending;player.pending=null;
@@ -326,20 +395,20 @@ function doPending(){
 let last=performance.now(),acc=0;
 function loop(now){
  const dt=Math.min(50,now-last);last=now;acc+=dt;
+ player.blink=(now/1000)%4;
  if(acc>=500){acc=0;if(!state.sleeping){state.minutes++;if(state.minutes>=1440){state.minutes=0;sleep()}state.energy-=0.25;state.food-=0.2;renderHUD();save()}}
  if(!state.sleeping){
   let mx=0,my=0;
   if(keys['a']||keys['arrowleft'])mx-=1;if(keys['d']||keys['arrowright'])mx+=1;if(keys['w']||keys['arrowup'])my-=1;if(keys['s']||keys['arrowdown'])my+=1;
   if(mx||my){manualUntil=Date.now()+15000;player.target=null;player.moving=true;player.frame+=0.18;
    const nx=player.x+mx*2.4,ny=player.y+my*2.4;const t=tileAt(nx+24,ny+20);
-   if(!blocked(t.x,t.y)||tiles[t.y][t.x]===4){player.x=Math.max(0,Math.min(MW*T-48,nx));player.y=Math.max(0,Math.min(MH*T-48,ny))}
+   if(!blocked(t.x,t.y)){player.x=Math.max(0,Math.min(MW*T-48,nx));player.y=Math.max(0,Math.min(MH*T-48,ny))}
   } else if(player.target){
    const dx=player.target.x-player.x,dy=player.target.y-player.y,d=Math.hypot(dx,dy);
    if(d<8){player.target=null;player.moving=false;doPending()}
    else{player.moving=true;player.frame+=0.18;player.x+=dx/d*2.4;player.y+=dy/d*2.4}
   } else player.moving=false;
   aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
-  // npc wander
   if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
  }
  drawWorld();
@@ -351,12 +420,13 @@ function reply(t){
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
  if(t.includes('在哪'))return '我在田野里，点画布就能看到我。';
+ if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
  return '嗯，我听着呢，手里还拿着'+(tool==='hoe'?'锄头':tool==='seed'?'种子':tool==='water'?'水壶':tool==='food'?'饭团':'鱼竿')+'。';
 }
-function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say(r);inp.value='';state.mood+=2;clamp()}
+function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say('眠菇',r);inp.value='';state.mood+=2;clamp()}
 $('chatSend').onclick=sendChat;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
 function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');$('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>'}
-$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('谢谢留言。');state.mood+=4;clamp()};
+$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('眠菇','谢谢留言。');state.mood+=4;clamp()};
 renderHUD();renderQuests();renderWall();addFeed('来到田野，第 '+state.day+' 天');
 requestAnimationFrame(loop);
 </script>
