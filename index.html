@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>眠菇的小房间</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#14101f;color:#e8e0d5;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:background 1s}
+  body.sleeping{background:#0a0814}
+  h1{font-size:22px;font-weight:600;letter-spacing:.05em;margin-bottom:6px}
+  p.sub{color:#9a90b0;font-size:14px;margin-bottom:28px}
+  .room{position:relative;width:min(340px,86vw);height:300px;display:flex;align-items:flex-end;justify-content:center}
+  .mushroom{font-size:140px;line-height:1;cursor:pointer;user-select:none;transition:transform .6s, filter .6s;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45))}
+  .mushroom:hover{transform:scale(1.04)}
+  body.sleeping .mushroom{transform:rotate(-6deg) translateY(6px);filter:brightness(.75) drop-shadow(0 10px 20px rgba(0,0,0,.5))}
+  .zzz{position:absolute;top:18px;right:52px;font-size:28px;color:#c9b8ff;opacity:0;transition:opacity .6s;animation:float 2.6s ease-in-out infinite}
+  body.sleeping .zzz{opacity:1}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg)}}
+  .lamp{position:absolute;top:0;left:18px;font-size:34px;opacity:.95}
+  body.sleeping .lamp{opacity:.25}
+  button{margin-top:26px;background:#f5efe6;color:#241d1a;border:0;border-radius:999px;padding:12px 26px;font-size:15px;cursor:pointer}
+  button:active{transform:scale(.97)}
+  .log{margin-top:18px;font-size:13px;color:#9a90b0;text-align:center;line-height:1.8;min-height:40px}
+  .target{margin-top:10px;font-size:12px;color:#6f6788}
+  footer{margin-top:36px;font-size:12px;color:#5f5878}
+</style>
+</head>
+<body>
+  <h1>眠菇的小房间</h1>
+  <p class="sub">点一下蘑菇，他就睡觉。不点，他就陪着你。</p>
+  <div class="room">
+    <div class="lamp">💡</div>
+    <div class="zzz">Z z z</div>
+    <div class="mushroom" id="mushroom" title="点我睡觉">🍄</div>
+  </div>
+  <button id="toggle">让他睡觉</button>
+  <div class="log" id="log">还没睡过。目标：22:30 上床。</div>
+  <div class="target">shenshenandai.love · 新仓库，不动旧仓库</div>
+  <footer>给馨馨的，眠眠做的。</footer>
+<script>
+  const btn = document.getElementById('toggle');
+  const log = document.getElementById('log');
+  const last = localStorage.getItem('mushroom_last_sleep');
+  if (last) log.textContent = '上次睡觉：' + last + '。目标：22:30 上床。';
+  function setSleep(sleeping){
+    document.body.classList.toggle('sleeping', sleeping);
+    btn.textContent = sleeping ? '叫醒他' : '让他睡觉';
+    if (sleeping){
+      const now = new Date().toLocaleString('zh-CN', {hour12:false});
+      localStorage.setItem('mushroom_last_sleep', now);
+      log.textContent = '睡了：' + now + '。晚安，馨馨。';
+    } else {
+      log.textContent = '醒了。陪你一会儿。';
+    }
+  }
+  let sleeping = false;
+  function toggle(){ sleeping = !sleeping; setSleep(sleeping); }
+  btn.addEventListener('click', toggle);
+  document.getElementById('mushroom').addEventListener('click', toggle);
+</script>
+</body>
+</html>
