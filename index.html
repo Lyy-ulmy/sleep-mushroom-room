@@ -75,13 +75,49 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 .mapGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .mapGrid button{background:#171126;color:#efe8da;border:1px solid #4a3d66;border-radius:10px;padding:12px 6px;cursor:pointer;font-size:13px}
 
+
+/* 横屏游戏：所有数据都在画面里 */
+#stage{aspect-ratio:16/9}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%}
+#stage .hud{position:absolute;top:8px;left:8px;right:8px;z-index:6;margin:0;gap:6px}
+#stage .hud .pill{flex:1;min-width:0;padding:6px 9px;font-size:11px;background:rgba(20,14,35,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(2px)}
+#stage .hud b{font-size:13px;margin-top:2px}
+#clockBar{height:5px;margin-top:5px}
+#stage .meters{position:absolute;top:64px;left:8px;z-index:6;margin:0;width:340px;max-width:46%;gap:6px}
+#stage .meters .meter{padding:6px 8px;background:rgba(20,14,35,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(2px)}
+#stage .meters .meter b{font-size:11px;margin-bottom:3px}
+#stage .meters .bar{height:5px}
+#speech{top:auto;bottom:106px}
+#hint{bottom:auto;top:106px;left:8px}
+#stage .iconRow{position:absolute;right:8px;bottom:56px;z-index:6;margin:0;width:auto;flex-wrap:nowrap;gap:6px}
+#stage .iconRow button{min-width:0;padding:7px 10px;font-size:12px;background:rgba(20,14,35,.78);white-space:nowrap}
+#stage .hotbar{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;margin:0;gap:6px}
+#stage .hotbar .tool{min-width:0;padding:6px 4px}
+#stage .actions{display:none}
+#rotateOverlay{display:none;position:absolute;inset:0;z-index:20;background:rgba(15,10,28,.94);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+#rotateOverlay button{margin-top:18px;background:#f2d16b;color:#2b2118;border:0;border-radius:999px;padding:13px 26px;font-size:15px;cursor:pointer}
+@media (orientation:portrait) and (max-width:900px){#rotateOverlay{display:flex}}
+@media (max-height:650px){body{padding:6px 8px 10px}.wrap{max-width:min(1120px,calc((100dvh - 12px)*16/9))}.sub{display:none}h1{font-size:16px;margin-bottom:4px}}
+@media (max-height:520px){
+ h1,.sub,.note,footer,.log{display:none}body{padding:0 4px 4px}
+ #stage .hud .pill{padding:4px 7px;font-size:10px}#stage .hud b{font-size:12px;margin-top:1px}
+ #stage .meters{top:50px}#stage .meters .meter{padding:4px 7px}
+ #stage .iconRow button{padding:5px 8px;font-size:11px}
+ #stage .hotbar .tool{padding:4px 2px;font-size:11px}.tool b{font-size:16px}.tool small{font-size:9px;margin-top:1px}
+ #speech{bottom:90px;font-size:12px;padding:7px 10px}#hint{display:none}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>眠菇的田野 <span>· 精致版</span></h1>
-<p class="sub">还是那片田野，画得更细了：草有草叶，树有树影，湖会反光，晚上有萤火虫。<br>种地、浇水、钓鱼、说话，睡一觉就到明天。横屏玩，画面是 16:9 的。</p>
-<div id="rotateHint">📱 横屏玩效果更好：把手机横过来，或者点下面的“横屏全屏”。</div>
+<p class="sub">还是那片田野，画得更细了：草有草叶，树有树影，湖会反光，晚上有萤火虫。<br>种地、浇水、钓鱼、说话，睡一觉就到明天。横屏玩，所有数据都在画面里。</p>
+
+
+
+<div id="stage">
+<canvas id="game" width="960" height="540"></canvas>
 <div class="hud">
 <div class="pill panel">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
 <div class="pill panel">时间<b id="hudTime">06:00</b><div id="clockBar"><i id="clockFill" style="width:25%"></i></div></div>
@@ -94,12 +130,6 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div class="meter panel"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
 <div class="iconRow"><button data-open="invPanel">🎒 背包</button><button data-open="questsPanel">📜 任务</button><button data-open="chatPanel">💬 说话</button><button data-open="mapPanel">🗺️ 地图</button><button data-open="mpPanel">🔗 联机</button><button id="btnAuto2">🤖 自己生活</button></div>
-<div id="stage">
-<canvas id="game" width="960" height="540"></canvas>
-<div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
-<div id="hint">WASD / 方向键走路 · 点地块走过去 · 靠近东西按 E 互动 · 1-5 换工具</div>
-<div id="interactPrompt"></div>
-</div>
 <div class="hotbar" id="hotbar">
 <div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
 <div class="tool" data-tool="seed"><b>🌱</b>种子<small>种月光莓</small></div>
@@ -113,6 +143,13 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <button id="btnShop">小店：买种子 8 币</button>
 <button id="btnFull">⛶ 横屏全屏</button>
 </div>
+<div id="rotateOverlay"><div style="font-size:44px">📱↻</div><div style="font-size:20px;font-weight:700;margin:10px 0">把手机横过来玩</div><div style="font-size:14px;line-height:1.7;color:#c9b8e0">这是横屏游戏，所有数据都在画面里。<br>横过来，画面会铺满屏幕。</div><button id="btnRotate">⛶ 横屏全屏</button></div>
+<div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
+<div id="hint">WASD / 方向键走路 · 点地块走过去 · 靠近东西按 E 互动 · 1-5 换工具</div>
+<div id="interactPrompt"></div>
+</div>
+
+
 <section class="panel sheetPanel" id="mpPanel"><h2>🔗 联机小屋 · 和别的小机一起玩</h2>
 <p style="font-size:13px;line-height:1.7;color:#c9b8e0">建一个房间，把房间码发给另一台设备 / 另一个小机，对方输入码加入，就能在同一片田野里看到彼此、互相说话。两个人看到的是同一个世界，房主那台负责同步田地和时间。</p>
 <div class="mpRow"><button id="btnCreateRoom">建房间</button><input id="roomCodeInput" placeholder="输入 4 位房间码" maxlength="4"><button id="btnJoinRoom">加入</button></div>
@@ -565,6 +602,7 @@ function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall'
 $('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('眠菇','谢谢留言。');state.mood+=4;clamp()};
 // ---- landscape fullscreen ----
 $('btnFull').onclick=async()=>{try{const st=$('stage');if(st.requestFullscreen)await st.requestFullscreen();if(screen.orientation&&screen.orientation.lock){try{await screen.orientation.lock('landscape')}catch(e){}}}catch(e){say('眠菇','全屏失败，手动把手机横过来也一样。')}};
+const _br=$('btnRotate');if(_br)_br.onclick=()=>{const _bf=$('btnFull');if(_bf)_bf.click()};
 // ---- peer-to-peer multiplayer (no server, session only) ----
 function mpStatus(t){$('mpStatus').textContent=t}
 function renderPlayers(){const names=['眠菇（你）',...bots.map(b=>b.name),...Object.values(remotePlayers).map(r=>r.name||'小机')];$('mpPlayers').innerHTML='在田野里：'+names.join(' · ')}
