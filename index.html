@@ -92,16 +92,17 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 #stage{aspect-ratio:16/9}
 #stage canvas{position:absolute;inset:0;width:100%;height:100%}
 #stage .hud{position:absolute;top:8px;left:8px;right:8px;z-index:6;margin:0;gap:6px}
-#stage .hud .pill{flex:1;min-width:0;padding:6px 9px;font-size:11px;background:rgba(20,14,35,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(2px)}
+#stage .hud .pill{flex:1;min-width:0;padding:6px 9px;font-size:11px;background:rgba(20,14,35,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(2px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage .hud .pill:last-child{flex:1.4}
 #stage .hud b{font-size:13px;margin-top:2px}
 #clockBar{height:5px;margin-top:5px}
-#stage .meters{position:absolute;top:64px;left:8px;z-index:6;margin:0;width:340px;max-width:46%;gap:6px}
+#stage .meters{position:absolute;top:11.5%;left:8px;z-index:6;margin:0;width:340px;max-width:46%;gap:6px}
 #stage .meters .meter{padding:6px 8px;background:rgba(20,14,35,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(2px)}
 #stage .meters .meter b{font-size:11px;margin-bottom:3px}
 #stage .meters .bar{height:5px}
-#speech{top:auto;bottom:106px}
+#speech{top:auto;bottom:25%}
 #hint{bottom:auto;top:106px;left:8px}
-#stage .iconRow{position:absolute;right:8px;bottom:56px;z-index:6;margin:0;width:auto;flex-wrap:nowrap;gap:6px}
+#stage .iconRow{position:absolute;right:8px;bottom:15.5%;z-index:6;margin:0;width:auto;flex-wrap:nowrap;gap:6px}
 #stage .iconRow button{min-width:0;padding:7px 10px;font-size:12px;background:rgba(20,14,35,.78);white-space:nowrap}
 #stage .hotbar{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;margin:0;gap:6px}
 #stage .hotbar .tool{min-width:0;padding:6px 4px}
@@ -110,13 +111,14 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 #rotateOverlay button{margin-top:18px;background:#f2d16b;color:#2b2118;border:0;border-radius:999px;padding:13px 26px;font-size:15px;cursor:pointer}
 @media (orientation:portrait) and (max-width:900px){#rotateOverlay{display:flex}}
 @media (max-height:650px){body{padding:6px 8px 10px}.wrap{max-width:min(1120px,calc((100dvh - 12px)*16/9))}.sub{display:none}h1{font-size:16px;margin-bottom:4px}}
+@media (max-width:900px){#stage .hud .pill{font-size:10px;padding:5px 7px}#stage .hud b{font-size:12px}#stage .iconRow button{padding:6px 8px;font-size:11px}}
 @media (max-height:520px){
  h1,.sub,.note,footer,.log{display:none}body{padding:0 4px 4px}
  #stage .hud .pill{padding:4px 7px;font-size:10px}#stage .hud b{font-size:12px;margin-top:1px}
- #stage .meters{top:50px}#stage .meters .meter{padding:4px 7px}
+ #stage .meters{top:11%}#stage .meters .meter{padding:4px 7px}
  #stage .iconRow button{padding:5px 8px;font-size:11px}
  #stage .hotbar .tool{padding:4px 2px;font-size:11px}.tool b{font-size:16px}.tool small{font-size:9px;margin-top:1px}
- #speech{bottom:90px;font-size:12px;padding:7px 10px}#hint{display:none}
+ #speech{bottom:24%;font-size:12px;padding:7px 10px}#hint{display:none}
 }
 
 </style>
@@ -266,7 +268,7 @@ function renderHUD(){
  const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');$('hudTime').textContent=hh+':'+mm;
  $('clockFill').style.width=Math.max(0,Math.min(100,(state.minutes-360)/1080*100))+'%';
  $('hudCoins').textContent=state.coins;
- $('hudBag').textContent='种子 '+state.seeds+' · 收获 '+state.harvest+' · 鱼 '+state.fish+' · 饭团 '+state.rice;
+ $('hudBag').textContent='种子'+state.seeds+' · 收获'+state.harvest+' · 鱼'+state.fish+' · 饭团'+state.rice;
  $('vEnergy').textContent=Math.round(state.energy);$('bEnergy').style.width=state.energy+'%';
  $('vFood').textContent=Math.round(state.food);$('bFood').style.width=state.food+'%';
  $('vMood').textContent=Math.round(state.mood);$('bMood').style.width=state.mood+'%';
