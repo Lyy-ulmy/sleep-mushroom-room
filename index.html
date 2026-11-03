@@ -157,13 +157,30 @@ for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
 for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
 let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
 let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false};
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
+if(!state.weather)state.weather=pickWeather(state.season,state.day);
 const seasons=[
- {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0'},
- {n:'夏',e:'☀️',grass:'#62b04b',grass2:'#55a040',dark:'#478a36',leaf:'#4f9c48',leaf2:'#3f8a3d',fall:'#f2d16b'},
- {n:'秋',e:'🍂',grass:'#a8a24f',grass2:'#9a9447',dark:'#7f7a3a',leaf:'#d98a3e',leaf2:'#c06f2e',fall:'#e86a3e'},
- {n:'冬',e:'❄️',grass:'#a3bcb0',grass2:'#94aea6',dark:'#7f9a92',leaf:'#d4e2dc',leaf2:'#bccfc7',fall:'#ffffff'}
+ {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0',bloom:'#f7a8c0'},
+ {n:'夏',e:'☀️',grass:'#62b04b',grass2:'#55a040',dark:'#478a36',leaf:'#4f9c48',leaf2:'#3f8a3d',fall:'#f2d16b',bloom:'#f2d16b'},
+ {n:'秋',e:'🍂',grass:'#a8a24f',grass2:'#9a9447',dark:'#7f7a3a',leaf:'#d98a3e',leaf2:'#c06f2e',fall:'#e86a3e',bloom:'#e86a3e'},
+ {n:'冬',e:'❄️',grass:'#a3bcb0',grass2:'#94aea6',dark:'#7f9a92',leaf:'#d4e2dc',leaf2:'#bccfc7',fall:'#ffffff',bloom:'#ffffff'}
 ];
+// ---- 天气：一天一种，跟着季节走；雨天浇水，下雪苗歇一天 ----
+const WEATHERS={sunny:{e:'☀️',n:'晴'},cloudy:{e:'☁️',n:'多云'},rain:{e:'🌧️',n:'下雨'},snow:{e:'🌨️',n:'下雪'},wind:{e:'🍃',n:'起风'}};
+function pickWeather(seasonIdx,day){
+ const _v=Math.sin((seasonIdx*100+day)*12.9898)*43758.5453; const r=_v-Math.floor(_v);
+ const table=[[0.45,0.7,0.88,0.96],[0.5,0.72,0.9,0.96],[0.3,0.55,0.78,0.95],[0.3,0.55,0.85,0.94]][seasonIdx];
+ // per season: [sunny, cloudy, rain/snow, wind] cumulative cutoffs; winter rain slot becomes snow
+ if(r<table[0])return 'sunny'; if(r<table[1])return 'cloudy';
+ if(r<table[2])return seasonIdx===3?'snow':'rain'; if(r<table[3])return 'wind'; return 'sunny';
+}
+function weatherInfo(w){return WEATHERS[w]||WEATHERS.sunny}
+function tomorrowWeather(){let nd=state.day+1,ns=state.season;if(nd%7===1&&nd>1)ns=(ns+1)%4;return pickWeather(ns,nd)}
+function showWeather(){
+ const t=weatherInfo(state.weather),tm=weatherInfo(tomorrowWeather());
+ const tip=state.weather==='rain'?'雨会帮田浇水，苗不用浇了。':state.weather==='snow'?'下雪了，苗苗今天歇一天，湖也结冰了。':state.weather==='wind'?'风大，花瓣和落叶飞得快。':state.weather==='cloudy'?'云多，太阳躲起来了。':'天很好，适合去湖边。';
+ say('眠菇','今天'+t.n+'，明天'+tm.n+'。'+tip);
+}
 let player={x:saved.px??256,y:saved.py??288,frame:0,moving:false,target:null,pending:null,blink:0};
 let tool='hoe',auto=true,manualUntil=0,camX=0,camY=0,hover=null;
 let npcs=[
@@ -188,14 +205,14 @@ let quests=saved.quests||[
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
-function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,minutes:state.minutes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
+function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
 function log(t){$('log').textContent=t}
 function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
 function clamp(){state.energy=Math.max(0,Math.min(100,state.energy));state.food=Math.max(0,Math.min(100,state.food));state.mood=Math.max(0,Math.min(100,state.mood));save();renderHUD()}
 function completeQuest(id){const q=quests.find(x=>x.id===id);if(q&&!q.done){q.done=true;addFeed('完成任务：'+q.t);renderQuests();save()}}
 function renderHUD(){
- $('hudSeason').textContent=seasons[state.season].e+' '+seasons[state.season].n+' · 第 '+state.day+' 天';
+ $('hudSeason').textContent=seasons[state.season].e+' '+seasons[state.season].n+' · '+weatherInfo(state.weather).e+' · 第 '+state.day+' 天';
  const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');$('hudTime').textContent=hh+':'+mm;
  $('clockFill').style.width=Math.max(0,Math.min(100,(state.minutes-360)/1080*100))+'%';
  $('hudCoins').textContent=state.coins;
@@ -212,9 +229,16 @@ function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx
 function drawTile(x,y){
  const t=tiles[y][x],px=x*T,py=y*T,s=seasons[state.season],h1=hash(x,y),h2=hash(y,x+99);
  if(t===2){
+  if(state.season===3){
+   // 冬天湖面结冰：苍白冰面 + 冰裂纹，不长睡莲
+   R(px,py,T,T,'#cfe4ea');R(px,py,T,T,'#dceef2');
+   ctx.fillStyle='rgba(120,150,165,.5)';ctx.fillRect(px+4,py+10,14,1);ctx.fillRect(px+14,py+20,12,1);ctx.fillRect(px+20,py+5,1,12);
+   R(px,py,T,1,'rgba(255,255,255,.8)');return;
+  }
   const g=ctx.createLinearGradient(px,py,px,py+T);g.addColorStop(0,'#4a90d9');g.addColorStop(1,'#2f6bb0');ctx.fillStyle=g;ctx.fillRect(px,py,T,T);
   ctx.fillStyle='rgba(255,255,255,.55)';const off=Math.sin(Date.now()/800+x*1.7)*4;
   ctx.fillRect(px+5+off,py+8,16,2);ctx.fillRect(px+9-off,py+20,14,2);ctx.fillRect(px+4,py+14,6,1);
+  if(state.weather==='rain'){ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(px+8+((Date.now()/60+x*7)%24),py+6,2,2);ctx.fillRect(px+18-((Date.now()/60+x*5)%20),py+22,2,2)}
   if(h1>.86){R(px+10,py+10,12,8,'#5d9a44');R(px+14,py+7,4,4,'#f7a8c0')}
   R(px,py,T,1,'rgba(255,255,255,.35)');return;
  }
@@ -225,19 +249,30 @@ function drawTile(x,y){
  // grass blades, in two tones
  ctx.fillStyle=s.dark;const bx=px+4+h1*20;ctx.fillRect(bx,py+16,2,7);ctx.fillRect(bx+8,py+20,2,6);ctx.fillRect(px+22,py+8,2,6);
  ctx.fillStyle=s.grass;ctx.fillRect(px+10+h2*12,py+6,2,6);
- if(h1>.88){const fx=px+8+h2*14,fy=py+8+h1*10;R(fx,fy,3,3,'#f7a8c0');R(fx+1,fy+3,1,3,'#5d9a44')}
+ if(h1>.88){const fx=px+8+h2*14,fy=py+8+h1*10;R(fx,fy,3,3,s.bloom);R(fx+1,fy+3,1,3,'#5d9a44')}
  else if(h1>.78){R(px+6+h2*18,py+22,3,3,'#ffffff');R(px+7+h2*18,py+25,1,3,'#5d9a44')}
+ if(state.season===1&&h1>.94){R(px+12,py+10,4,4,'#f2d16b');R(px+13,py+14,2,5,'#5d9a44')}
+ if(state.season===2&&h2>.82){R(px+6,py+14,6,3,'#e86a3e');R(px+20,py+22,5,3,'#d98a3e')}
  if(h2>.9)R(px+24,py+24,4,3,'#9a958a');
  if(state.season===3){ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillRect(px+3,py+3,7,3);ctx.fillRect(px+20,py+18,8,3)}
+ if(state.weather==='rain'){ctx.fillStyle='rgba(90,140,200,.10)';ctx.fillRect(px,py,T,T)}
 }
 function drawTree(x,y){
  const s=seasons[state.season];
  ellipse(x+16,y+30,20,5,'rgba(0,0,0,.22)');
  R(x+13,y+26,6,16,'#6b4a32');R(x+14,y+26,2,16,'#8a5f42');R(x+13,y+38,6,3,'#54382a');
+ if(state.season===3){
+  // 冬天：光秃秃的树枝 + 积雪
+  R(x+10,y+14,3,12,'#6b4a32');R(x+20,y+10,3,12,'#6b4a32');R(x+8,y+8,3,6,'#6b4a32');R(x+22,y+6,3,6,'#6b4a32');
+  R(x+6,y+5,8,3,'#ffffff');R(x+20,y+3,8,3,'#ffffff');R(x+12,y+12,8,3,'#ffffff');
+  R(x+4,y+22,4,3,'#ffffff');R(x+24,y+20,4,3,'#ffffff');
+  return;
+ }
  // canopy: three pixel-stepped layers
  const layers=[[4,0,24,12],[0,8,32,12],[6,18,20,10]];
  layers.forEach((L,i)=>{R(x+L[0],y+L[1],L[2],L[3],i===0?s.leaf:s.leaf2);R(x+L[0],y+L[1],L[2],3,'rgba(255,255,255,.28)');R(x+L[0],y+L[1]+L[3]-3,L[2],3,'rgba(0,0,0,.14)')});
  R(x+8,y+4,6,5,'rgba(255,255,255,.35)');
+ if(state.season===0){R(x+6,y+6,5,4,'#f7a8c0');R(x+20,y+10,5,4,'#f7a8c0');R(x+12,y+16,4,4,'#ffffff')}
  if(state.season===2&&hash(x,y)>.4){const fy=y+22+Math.sin(Date.now()/900+x)*3;R(x+10,fy,4,3,s.fall)}
 }
 function drawCrop(x,y,crop){
@@ -265,6 +300,8 @@ function drawHouse(){
  R(x-6,y-22,204,10,'#b04a3a');R(x+2,y-30,188,10,'#c85a48');R(x+12,y-38,168,10,'#d96a52');
  for(let i=0;i<10;i++)R(x+12+i*17,y-38,1,28,'rgba(0,0,0,.16)');
  R(x-6,y-13,204,2,'rgba(0,0,0,.25)');
+ if(state.season===3){R(x+12,y-38,168,4,'#ffffff');R(x+2,y-30,188,3,'#ffffff');R(x-6,y-22,204,3,'#eef4f6')}
+ if(state.season===2){R(x+30,y-38,6,4,'#e86a3e');R(x+90,y-30,6,4,'#d98a3e');R(x+150,y-22,6,4,'#e86a3e')}
  // chimney + smoke
  R(x+150,y-52,16,22,'#8a5a44');R(x+147,y-55,22,5,'#6b4a32');
  // door + windows
@@ -329,6 +366,12 @@ function drawProps(){
   // 邮筒：联机 / MCP，路口
   R(476,296,18,24,'#c04a3e');R(474,292,22,6,'#a83a30');R(482,304,6,6,'#fff8e8');R(482,320,6,8,'#6b4a32');
   // 床头灯 / 睡觉提示在屋里，不单独画
+  // 风向标：靠近按 E 看天气
+  R(358,128,3,26,'#6b4a32');R(348,126,24,3,'#c9a86a');R(368,122,6,6,'#e86a8a');R(346,124,4,4,'#f2d16b');
+  if(state.season===3){
+   // 冬天的小雪人
+   ellipse(392,232,16,4,'rgba(0,0,0,.18)');R(384,200,16,14,'#ffffff');R(380,214,24,16,'#ffffff');R(388,196,8,3,'#2b2118');R(384,198,16,3,'#c04a3e');R(390,204,3,3,'#2b2118');R(396,204,3,3,'#2b2118');R(392,208,4,3,'#e86a3e');
+  }
 }
 function drawWorld(){
  camX+=(Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2))-camX)*0.12;
@@ -337,8 +380,10 @@ function drawWorld(){
  ctx.save();ctx.translate(-Math.round(camX),-Math.round(camY));
  const x0=Math.max(0,Math.floor(camX/T)),x1=Math.min(MW-1,Math.ceil((camX+VW)/T)),y0=Math.max(0,Math.floor(camY/T)),y1=Math.min(MH-1,Math.ceil((camY+VH)/T));
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)drawTile(x,y);
- // cloud shadows
- clouds.forEach(c=>{c.x+=0.12*c.s;if(c.x>MW*T+80)c.x=-120;ellipse(c.x,c.y+180,52*c.s,10,'rgba(0,0,0,.08)');ctx.fillStyle='rgba(255,255,255,.92)';ellipse(c.x,c.y,34*c.s,13,'#fff');ellipse(c.x-22*c.s,c.y+4,22*c.s,10,'#fff');ellipse(c.x+24*c.s,c.y+4,22*c.s,10,'#fff')});
+ // cloud shadows; rain / cloudy days get greyer, heavier clouds
+ const cloudCol=(state.weather==='rain'||state.weather==='cloudy')?'#c9cbd8':'#fff';
+ clouds.forEach(c=>{c.x+=0.12*c.s*(state.weather==='wind'?2.2:1);if(c.x>MW*T+80)c.x=-120;ellipse(c.x,c.y+180,52*c.s,10,'rgba(0,0,0,.08)');ctx.fillStyle=cloudCol;ellipse(c.x,c.y,34*c.s,13,cloudCol);ellipse(c.x-22*c.s,c.y+4,22*c.s,10,cloudCol);ellipse(c.x+24*c.s,c.y+4,22*c.s,10,cloudCol)});
+ if(state.weather==='cloudy'||state.weather==='rain'){ellipse(500,30,44,12,cloudCol);ellipse(820,70,38,11,cloudCol)}
  // farm fence + labels, subtle
  ctx.fillStyle='rgba(43,33,24,.75)';ctx.font='11px sans-serif';
  ctx.fillText('月光莓田',18*T+4,10*T-5);ctx.fillText('湖',3*T+6,18*T-5);
@@ -346,7 +391,7 @@ function drawWorld(){
  drawHouse();drawShop();drawProps();
  trees.forEach(t=>drawTree(t.x*T,t.y*T));
  Object.keys(crops).forEach(k=>{const p=k.split(',');drawCrop(+p[0],+p[1],crops[k])});
- butterflies.forEach(b=>{b.t+=0.03;b.x+=Math.sin(b.t)*0.7;b.y+=Math.cos(b.t*1.2)*0.45;R(b.x,b.y,5,4,b.c);R(b.x+6,b.y+2,5,4,'#ffffff');R(b.x+2,b.y+6,2,2,'#2b2118')});
+ if(state.season!==3&&state.weather!=='rain'&&state.weather!=='snow')butterflies.forEach(b=>{b.t+=0.03;b.x+=Math.sin(b.t)*0.7;b.y+=Math.cos(b.t*1.2)*0.45;R(b.x,b.y,5,4,b.c);R(b.x+6,b.y+2,5,4,'#ffffff');R(b.x+2,b.y+6,2,2,'#2b2118')});
  // hover highlight
  if(hover){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.strokeRect(hover.x*T+1,hover.y*T+1,T-2,T-2);ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(hover.x*T,hover.y*T,T,T)}
  // actors sorted by y
@@ -356,13 +401,29 @@ function drawWorld(){
  {y:player.y,draw:()=>drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}];
  actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
  particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=p.vy||1;p.x+=(p.vx||0);p.life--;ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,p.life/22);ctx.fillRect(p.x,p.y,4,4);ctx.globalAlpha=1});
- // falling petals / leaves / snow
+ // falling petals / leaves / snow, plus weather: rain streaks, drifting snow, wind lines
  const s=seasons[state.season];
- for(let i=0;i<14;i++){const fx=((i*173+Math.floor(tNow/40))% (MW*T)),fy=((i*97+tNow/28)% (MH*T));R(fx,fy,4,3,s.fall)}
+ const windPush=state.weather==='wind'?90:0;
+ for(let i=0;i<14;i++){const fx=((i*173+Math.floor(tNow/40)+windPush)% (MW*T)),fy=((i*97+tNow/28)% (MH*T));R(fx,fy,4,3,s.fall)}
+ if(state.weather==='rain'){
+  ctx.fillStyle='rgba(170,200,240,.75)';
+  for(let i=0;i<70;i++){const rx=((i*53+tNow/12)% (MW*T)),ry=((i*89+tNow/3)% (MH*T));ctx.fillRect(rx,ry,1,11)}
+  ctx.fillStyle='rgba(255,255,255,.5)';
+  for(let i=0;i<18;i++){const rx=((i*211+tNow/40)% (MW*T)),ry=((i*37+tNow/60)% (MH*T));ctx.fillRect(rx,ry,7,1)}
+ }
+ if(state.weather==='snow'){
+  for(let i=0;i<46;i++){const sx=((i*67+Math.sin(tNow/900+i)*22+MW*T)% (MW*T)),sy=((i*113+tNow/22)% (MH*T));const sz=2+(i%3);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(sx,sy,sz,sz)}
+ }
+ if(state.weather==='wind'){
+  ctx.fillStyle='rgba(255,255,255,.45)';
+  for(let i=0;i<8;i++){const wx=((i*301+tNow/8)% (MW*T)),wy=90+i*62;ctx.fillRect(wx,wy,42,1)}
+ }
  ctx.restore();
  // vignette + lighting
  const h=state.minutes/60;let alpha=0,tint='rgba(20,16,60,1)';
  if(h<6||h>=19)alpha=0.36;else if(h>=17){alpha=0.15;tint='rgba(240,140,60,1)'}else if(h<8){alpha=0.07;tint='rgba(255,200,120,1)'}
+ if(state.weather==='rain'&&h>=6&&h<19){alpha=Math.max(alpha,0.16);tint='rgba(70,100,150,1)'}
+ if(state.weather==='snow'&&h>=6&&h<19){alpha=Math.max(alpha,0.05);tint='rgba(220,235,250,1)'}
  if(alpha>0){ctx.fillStyle=tint;ctx.globalAlpha=alpha;ctx.fillRect(0,0,VW,VH);ctx.globalAlpha=1}
  if(h<6||h>=19){
   const gx=player.x-camX,gy=player.y-camY;const g=ctx.createRadialGradient(gx,gy,8,gx,gy,130);g.addColorStop(0,'rgba(255,220,140,.38)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
@@ -407,8 +468,12 @@ function sleep(){
  if(state.sleeping)return;
  state.sleeping=true;say('眠菇','晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
  setTimeout(()=>{
-  state.sleeping=false;state.minutes=360;state.day++;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;say('眠菇','换季了，现在是'+seasons[state.season].n+'天。')}
-  Object.keys(crops).forEach(k=>{const c=crops[k];if(c.watered){c.growth++;c.watered=false;if(c.growth>=2){c.stage=Math.min(3,c.stage+1);c.growth=0}}});
+  state.sleeping=false;state.minutes=360;state.day++;let changed=false;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;changed=true}
+  state.weather=pickWeather(state.season,state.day);
+  if(changed){const line=['花开了，田野变粉了。','天热了，湖边最舒服。','叶子黄了，落叶满地。','下雪了，湖结冰了，树也光了。'][state.season];say('眠菇','换季了，现在是'+seasons[state.season].n+'天。'+line);addFeed('换季：'+seasons[state.season].n+'季，'+line)}
+  if(state.weather==='rain'){Object.keys(crops).forEach(k=>{crops[k].watered=true});addFeed('今天下雨，田自己浇好水了')}
+  if(state.weather==='snow')addFeed('今天下雪，苗苗歇一天');
+  Object.keys(crops).forEach(k=>{const c=crops[k];if(state.weather==='snow')return;if(c.watered){c.growth++;c.watered=false;if(c.growth>=2){c.stage=Math.min(3,c.stage+1);c.growth=0}}});
   state.energy=95;state.food=Math.max(40,state.food-10);state.mood=85;
   quests.forEach(q=>{q.done=false;q.claimed=false});
   say('眠菇','新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
@@ -485,6 +550,7 @@ function loop(now){
  requestAnimationFrame(loop);
 }
 function reply(t){
+ if(t.includes('天气')||t.includes('下雨')||t.includes('下雪'))return '今天'+weatherInfo(state.weather).n+'，明天'+weatherInfo(tomorrowWeather()).n+'。去风向标那里按 E 也能看。';
  if(t.includes('种'))return '今天种的是月光莓，浇了水长得快。';
  if(t.includes('睡')||t.includes('困'))return '困了我就回家睡，睡一觉就到明天。';
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
@@ -552,7 +618,7 @@ backdrop.onclick=closePanels;
 document.querySelectorAll('.sheetPanel').forEach(el=>{const b=document.createElement('button');b.className='closeBtn';b.textContent='✕';b.setAttribute('aria-label','关闭');b.onclick=closePanels;el.prepend(b)});
 document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openPanel(b.dataset.open));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closePanels);
-function renderInv(){$('invBody').innerHTML='蘑菇币：<b>'+state.coins+'</b><br>种子：'+state.seeds+' · 收获（月光莓）：'+state.harvest+' · 鱼：'+state.fish+' · 饭团：'+state.rice+'<br>体力 '+Math.round(state.energy)+' · 饱腹 '+Math.round(state.food)+' · 心情 '+Math.round(state.mood)+'<br>现在：'+seasons[state.season].n+'季第 '+state.day+' 天';}
+function renderInv(){$('invBody').innerHTML='蘑菇币：<b>'+state.coins+'</b><br>种子：'+state.seeds+' · 收获（月光莓）：'+state.harvest+' · 鱼：'+state.fish+' · 饭团：'+state.rice+'<br>体力 '+Math.round(state.energy)+' · 饱腹 '+Math.round(state.food)+' · 心情 '+Math.round(state.mood)+'<br>现在：'+seasons[state.season].n+'季第 '+state.day+' 天 · 今天'+weatherInfo(state.weather).n+'，明天'+weatherInfo(tomorrowWeather()).n;}
 $('btnInvEat').onclick=()=>{tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y);renderInv();closePanels()};
 $('btnInvBuy').onclick=()=>{const s=$('btnShop');if(s)s.click();renderInv()};
 $('btnAuto2').onclick=()=>{const a=$('btnAuto');if(a)a.click();$('btnAuto2').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关'};
@@ -567,6 +633,7 @@ function nearestInteract(){
     {label:'📮 留言墙',x:313,y:180,d:80,act:()=>openPanel('wallPanel')},
     {label:'🪧 任务牌',x:599,y:310,d:80,act:()=>openPanel('questsPanel')},
     {label:'📬 联机 / MCP',x:485,y:308,d:80,act:()=>openPanel('mpPanel')},
+    {label:'🌦️ 看天气',x:360,y:140,d:80,act:showWeather},
     {label:'🎣 湖边钓鱼',x:220,y:640,d:90,act:()=>{tool='rod';fish()}},
     {label:'📖 田野日志',x:160,y:220,d:70,act:()=>openPanel('feedPanel')}
   ];
@@ -582,7 +649,7 @@ function openDialogue(n){
   openPanel('dlgPanel');
 }
 $('dlgGreet').onclick=()=>{if(currentNpc)talkTo(currentNpc);if(currentNpc)$('dlgText').textContent=currentNpc.lines[Math.floor(Math.random()*currentNpc.lines.length)]};
-$('dlgAsk').onclick=()=>{if(!currentNpc)return;$('dlgText').textContent='今天是'+seasons[state.season].n+'季第 '+state.day+' 天，田里还好，你呢？'};
+$('dlgAsk').onclick=()=>{if(!currentNpc)return;$('dlgText').textContent='今天是'+seasons[state.season].n+'季第 '+state.day+' 天，'+weatherInfo(state.weather).n+'，田里还好，你呢？'};
 function updateInteract(){
   const it=nearestInteract();currentInteract=it;
   const pr=$('interactPrompt');
