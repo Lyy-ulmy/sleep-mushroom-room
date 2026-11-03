@@ -121,6 +121,26 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
  #speech{bottom:24%;font-size:12px;padding:7px 10px}#hint{display:none}
 }
 
+
+/* 容器结构：上下两排各自成组，组内流式排布，永远不重叠、不被盖住 */
+#topOverlay{position:absolute;top:8px;left:8px;right:8px;z-index:6;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#stage #topOverlay .hud{position:static;margin:0}
+#stage #topOverlay .meters{position:static;margin:0;width:min(360px,62%)}
+#bottomOverlay{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;display:flex;flex-direction:column;gap:6px}
+#bottomOverlay #speech{position:relative;left:auto;transform:none;margin:0 auto;max-width:88%}
+#bottomOverlay .iconRow{position:static;margin:0;justify-content:flex-end}
+#bottomOverlay .hotbar{position:static;margin:0}
+#bottomOverlay .actions{display:none}
+@media (max-height:430px){
+ #topOverlay{gap:4px;top:5px;left:5px;right:5px}
+ #stage .hud .pill{padding:3px 6px;font-size:9px}#stage .hud b{font-size:11px;margin-top:0}#clockBar{height:3px;margin-top:3px}
+ #stage .meters .meter{padding:3px 6px}#stage .meters .meter b{font-size:10px}
+ #bottomOverlay{left:5px;right:5px;bottom:5px;gap:4px}
+ #bottomOverlay #speech{font-size:11px;padding:6px 10px}
+ #bottomOverlay .iconRow button{padding:4px 7px;font-size:10px}
+ #bottomOverlay .hotbar .tool{padding:3px 2px;font-size:10px}.tool b{font-size:15px}.tool small{font-size:9px}
+}
+
 </style>
 </head>
 <body>
@@ -132,6 +152,8 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 
 <div id="stage">
 <canvas id="game" width="960" height="540"></canvas>
+<canvas id="game" width="960" height="540"></canvas>
+<div id="topOverlay">
 <div class="hud">
 <div class="pill panel">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
 <div class="pill panel">时间<b id="hudTime">06:00</b><div id="clockBar"><i id="clockFill" style="width:25%"></i></div></div>
@@ -143,6 +165,9 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div class="meter panel"><b>饱腹 <span id="vFood">70</span></b><div class="bar"><i id="bFood" style="width:70%"></i></div></div>
 <div class="meter panel"><b>心情 <span id="vMood">85</span></b><div class="bar"><i id="bMood" style="width:85%"></i></div></div>
 </div>
+</div>
+<div id="bottomOverlay">
+<div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
 <div class="iconRow"><button data-open="invPanel">🎒 背包</button><button data-open="questsPanel">📜 任务</button><button data-open="chatPanel">💬 说话</button><button data-open="mapPanel">🗺️ 地图</button><button data-open="mpPanel">🔗 联机</button><button id="btnAuto2">🤖 自己生活</button></div>
 <div class="hotbar" id="hotbar">
 <div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
@@ -157,8 +182,8 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <button id="btnShop">小店：买种子 8 币</button>
 <button id="btnFull">⛶ 横屏全屏</button>
 </div>
+</div>
 <div id="rotateOverlay"><div style="font-size:44px">📱↻</div><div style="font-size:20px;font-weight:700;margin:10px 0">把手机横过来玩</div><div style="font-size:14px;line-height:1.7;color:#c9b8e0">这是横屏游戏，所有数据都在画面里。<br>横过来，画面会铺满屏幕。</div><button id="btnRotate">⛶ 横屏全屏</button></div>
-<div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
 <div id="hint">WASD / 方向键走路 · 点地块走过去 · 靠近东西按 E 互动 · 1-5 换工具</div>
 <div id="interactPrompt"></div>
 </div>
