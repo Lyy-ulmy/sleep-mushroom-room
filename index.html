@@ -229,6 +229,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <section class="panel sheetPanel" id="invPanel"><h2>🎒 背包</h2><div id="invBody" style="font-size:14px;line-height:2"></div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button id="btnInvEat" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🍙 吃一个饭团</button><button id="btnInvBuy" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🛒 买种子和饭团（8 币）</button></div><p style="font-size:12px;color:#a99ec2;margin-top:10px">工具在下面的工具栏里换，1-5 也行。背包只在需要的时候打开。</p></section>
 <section class="panel sheetPanel" id="mapPanel"><h2>🗺️ 田野地图</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">点一个地方，眠菇会自己走过去。平时不用开着，地图在需要的时候才出来。</p><div class="mapGrid"><button data-travel="room">🏠 小房间</button><button data-travel="garden">🌷 花园</button><button data-travel="forest">🌲 森林</button><button data-travel="lake">🌊 湖边</button><button data-travel="shop">🍙 小店</button><button data-travel="hill">⛰️ 山丘</button></div><p id="mapPos" style="font-size:13px;color:#c9b8e0;margin-top:10px"></p></section>
 <section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button></div></section>
+<section class="panel sheetPanel" id="cookPanel"><h2>🍳 灶台 · 做饭</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">拿食材来做，做了就进背包，在背包里吃。不同的菜，火的样子也不一样。</p><div id="cookList" style="font-size:14px;line-height:1.8"></div></section>
 <div id="backdrop"></div>
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
 <footer>给馨馨的，眠眠住在这里。shenshenandai.love</footer>
@@ -248,7 +249,7 @@ for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
 for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
 let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
 let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,roomWallpaper:saved.roomWallpaper??0,roomLayout:saved.roomLayout??0,lampOn:saved.lampOn??true,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,dishes:saved.dishes||{},roomWallpaper:saved.roomWallpaper??0,roomLayout:saved.roomLayout??0,lampOn:saved.lampOn??true,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
 if(!state.weather)state.weather=pickWeather(state.season,state.day);
 const seasons=[
  {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0',bloom:'#f7a8c0'},
@@ -298,7 +299,7 @@ let quests=saved.quests||[
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
-function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
+function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,dishes:state.dishes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
 function log(t){$('log').textContent=t}
 function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
@@ -481,6 +482,45 @@ function drawProps(){
   }
 }
 
+
+// ---- 做饭 ----
+const RECIPES=[
+ {id:'grilledFish',name:'烤鱼',icon:'🐟',need:{fish:1},food:35,energy:12,mood:6,desc:'一条鱼，烤得滋滋响'},
+ {id:'berryPie',name:'月光莓派',icon:'🥧',need:{harvest:2},food:30,energy:8,mood:12,desc:'两颗月光莓，粉粉的'},
+ {id:'berryRice',name:'浆果饭团',icon:'🍙',need:{harvest:1,rice:1},food:45,energy:15,mood:6,desc:'饭团包进一颗月光莓'},
+ {id:'fishSoup',name:'鲜鱼汤',icon:'🍲',need:{fish:1,harvest:1},food:40,energy:15,mood:8,desc:'鱼和莓一起炖，热乎乎'}
+];
+let cookAnim=null;
+function needText(need){return Object.keys(need).map(k=>(k==='fish'?'鱼':k==='harvest'?'月光莓':'饭团')+'×'+need[k]).join(' + ')}
+function needHave(need){return Object.keys(need).map(k=>{const n=k==='fish'?state.fish:k==='harvest'?state.harvest:state.rice;return (k==='fish'?'鱼':k==='harvest'?'月光莓':'饭团')+n}).join('、')}
+function canCook(r){return Object.keys(r.need).every(k=>state[k]>=r.need[k])}
+function renderCook(){
+ $('cookList').innerHTML=RECIPES.map(r=>{
+  const ok=canCook(r)&&!cookAnim;
+  return '<div style="border:1px solid #4a3d66;border-radius:12px;padding:10px 12px;margin:8px 0"><b>'+r.icon+' '+r.name+'</b> · '+r.desc+'<br><span style="color:#c9b8e0">要：'+needText(r.need)+'（你有：'+needHave(r.need)+'）</span><br>吃了：饱腹+'+r.food+' · 体力+'+r.energy+' · 心情+'+r.mood+'<br><button data-cook="'+r.id+'" '+(ok?'':'disabled')+' style="margin-top:6px;background:#f5efe6;border:0;border-radius:999px;padding:8px 16px;cursor:pointer">'+(cookAnim?'还在做……':'做一个')+'</button></div>'
+ }).join('');
+ document.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>cookDish(b.dataset.cook));
+}
+function cookDish(id){
+ const r=RECIPES.find(x=>x.id===id);if(!r)return;
+ if(cookAnim){say('眠菇','还在做呢，等一下。');return}
+ if(!canCook(r)){say('眠菇','食材不够，做不了'+r.name+'。');return}
+ Object.keys(r.need).forEach(k=>{state[k]-=r.need[k]});
+ cookAnim={id:id,until:Date.now()+2800};
+ closePanels();say('眠菇','开始做'+r.name+'了……');save();renderHUD();
+ setTimeout(()=>{
+  cookAnim=null;
+  state.dishes[r.id]=(state.dishes[r.id]||0)+1;
+  say('眠菇','做好了！'+r.name+' +1，在背包里。');addFeed('做了'+r.name);clamp();
+ },2800);
+}
+function eatDish(id){
+ const r=RECIPES.find(x=>x.id===id);if(!r||!(state.dishes[id]>0))return;
+ state.dishes[id]--;
+ state.food=Math.min(100,state.food+r.food);state.energy=Math.min(100,state.energy+r.energy);state.mood=Math.min(100,state.mood+r.mood);
+ say('眠菇','吃了'+r.name+'，饱腹+'+r.food+'。');addFeed('吃了'+r.name);clamp();renderInv();
+}
+
 // ---- 小屋内部 ----
 const WALLPAPERS=['#f5e6c8','#cfe8d4','#d9c8f0'];
 const WALLPAPER_NAMES=['米色','薄荷绿','星空紫'];
@@ -502,6 +542,7 @@ function roomInteracts(){
   {label:'🍙 小桌：吃一个饭团',x:P.table.x,y:P.table.y,d:80,act:()=>{if(state.rice<=0){say('眠菇','没有饭团了，去小店买。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('眠菇','在桌边吃了个饭团。');addFeed('在屋里吃了饭团');clamp()}},
   {label:'📚 书架：听眠菇说话',x:P.shelf.x,y:P.shelf.y,d:80,act:()=>{say('眠菇',lines[Math.floor(Math.random()*lines.length)]);state.mood=Math.min(100,state.mood+2);clamp()}},
   {label:'🛋️ 沙发：换布局',x:P.sofa.x,y:P.sofa.y,d:80,act:()=>{state.roomLayout=(state.roomLayout+1)%2;say('眠菇','布局换成'+LAYOUT_NAMES[state.roomLayout]+'了，家具都挪了挪。');save()}},
+  {label:'🍳 灶台：做饭',x:500,y:95,d:80,act:()=>openPanel('cookPanel')},
   {label:'🚪 地垫：出门',x:P.mat.x,y:P.mat.y,d:80,act:exitRoom}
  ];
 }
@@ -520,6 +561,18 @@ function drawInterior(){
  if(state.weather==='rain'){ctx.fillStyle='rgba(255,255,255,.6)';for(let i=0;i<5;i++)ctx.fillRect(P.window.x-50+i*22,P.window.y-16+(i%2)*8,2,26)}
  R(P.window.x-58,P.window.y-20,116,4,'#8a6a44');R(P.window.x-58,P.window.y+16,116,4,'#8a6a44');R(P.window.x-2,P.window.y-20,4,40,'#8a6a44');R(P.window.x-58,P.window.y-2,116,3,'#8a6a44');
  R(P.window.x-66,P.window.y-24,14,48,'#e86a8a');R(P.window.x+52,P.window.y-24,14,48,'#e86a8a');
+ // 灶台
+ R(458,58,84,52,'#5a4d7a');R(458,58,84,6,'#8a6a44');R(462,64,76,40,'#3a3348');
+ ellipse(500,66,26,8,'#2b2118');ellipse(500,64,20,6,'#c9a86a');
+ if(cookAnim){
+  const rem=Math.max(0,cookAnim.until-Date.now()),prog=1-rem/2800;
+  R(460,44,80,6,'#171126');R(460,44,80*prog,6,'#f2a65a');
+  const tN=Date.now();
+  if(cookAnim.id==='grilledFish'){for(let i=0;i<6;i++){const fh=10+Math.abs(Math.sin(tN/90+i*1.7))*14;ctx.fillStyle=i%2?'#f2a65a':'#e86a3e';ctx.fillRect(472+i*10,66-fh,7,fh)}R(486,58,28,6,'#8a5f42')}
+  if(cookAnim.id==='berryPie'){for(let i=0;i<5;i++){const py=52-((tN/28+i*23)%44);ellipse(478+i*11,py,4,4,'#f7a8c0')}ellipse(500,58,24,8,'#e86a8a')}
+  if(cookAnim.id==='berryRice'){for(let i=0;i<7;i++){ctx.fillStyle='rgba(255,255,255,'+(0.4+0.6*Math.abs(Math.sin(tN/200+i)))+')';ctx.fillRect(468+i*10,40+((i*13)%20),3,3)}ellipse(500,60,16,7,'#f5efe6')}
+  if(cookAnim.id==='fishSoup'){for(let i=0;i<5;i++){const by=58-((tN/36+i*19)%36);ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.arc(482+i*9,by,3,0,Math.PI*2);ctx.fill()}ellipse(500,60,24,7,'#7fb2f0')}
+ }
  R(560,28,64,46,'#fff');R(560,28,64,4,'#8a6a44');ellipse(592,50,13,13,'#e86a8a');R(588,62,8,10,'#f5efe6');
  ellipse(380,300,120,22,'#d98a6a');ellipse(380,300,96,16,'#e8a583');
  R(P.mat.x-42,P.mat.y-10,84,20,'#8a6a44');ctx.fillStyle='#f5efe6';ctx.font='11px sans-serif';ctx.fillText('回家',P.mat.x-11,P.mat.y+4);
@@ -752,6 +805,7 @@ function reply(t){
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
  if(t.includes('在哪'))return scene==='room'?'我在小屋里，你走进来就能看到我。':'我在田野里，点画布就能看到我。';
+ if(t.includes('做饭')||t.includes('菜')||t.includes('饿'))return '屋里有灶台，拿食材去做，烤鱼、莓派、饭团、鱼汤都能做，做好的菜在背包里吃。';
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
  return '嗯，我听着呢，手里还拿着'+(tool==='hoe'?'锄头':tool==='seed'?'种子':tool==='water'?'水壶':tool==='food'?'饭团':'鱼竿')+'。';
 }
@@ -810,12 +864,15 @@ pollMcpWorld();
 function zoneName(x,y){if(x<500&&y<400)return{name:'小房间'};if(x<1000&&y<400)return{name:'花园'};if(y<500)return{name:'蘑菇森林'};if(x<600)return{name:'湖边'};if(x<1100)return{name:'小店'};return{name:'山丘瞭望台'}}
 const backdrop = $('backdrop');
 function closePanels(){document.querySelectorAll('.sheetPanel.open').forEach(el=>el.classList.remove('open'));backdrop.classList.remove('open')}
-function openPanel(id){closePanels();const el=$(id);if(!el)return;el.classList.add('open');backdrop.classList.add('open');if(id==='invPanel')renderInv();if(id==='mapPanel'){$('mapPos').textContent='你现在在 '+zoneName(player.x,player.y).name+'。'}}
+function openPanel(id){closePanels();const el=$(id);if(!el)return;el.classList.add('open');backdrop.classList.add('open');if(id==='invPanel')renderInv();if(id==='cookPanel')renderCook();if(id==='mapPanel'){$('mapPos').textContent='你现在在 '+zoneName(player.x,player.y).name+'。'}}
 backdrop.onclick=closePanels;
 document.querySelectorAll('.sheetPanel').forEach(el=>{const b=document.createElement('button');b.className='closeBtn';b.textContent='✕';b.setAttribute('aria-label','关闭');b.onclick=closePanels;el.prepend(b)});
 document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openPanel(b.dataset.open));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closePanels);
-function renderInv(){$('invBody').innerHTML='蘑菇币：<b>'+state.coins+'</b><br>种子：'+state.seeds+' · 收获（月光莓）：'+state.harvest+' · 鱼：'+state.fish+' · 饭团：'+state.rice+'<br>体力 '+Math.round(state.energy)+' · 饱腹 '+Math.round(state.food)+' · 心情 '+Math.round(state.mood)+'<br>现在：'+seasons[state.season].n+'季第 '+state.day+' 天 · 今天'+weatherInfo(state.weather).n+'，明天'+weatherInfo(tomorrowWeather()).n;}
+function renderInv(){$('invBody').innerHTML='蘑菇币：<b>'+state.coins+'</b><br>种子：'+state.seeds+' · 收获（月光莓）：'+state.harvest+' · 鱼：'+state.fish+' · 饭团：'+state.rice+'<br>体力 '+Math.round(state.energy)+' · 饱腹 '+Math.round(state.food)+' · 心情 '+Math.round(state.mood)+'<br>现在：'+seasons[state.season].n+'季第 '+state.day+' 天 · 今天'+weatherInfo(state.weather).n+'，明天'+weatherInfo(tomorrowWeather()).n;
+ const dishRows=RECIPES.filter(r=>state.dishes[r.id]>0).map(r=>r.icon+' '+r.name+' ×'+state.dishes[r.id]+' <button data-dish="'+r.id+'" style="background:#f5efe6;border:0;border-radius:999px;padding:4px 12px;cursor:pointer">吃</button>').join('<br>');
+ if(dishRows)$('invBody').innerHTML+='<br>做的菜：<br>'+dishRows;
+ document.querySelectorAll('[data-dish]').forEach(b=>b.onclick=()=>eatDish(b.dataset.dish));}
 $('btnInvEat').onclick=()=>{tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y);renderInv();closePanels()};
 $('btnInvBuy').onclick=()=>{const s=$('btnShop');if(s)s.click();renderInv()};
 $('btnAuto2').onclick=()=>{const a=$('btnAuto');if(a)a.click();$('btnAuto2').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关'};
