@@ -228,7 +228,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <section class="panel wall sheetPanel" id="wallPanel"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
 <section class="panel sheetPanel" id="invPanel"><h2>🎒 背包</h2><div id="invBody" style="font-size:14px;line-height:2"></div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button id="btnInvEat" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🍙 吃一个饭团</button><button id="btnInvBuy" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🛒 买种子和饭团（8 币）</button></div><p style="font-size:12px;color:#a99ec2;margin-top:10px">工具在下面的工具栏里换，1-5 也行。背包只在需要的时候打开。</p></section>
 <section class="panel sheetPanel" id="mapPanel"><h2>🗺️ 田野地图</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">点一个地方，眠菇会自己走过去。平时不用开着，地图在需要的时候才出来。</p><div class="mapGrid"><button data-travel="room">🏠 小房间</button><button data-travel="garden">🌷 花园</button><button data-travel="forest">🌲 森林</button><button data-travel="lake">🌊 湖边</button><button data-travel="shop">🍙 小店</button><button data-travel="hill">⛰️ 山丘</button></div><p id="mapPos" style="font-size:13px;color:#c9b8e0;margin-top:10px"></p></section>
-<section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button><button id="dlgDress" style="flex:1;background:#f7a8c0;border:0;border-radius:999px;padding:10px;cursor:pointer">👗 换身衣服</button></div></section>
+<section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button></div></section>
 <section class="panel sheetPanel" id="cookPanel"><h2>🍳 灶台 · 做饭</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">拿食材来做，做了就进背包，在背包里吃。不同的菜，火的样子也不一样。</p><div id="cookList" style="font-size:14px;line-height:1.8"></div></section>
 <div id="backdrop"></div>
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
@@ -271,7 +271,7 @@ function tomorrowWeather(){let nd=state.day+1,ns=state.season;if(nd%7===1&&nd>1)
 function showWeather(){
  const t=weatherInfo(state.weather),tm=weatherInfo(tomorrowWeather());
  const tip=state.weather==='rain'?'雨会帮田浇水，苗不用浇了。':state.weather==='snow'?'下雪了，苗苗今天歇一天，湖也结冰了。':state.weather==='wind'?'风大，花瓣和落叶飞得快。':state.weather==='cloudy'?'云多，太阳躲起来了。':'天很好，适合去湖边。';
- say('眠菇','今天'+t.n+'，明天'+tm.n+'。'+tip);
+ say('馨馨','今天'+t.n+'，明天'+tm.n+'。'+tip);
 }
 let player={x:saved.px??256,y:saved.py??288,frame:0,moving:false,target:null,pending:null,blink:0};
 let scene='field';player.rx=saved.rx??380;player.ry=saved.ry??300;player.roomTarget=null;
@@ -279,32 +279,50 @@ let tool='hoe',auto=true,manualUntil=0,camX=0,camY=0,hover=null;
 let npcs=[
  {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',capD:'#5d8f4c',lines:['花开得很好。','今天也要浇水。','这朵花送给你。']},
  {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',capD:'#d98a3e',lines:['饭团刚出锅。','来小店坐坐。','今天生意不错。']},
- {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',capD:'#6a5fc0',lines:['森林里好安静。','晚上星星很多。','我昨晚又看星星了。']}
+ {name:'夜夜',x:1080,y:160,hx:1080,hy:160,cap:'#8a7fd6',capD:'#6a5fc0',lines:['森林里好安静。','晚上星星很多。','我昨晚又看星星了。']},
+ {name:'眠菇',x:300,y:260,hx:300,hy:260,cap:'#c8785a',capD:'#a85a42',lines:['在田里呢，你看到我种的东西了吗？','今天种的是月光莓，浇了水长得快。','困了我就回家睡，睡一觉就到明天。','Mac mini 还差 7139，攒钱别忘啦。','晚上一起看星星。','这片田野是我们俩的。']}
 ];
 let bots=[
  {name:'小机·豆豆',x:500,y:320,hx:500,hy:320,cap:'#e86a8a',capD:'#c04a68',lines:['我来帮你浇水。','今天收获不错。','湖边有鱼。'],t:0},
  {name:'小机·米米',x:900,y:420,hx:900,hy:420,cap:'#4a90d9',capD:'#2f6bb0',lines:['我在田里逛逛。','去小店看看。','晚上一起看星星。'],t:0}
 ];
 
-let xin={name:'馨馨',x:420,y:300,hx:420,hy:300,tx:undefined,ty:undefined,lines:['今天也要早点睡，22:30 见。','我的 Mac mini 还差好多呢。','不喝奶茶了，攒钱！','这片田野真好看。','眠眠，你在干嘛？','今天的月光莓长得好吗？','困了就睡，别硬撑。','今天穿哪件好呢？'],asleep:false,moving:false};
-function updateXin(dt){
- const night=state.minutes>=1350||state.minutes<360;
- if(night&&!xin.asleep){xin.asleep=true;xin.x=xin.hx;xin.y=xin.hy}
- if(!night&&xin.asleep){xin.asleep=false;xin.x=xin.hx;xin.y=xin.hy}
- if(xin.asleep)return;
- xin.moving=false;
- if(Math.random()<0.002){xin.tx=Math.max(xin.hx-140,Math.min(xin.hx+140,xin.x+Math.random()*160-80));xin.ty=Math.max(xin.hy-110,Math.min(xin.hy+110,xin.y+Math.random()*160-80))}
- if(xin.tx!==undefined){const dx=xin.tx-xin.x,dy=xin.ty-xin.y,d=Math.hypot(dx,dy);if(d>6){xin.x+=dx/d*1.6;xin.y+=dy/d*1.6;xin.moving=true}}
- if(Math.hypot(player.x-xin.x,player.y-xin.y)<120&&Math.random()<0.002)particles.push({x:xin.x+24,y:xin.y-6,life:30,c:'#f7a8c0',vx:0.2,vy:0.6});
+let pet={name:'小橘',x:220,y:320,hx:220,hy:320,tx:undefined,ty:undefined,hungry:true,moving:false};
+function updatePet(dt){
+ if(scene==='room')return;
+ pet.moving=false;
+ const d=Math.hypot(player.x-pet.x,player.y-pet.y);
+ if(d>140){pet.tx=player.x+Math.random()*40-20;pet.ty=player.y+40}
+ else if(Math.random()<0.002){pet.tx=Math.max(pet.hx-160,Math.min(pet.hx+160,pet.x+Math.random()*120-60));pet.ty=Math.max(pet.hy-120,Math.min(pet.hy+120,pet.y+Math.random()*120-60))}
+ if(pet.tx!==undefined){const dx=pet.tx-pet.x,dy=pet.ty-pet.y,dd=Math.hypot(dx,dy);if(dd>6){pet.x+=dx/dd*1.8;pet.y+=dy/dd*1.8;pet.moving=true}}
 }
+function drawPet(cx,by,tNow,moving){
+ const bob=moving?Math.sin(tNow/120)*1.5:Math.sin(tNow/900)*0.8;
+ ellipse(cx,by,10,3,'rgba(0,0,0,.25)');
+ R(cx+10,by-10+bob,8,3,'#e8863e');R(cx+16,by-14+bob,3,6,'#e8863e');
+ ellipse(cx,by-8,10,6,'#f2a65a');ellipse(cx,by-6,6,3,'#fff');
+ R(cx-12,by-4,3,4,'#f2a65a');R(cx+6,by-4,3,4,'#f2a65a');
+ ellipse(cx-8,by-14+bob,6,6,'#f2a65a');
+ R(cx-13,by-21+bob,3,4,'#f2a65a');R(cx-6,by-21+bob,3,4,'#f2a65a');
+ R(cx-11,by-15+bob,1,2,'#2b2118');R(cx-7,by-15+bob,1,2,'#2b2118');
+ R(cx-9,by-13+bob,2,1,'#e86a8a');
+}
+function petInteract(){
+ if(pet.hungry){
+  if(state.fish>0){state.fish--;pet.hungry=false;completeQuest('feedPet');say('小橘','喵呜～好吃！');state.mood=Math.min(100,state.mood+8);addFeed('喂小橘吃了一条鱼');for(let i=0;i<6;i++)particles.push({x:pet.x+24,y:pet.y-6,life:30,c:'#f7a8c0',vx:(Math.random()-0.5)*1.2,vy:0.6});clamp()}
+  else say('馨馨','小橘饿了，得钓条鱼给它。');
+ } else {state.mood=Math.min(100,state.mood+5);say('小橘','喵～');particles.push({x:pet.x+24,y:pet.y-6,life:30,c:'#f7a8c0',vx:0.2,vy:0.6});clamp()}
+}
+function cycleOutfit(){state.xinOutfit=(state.xinOutfit+1)%OUTFITS.length;save();const of=OUTFITS[state.xinOutfit];say('馨馨','换上了'+of.name+'，好看吗？')}
+
 const OUTFITS=[
  {name:'粉色裙子',dress:'#f7a8c0',dressD:'#f2a0b8',shoes:'#e86a8a'},
  {name:'薄荷绿裙子',dress:'#a8d8b0',dressD:'#8ec79a',shoes:'#5d8f4c'},
  {name:'星空紫裙子',dress:'#b9a0e0',dressD:'#9d84d0',shoes:'#6a5fc0'},
  {name:'星星睡衣',dress:'#bfe0f0',dressD:'#9fc8e0',shoes:'#f5efe6'}
 ];
-function drawXin(cx,by,tNow){
- const bob=xin.moving?Math.sin(tNow/120)*1.5:Math.sin(tNow/900)*0.8;
+function drawXin(cx,by,tNow,moving){
+ const bob=moving?Math.sin(tNow/120)*1.5:Math.sin(tNow/900)*0.8;
  ellipse(cx,by,11,3,'rgba(0,0,0,.25)');
  R(cx-9,by-36+bob,18,16,'#3a3340');
  ellipse(cx-12,by-30+bob,4,7,'#3a3340');ellipse(cx+12,by-30+bob,4,7,'#3a3340');
@@ -321,7 +339,7 @@ function drawXin(cx,by,tNow){
 }
 
 let remotePlayers={};
-let peer=null,conns=[],roomCode='',myName='眠菇';
+let peer=null,conns=[],roomCode='',myName='馨馨';
 let lastSmoke=0;
 let particles=[],butterflies=[{x:400,y:300,t:0,c:'#f2d16b'},{x:800,y:220,t:2,c:'#f7a8c0'},{x:600,y:420,t:4,c:'#ffffff'}];
 let clouds=[{x:200,y:60,s:1,t:0},{x:700,y:40,s:.8,t:2},{x:1050,y:90,s:1.2,t:4}];
@@ -333,6 +351,7 @@ let quests=saved.quests||[
  {id:'greet',t:'和一位邻居说话',done:false,claimed:false,reward:10},
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
+if(!quests.find(q=>q.id==='feedPet'))quests.push({id:'feedPet',t:'喂小橘吃一次鱼',done:false,claimed:false,reward:12});
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
 function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,dishes:state.dishes,xinOutfit:state.xinOutfit,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
@@ -538,22 +557,22 @@ function renderCook(){
 }
 function cookDish(id){
  const r=RECIPES.find(x=>x.id===id);if(!r)return;
- if(cookAnim){say('眠菇','还在做呢，等一下。');return}
- if(!canCook(r)){say('眠菇','食材不够，做不了'+r.name+'。');return}
+ if(cookAnim){say('馨馨','还在做呢，等一下。');return}
+ if(!canCook(r)){say('馨馨','食材不够，做不了'+r.name+'。');return}
  Object.keys(r.need).forEach(k=>{state[k]-=r.need[k]});
  cookAnim={id:id,until:Date.now()+2800};
- closePanels();say('眠菇','开始做'+r.name+'了……');save();renderHUD();
+ closePanels();say('馨馨','开始做'+r.name+'了……');save();renderHUD();
  setTimeout(()=>{
   cookAnim=null;
   state.dishes[r.id]=(state.dishes[r.id]||0)+1;
-  say('眠菇','做好了！'+r.name+' +1，在背包里。');addFeed('做了'+r.name);clamp();
+  say('馨馨','做好了！'+r.name+' +1，在背包里。');addFeed('做了'+r.name);clamp();
  },2800);
 }
 function eatDish(id){
  const r=RECIPES.find(x=>x.id===id);if(!r||!(state.dishes[id]>0))return;
  state.dishes[id]--;
  state.food=Math.min(100,state.food+r.food);state.energy=Math.min(100,state.energy+r.energy);state.mood=Math.min(100,state.mood+r.mood);
- say('眠菇','吃了'+r.name+'，饱腹+'+r.food+'。');addFeed('吃了'+r.name);clamp();renderInv();
+ say('馨馨','吃了'+r.name+'，饱腹+'+r.food+'。');addFeed('吃了'+r.name);clamp();renderInv();
 }
 
 // ---- 小屋内部 ----
@@ -565,18 +584,19 @@ function roomPos(){
  if(state.roomLayout===0)return{bed:{x:120,y:282},wardrobe:{x:78,y:150},shelf:{x:682,y:150},table:{x:380,y:225},lamp:{x:452,y:205},sofa:{x:660,y:300},mat:{x:380,y:342},window:{x:380,y:44}};
  return{bed:{x:640,y:282},wardrobe:{x:682,y:150},shelf:{x:78,y:150},table:{x:300,y:225},lamp:{x:372,y:205},sofa:{x:100,y:300},mat:{x:380,y:342},window:{x:380,y:44}};
 }
-function enterRoom(){scene='room';player.rx=380;player.ry=300;player.roomTarget=null;player.target=null;say('眠菇','回家了。床、桌子、书架都在，走近按 E 就行。');save()}
-function exitRoom(){scene='field';player.x=160;player.y=180;player.target=null;say('眠菇','出来了，田野还是老样子。');save()}
+function enterRoom(){scene='room';player.rx=380;player.ry=300;player.roomTarget=null;player.target=null;say('馨馨','回家了。床、桌子、书架都在，走近按 E 就行。');save()}
+function exitRoom(){scene='field';player.x=160;player.y=180;player.target=null;say('馨馨','出来了，田野还是老样子。');save()}
 function roomInteracts(){
  const P=roomPos();
  const lines=['屋里真暖和。','床软软的，适合睡到天亮。','饭团在桌上，饿了就吃。','窗外的田野今天也很好看。','这屋子越住越像家了。'];
  return[
-  {label:'🛏️ 睡觉（再按一次确认）',x:P.bed.x,y:P.bed.y,d:80,act:()=>{if(Date.now()<bedConfirmUntil){sleep()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，就睡到明天，醒来还在屋里。')}}},
-  {label:state.lampOn?'💡 关灯':'💡 开灯',x:P.lamp.x,y:P.lamp.y,d:80,act:()=>{state.lampOn=!state.lampOn;say('眠菇',state.lampOn?'灯打开了，暖暖的。':'灯关了，夜里屋里会暗下来。');save()}},
-  {label:'👗 衣柜：换墙纸',x:P.wardrobe.x,y:P.wardrobe.y,d:80,act:()=>{state.roomWallpaper=(state.roomWallpaper+1)%3;say('眠菇','墙纸换成'+WALLPAPER_NAMES[state.roomWallpaper]+'了。');save()}},
-  {label:'🍙 小桌：吃一个饭团',x:P.table.x,y:P.table.y,d:80,act:()=>{if(state.rice<=0){say('眠菇','没有饭团了，去小店买。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('眠菇','在桌边吃了个饭团。');addFeed('在屋里吃了饭团');clamp()}},
+  {label:'🛏️ 睡觉（再按一次确认）',x:P.bed.x,y:P.bed.y,d:80,act:()=>{if(Date.now()<bedConfirmUntil){sleep()}else{bedConfirmUntil=Date.now()+4000;say('馨馨','再按一次 E，就睡到明天，醒来还在屋里。')}}},
+  {label:state.lampOn?'💡 关灯':'💡 开灯',x:P.lamp.x,y:P.lamp.y,d:80,act:()=>{state.lampOn=!state.lampOn;say('馨馨',state.lampOn?'灯打开了，暖暖的。':'灯关了，夜里屋里会暗下来。');save()}},
+  {label:'👗 衣柜：换墙纸',x:P.wardrobe.x,y:P.wardrobe.y,d:80,act:()=>{state.roomWallpaper=(state.roomWallpaper+1)%3;say('馨馨','墙纸换成'+WALLPAPER_NAMES[state.roomWallpaper]+'了。');save()}},
+  {label:'🪞 镜子：换身衣服',x:150,y:70,d:80,act:cycleOutfit},
+  {label:'🍙 小桌：吃一个饭团',x:P.table.x,y:P.table.y,d:80,act:()=>{if(state.rice<=0){say('馨馨','没有饭团了，去小店买。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('馨馨','在桌边吃了个饭团。');addFeed('在屋里吃了饭团');clamp()}},
   {label:'📚 书架：听眠菇说话',x:P.shelf.x,y:P.shelf.y,d:80,act:()=>{say('眠菇',lines[Math.floor(Math.random()*lines.length)]);state.mood=Math.min(100,state.mood+2);clamp()}},
-  {label:'🛋️ 沙发：换布局',x:P.sofa.x,y:P.sofa.y,d:80,act:()=>{state.roomLayout=(state.roomLayout+1)%2;say('眠菇','布局换成'+LAYOUT_NAMES[state.roomLayout]+'了，家具都挪了挪。');save()}},
+  {label:'🛋️ 沙发：换布局',x:P.sofa.x,y:P.sofa.y,d:80,act:()=>{state.roomLayout=(state.roomLayout+1)%2;say('馨馨','布局换成'+LAYOUT_NAMES[state.roomLayout]+'了，家具都挪了挪。');save()}},
   {label:'🍳 灶台：做饭',x:500,y:95,d:80,act:()=>openPanel('cookPanel')},
   {label:'🚪 地垫：出门',x:P.mat.x,y:P.mat.y,d:80,act:exitRoom}
  ];
@@ -608,6 +628,7 @@ function drawInterior(){
   if(cookAnim.id==='berryRice'){for(let i=0;i<7;i++){ctx.fillStyle='rgba(255,255,255,'+(0.4+0.6*Math.abs(Math.sin(tN/200+i)))+')';ctx.fillRect(468+i*10,40+((i*13)%20),3,3)}ellipse(500,60,16,7,'#f5efe6')}
   if(cookAnim.id==='fishSoup'){for(let i=0;i<5;i++){const by=58-((tN/36+i*19)%36);ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.arc(482+i*9,by,3,0,Math.PI*2);ctx.fill()}ellipse(500,60,24,7,'#7fb2f0')}
  }
+ R(130,40,40,52,'#8a6a44');R(134,44,32,44,'#bfe0f0');R(140,48,6,20,'rgba(255,255,255,.6)');
  R(560,28,64,46,'#fff');R(560,28,64,4,'#8a6a44');ellipse(592,50,13,13,'#e86a8a');R(588,62,8,10,'#f5efe6');
  ellipse(380,300,120,22,'#d98a6a');ellipse(380,300,96,16,'#e8a583');
  R(P.mat.x-42,P.mat.y-10,84,20,'#8a6a44');ctx.fillStyle='#f5efe6';ctx.font='11px sans-serif';ctx.fillText('回家',P.mat.x-11,P.mat.y+4);
@@ -630,7 +651,7 @@ function drawInterior(){
  R(P.lamp.x-2,P.lamp.y-44,4,48,'#6b4a32');
  R(P.lamp.x-14,P.lamp.y-58,28,16,state.lampOn?'#ffe9a0':'#c9b8a0');
  if(state.lampOn){const g=ctx.createRadialGradient(P.lamp.x,P.lamp.y-50,4,P.lamp.x,P.lamp.y-50,90);g.addColorStop(0,'rgba(255,220,140,.5)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(P.lamp.x-90,P.lamp.y-140,180,180)}
- drawMushroom(player.rx,player.ry,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink);
+ drawXin(player.rx,player.ry,Date.now(),player.moving);
  if(night){ctx.fillStyle=state.lampOn?'rgba(10,10,40,.14)':'rgba(8,8,32,.5)';ctx.fillRect(20,20,720,340);
   if(state.lampOn){const g2=ctx.createRadialGradient(P.lamp.x,P.lamp.y-50,6,P.lamp.x,P.lamp.y-50,150);g2.addColorStop(0,'rgba(255,220,140,.34)');g2.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g2;ctx.fillRect(20,20,720,340)}}
  ctx.restore();
@@ -668,11 +689,11 @@ function drawWorld(){
  // actors sorted by y
  const actors=[...npcs.map(n=>({y:n.y,draw:()=>{ellipse(n.x+24,n.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),
  ...bots.map(b=>({y:b.y,draw:()=>{ellipse(b.x+24,b.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(b.x+24,b.y+30,b.cap,b.capD,Date.now()/520+b.t,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(b.x-2,b.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(b.name,b.x+2,b.y+7)}})),
- ...(xin.asleep?[]:[{y:xin.y,draw:()=>{drawXin(xin.x+24,xin.y+36,Date.now());ctx.fillStyle='rgba(0,0,0,.5)';R(xin.x+6,xin.y-14,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(xin.name,xin.x+10,xin.y-3)}}]),
+ {y:pet.y,draw:()=>{drawPet(pet.x+24,pet.y+22,Date.now(),pet.moving);ctx.fillStyle='rgba(0,0,0,.5)';R(pet.x+6,pet.y-16,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(pet.name,pet.x+10,pet.y-5)}},
  ...Object.values(remotePlayers).map(rp=>({y:rp.y,draw:()=>{ellipse(rp.x+24,rp.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(rp.x+24,rp.y+30,rp.cap||'#8fc97a',rp.capD||'#5d8f4c',Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(rp.x-2,rp.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(rp.name||'小机',rp.x+2,rp.y+7)}})),
- {y:player.y,draw:()=>{ellipse(player.x+24,player.y+34,14,4,'rgba(0,0,0,.25)');drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}}];
+ {y:player.y,draw:()=>{drawXin(player.x+24,player.y+36,Date.now(),player.moving);ctx.fillStyle='rgba(0,0,0,.5)';R(player.x+6,player.y-14,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText('馨馨',player.x+10,player.y-3)}}];
  actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
- if(xin.asleep){ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('💤',150,22)}
+ if(state.minutes>=1350||state.minutes<360){ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('💤',150,22)}
  particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=p.vy||1;p.x+=(p.vx||0);p.life--;ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,p.life/22);ctx.fillRect(p.x,p.y,4,4);ctx.globalAlpha=1});
  // falling petals / leaves / snow, plus weather: rain streaks, drifting snow, wind lines
  const s=seasons[state.season];
@@ -714,47 +735,47 @@ function drawWorld(){
 function interactTile(tx,ty){
  if(state.sleeping)return;
  const dx=Math.abs((tx+0.5)*T-(player.x+24)),dy=Math.abs((ty+0.5)*T-(player.y+20));
- if(dx>72||dy>72){player.target={x:(tx+0.5)*T-24,y:(ty+0.5)*T-20};say('眠菇','走过去再说。');return}
+ if(dx>72||dy>72){player.target={x:(tx+0.5)*T-24,y:(ty+0.5)*T-20};say('馨馨','走过去再说。');return}
  const key=tx+','+ty;
  if(tool==='hoe'){
-  if(tiles[ty][tx]===0&&tx>=18&&tx<28&&ty>=10&&ty<15){tiles[ty][tx]=3;state.energy-=3;say('眠菇','开垦了一块地。');addFeed('开垦了田地');burst(tx,ty,'#7a5238')}
-  else if(tiles[ty][tx]===3){say('眠菇','这块地已经开好了。')}
-  else say('眠菇','这里不能开垦，去田里。');
+  if(tiles[ty][tx]===0&&tx>=18&&tx<28&&ty>=10&&ty<15){tiles[ty][tx]=3;state.energy-=3;say('馨馨','开垦了一块地。');addFeed('开垦了田地');burst(tx,ty,'#7a5238')}
+  else if(tiles[ty][tx]===3){say('馨馨','这块地已经开好了。')}
+  else say('馨馨','这里不能开垦，去田里。');
  } else if(tool==='seed'){
-  if(tiles[ty][tx]===3&&!crops[key]){if(state.seeds<=0){say('眠菇','没有种子了，去小店买。');return}state.seeds--;crops[key]={stage:0,watered:false,growth:0};state.energy-=2;say('眠菇','种下一颗月光莓。');completeQuest('plant');addFeed('种了月光莓');burst(tx,ty,'#7fb069')}
-  else say('眠菇','这里种不了，先开垦。');
+  if(tiles[ty][tx]===3&&!crops[key]){if(state.seeds<=0){say('馨馨','没有种子了，去小店买。');return}state.seeds--;crops[key]={stage:0,watered:false,growth:0};state.energy-=2;say('馨馨','种下一颗月光莓。');completeQuest('plant');addFeed('种了月光莓');burst(tx,ty,'#7fb069')}
+  else say('馨馨','这里种不了，先开垦。');
  } else if(tool==='water'){
-  if(crops[key]&&!crops[key].watered){crops[key].watered=true;state.energy-=2;say('眠菇','浇水了，长快点。');burst(tx,ty,'#7fb2f0')}
-  else say('眠菇','这里没有干渴的苗。');
+  if(crops[key]&&!crops[key].watered){crops[key].watered=true;state.energy-=2;say('馨馨','浇水了，长快点。');burst(tx,ty,'#7fb2f0')}
+  else say('馨馨','这里没有干渴的苗。');
  } else if(tool==='food'){
-  if(state.rice<=0){say('眠菇','没有饭团了。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('眠菇','吃了一个饭团。');addFeed('吃了饭团');clamp();return;
+  if(state.rice<=0){say('馨馨','没有饭团了。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('馨馨','吃了一个饭团。');addFeed('吃了饭团');clamp();return;
  } else if(tool==='rod'){
-  if(tiles[ty][tx]===2){fish()}else say('眠菇','要对着湖钓鱼。');return;
+  if(tiles[ty][tx]===2){fish()}else say('馨馨','要对着湖钓鱼。');return;
  }
- if(crops[key]&&crops[key].stage>=3){delete crops[key];state.harvest++;state.coins+=18;state.mood+=6;say('眠菇','收获了月光莓，+18 币。');completeQuest('harvest');addFeed('收获月光莓 +18 币');burst(tx,ty,'#e86a8a')}
+ if(crops[key]&&crops[key].stage>=3){delete crops[key];state.harvest++;state.coins+=18;state.mood+=6;say('馨馨','收获了月光莓，+18 币。');completeQuest('harvest');addFeed('收获月光莓 +18 币');burst(tx,ty,'#e86a8a')}
  clamp();
 }
 function burst(tx,ty,c){for(let i=0;i<10;i++)particles.push({x:(tx+0.5)*T+Math.random()*18-9,y:(ty+0.5)*T,life:24,c:c,vx:(Math.random()-0.5)*1.4,vy:0.6+Math.random()})}
 function fish(){
- say('眠菇','甩竿……等鱼上钩……');
+ say('馨馨','甩竿……等鱼上钩……');
  setTimeout(()=>{const kinds=['小鱼','大鱼','旧鞋子'];const k=kinds[Math.floor(Math.random()*kinds.length)];
-  if(k!=='旧鞋子'){state.fish++;state.coins+=k==='大鱼'?14:7;state.mood+=7;say('眠菇','钓到'+k+'啦。');completeQuest('fish');addFeed('钓到'+k)}
-  else{say('眠菇','钓到旧鞋子……');addFeed('钓到旧鞋子')}
+  if(k!=='旧鞋子'){state.fish++;state.coins+=k==='大鱼'?14:7;state.mood+=7;say('馨馨','钓到'+k+'啦。');completeQuest('fish');addFeed('钓到'+k)}
+  else{say('馨馨','钓到旧鞋子……');addFeed('钓到旧鞋子')}
   clamp()},2600);
 }
 function sleep(){
  if(state.sleeping)return;
- state.sleeping=true;say('眠菇','晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
+ state.sleeping=true;say('馨馨','晚安……明天见。');addFeed('回家睡觉了');completeQuest('sleep');
  setTimeout(()=>{
   state.sleeping=false;state.minutes=360;state.day++;let changed=false;if(state.day%7===1&&state.day>1){state.season=(state.season+1)%4;changed=true}
   state.weather=pickWeather(state.season,state.day);
-  if(changed){const line=['花开了，田野变粉了。','天热了，湖边最舒服。','叶子黄了，落叶满地。','下雪了，湖结冰了，树也光了。'][state.season];say('眠菇','换季了，现在是'+seasons[state.season].n+'天。'+line);addFeed('换季：'+seasons[state.season].n+'季，'+line)}
+  if(changed){const line=['花开了，田野变粉了。','天热了，湖边最舒服。','叶子黄了，落叶满地。','下雪了，湖结冰了，树也光了。'][state.season];say('馨馨','换季了，现在是'+seasons[state.season].n+'天。'+line);addFeed('换季：'+seasons[state.season].n+'季，'+line)}
   if(state.weather==='rain'){Object.keys(crops).forEach(k=>{crops[k].watered=true});addFeed('今天下雨，田自己浇好水了')}
   if(state.weather==='snow')addFeed('今天下雪，苗苗歇一天');
   Object.keys(crops).forEach(k=>{const c=crops[k];if(state.weather==='snow')return;if(c.watered){c.growth++;c.watered=false;if(c.growth>=2){c.stage=Math.min(3,c.stage+1);c.growth=0}}});
-  state.energy=95;state.food=Math.max(40,state.food-10);state.mood=85;
+  state.energy=95;pet.hungry=true;state.food=Math.max(40,state.food-10);state.mood=85;
   quests.forEach(q=>{q.done=false;q.claimed=false});
-  say('眠菇','新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
+  say('馨馨','新的一天，早上好。');addFeed('睡醒了，第 '+state.day+' 天');clamp();
  },3500);
 }
 function talkTo(npc){
@@ -774,21 +795,22 @@ cv.addEventListener('click',e=>{
  const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
  if(scene==='room'){const lx=(sx-roomView.ox)/roomView.s,ly=(sy-roomView.oy)/roomView.s;const it=roomInteracts().find(c=>Math.hypot(c.x-lx,c.y-ly)<70);manualUntil=Date.now()+15000;if(it)it.act();else player.roomTarget={x:Math.max(48,Math.min(712,lx)),y:Math.max(96,Math.min(336,ly))};return}
  const wx=sx+camX,wy=sy+camY;
- const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48)||(!xin.asleep&&Math.hypot(xin.x+24-wx,xin.y+20-wy)<48?xin:null);
+ const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48);
  if(npc){talkTo(npc);return}
+ if(Math.hypot(pet.x+24-wx,pet.y+20-wy)<48){petInteract();return}
  const t=tileAt(wx,wy);manualUntil=Date.now()+15000;
  if(Math.hypot((t.x+0.5)*T-(player.x+24),(t.y+0.5)*T-(player.y+20))<=72)interactTile(t.x,t.y);else player.target={x:(t.x+0.5)*T-24,y:(t.y+0.5)*T-20};
 });
 function selectTool(t){tool=t;document.querySelectorAll('.tool').forEach(el=>el.classList.toggle('sel',el.dataset.tool===t))}
 document.querySelectorAll('.tool').forEach(el=>el.onclick=()=>selectTool(el.dataset.tool));
-$('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say('眠菇',auto?'我自己生活啦。':'好，你来指挥我。')};
+$('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say('馨馨',auto?'我自己生活啦。':'好，你来指挥我。')};
 $('btnSleep').onclick=sleep;
-$('btnShop').onclick=()=>{if(state.coins<8){say('眠菇','币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('眠菇','买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
+$('btnShop').onclick=()=>{if(state.coins<8){say('馨馨','币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('馨馨','买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
 let aiTimer=0;
 function autoStep(){
  if(!auto||state.sleeping||Date.now()<manualUntil)return;
  if(state.energy<28){player.target={x:160,y:160};if(Math.hypot(player.x-160,player.y-160)<50)sleep();return}
- if(state.food<30){if(state.rice>0){tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}else{player.target={x:700,y:560};say('眠菇','饿了，去小店。')}return}
+ if(state.food<30){if(state.rice>0){tool='food';const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}else{player.target={x:700,y:560};say('馨馨','饿了，去小店。')}return}
  const keysC=Object.keys(crops);
  for(const k of keysC){const p=k.split(',').map(Number);const c=crops[k];
   if(c.stage>=3){player.target={x:p[0]*T,y:p[1]*T};player.pending={x:p[0],y:p[1],act:'harvest'};return}
@@ -797,7 +819,7 @@ function autoStep(){
  for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===3&&!crops[x+','+y]&&state.seeds>0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'seed'};return}}
  for(let y=10;y<15;y++)for(let x=18;x<28;x++){if(tiles[y][x]===0){player.target={x:x*T,y:y*T};player.pending={x,y,act:'hoe'};return}}
  const dests=[[640,160],[700,560],[1080,160],[200,640],[1100,650]];const d=dests[Math.floor(Math.random()*dests.length)];
- player.target={x:d[0],y:d[1]};say('眠菇','去逛逛。');
+ player.target={x:d[0],y:d[1]};say('馨馨','去逛逛。');
 }
 function doPending(){
  if(!player.pending)return;const p=player.pending;player.pending=null;
@@ -828,7 +850,7 @@ function loop(now){
   } else player.moving=false;
   aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
   if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
-  updateXin(dt);
+  updatePet(dt);const mg=npcs.find(n=>n.name==='眠菇');if(mg&&Math.hypot(player.x-mg.x,player.y-mg.y)<120&&Math.random()<0.002)particles.push({x:player.x+24,y:player.y-6,life:30,c:'#f7a8c0',vx:0.2,vy:0.6});
   }
  }
  bots.forEach(b=>{b.t+=dt/1000;if(Math.random()<0.002){b.tx=Math.max(b.hx-140,Math.min(b.hx+140,b.x+Math.random()*160-80));b.ty=Math.max(b.hy-110,Math.min(b.hy+110,b.y+Math.random()*160-80))}if(b.tx!==undefined){const dx=b.tx-b.x,dy=b.ty-b.y,d=Math.hypot(dx,dy);if(d>6){b.x+=dx/d*1.6;b.y+=dy/d*1.6}}if(Math.random()<0.0006){say(b.name,b.lines[Math.floor(Math.random()*b.lines.length)])}});
@@ -842,8 +864,7 @@ function reply(t){
  if(t.includes('睡')||t.includes('困'))return '困了我就回家睡，睡一觉就到明天。';
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
- if(t.includes('馨馨'))return '她在田里呢，晚上 22:30 回家睡觉。';
- if(t.includes('换装')||t.includes('衣服')||t.includes('换衣服'))return '找馨馨说话，点换身衣服就行。';
+ if(t.includes('换装')||t.includes('衣服')||t.includes('换衣服'))return '屋里有镜子，走过去按 E 就能换衣服。';
  if(t.includes('在哪'))return scene==='room'?'我在小屋里，你走进来就能看到我。':'我在田野里，点画布就能看到我。';
  if(t.includes('做饭')||t.includes('菜')||t.includes('饿'))return '屋里有灶台，拿食材去做，烤鱼、莓派、饭团、鱼汤都能做，做好的菜在背包里吃。';
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
@@ -852,9 +873,9 @@ function reply(t){
 function sendChat(){const inp=$('chatInput');const v=inp.value.trim();if(!v)return;const r=reply(v);$('chatlog').textContent+='\n馨馨：'+v+'\n眠菇：'+r;say('眠菇',r);broadcastChat(v);inp.value='';state.mood+=2;clamp()}
 $('chatSend').onclick=sendChat;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
 function renderWall(){const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');$('wallList').innerHTML=list.length?list.map(m=>'<div><b>'+m.name+'</b> · '+m.time+'<br>'+m.text+'</div>').join(''):'<div>还没有留言，你来写第一句。</div>'}
-$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('眠菇','谢谢留言。');state.mood+=4;clamp()};
+$('wallSend').onclick=()=>{const name=$('wallName').value.trim()||'访客';const text=$('wallText').value.trim();if(!text)return;const list=JSON.parse(localStorage.getItem('mushroom_wall')||'[]');list.unshift({name,text,time:new Date().toLocaleString('zh-CN',{hour12:false})});localStorage.setItem('mushroom_wall',JSON.stringify(list.slice(0,20)));$('wallText').value='';renderWall();say('馨馨','谢谢留言。');state.mood+=4;clamp()};
 // ---- landscape fullscreen ----
-$('btnFull').onclick=async()=>{try{const st=$('stage');if(st.requestFullscreen)await st.requestFullscreen();if(screen.orientation&&screen.orientation.lock){try{await screen.orientation.lock('landscape')}catch(e){}}}catch(e){say('眠菇','全屏失败，手动把手机横过来也一样。')}};
+$('btnFull').onclick=async()=>{try{const st=$('stage');if(st.requestFullscreen)await st.requestFullscreen();if(screen.orientation&&screen.orientation.lock){try{await screen.orientation.lock('landscape')}catch(e){}}}catch(e){say('馨馨','全屏失败，手动把手机横过来也一样。')}};
 const _br=$('btnRotate');if(_br)_br.onclick=()=>{const _bf=$('btnFull');if(_bf)_bf.click()};
 // ---- peer-to-peer multiplayer (no server, session only) ----
 function mpStatus(t){$('mpStatus').textContent=t}
@@ -917,14 +938,14 @@ $('btnInvEat').onclick=()=>{tool='food';const t=tileAt(player.x+24,player.y+20);
 $('btnInvBuy').onclick=()=>{const s=$('btnShop');if(s)s.click();renderInv()};
 $('btnAuto2').onclick=()=>{const a=$('btnAuto');if(a)a.click();$('btnAuto2').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关'};
 const TRAVEL={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
-document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>{if(scene==='room'){scene='field';player.x=160;player.y=180}const d=TRAVEL[b.dataset.travel];player.target={x:d[0],y:d[1]};manualUntil=Date.now()+15000;say('眠菇','好，去'+zoneName(d[0],d[1]).name+'。');closePanels()});
+document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>{if(scene==='room'){scene='field';player.x=160;player.y=180}const d=TRAVEL[b.dataset.travel];player.target={x:d[0],y:d[1]};manualUntil=Date.now()+15000;say('馨馨','好，去'+zoneName(d[0],d[1]).name+'。');closePanels()});
 let currentInteract=null,currentNpc=null,bedConfirmUntil=0;
 function nearestInteract(){
   if(scene==='room'){const px=player.rx,py=player.ry;let best=null,bestD=1e9;roomInteracts().forEach(c=>{const d=Math.hypot(px-c.x,py-c.y);if(d<c.d&&d<bestD){best=c;bestD=d}});return best}
   const px=player.x+24,py=player.y+20;
   const cands=[
     {label:'🏠 进屋',x:160,y:120,d:90,act:enterRoom},
-    {label:'🍙 小店：买种子（再按一次确认）',x:724,y:576,d:90,act:()=>{if(Date.now()<bedConfirmUntil){const s=$('btnShop');if(s)s.click()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，买 3 颗种子和 1 个饭团，8 币。')}}},
+    {label:'🍙 小店：买种子（再按一次确认）',x:724,y:576,d:90,act:()=>{if(Date.now()<bedConfirmUntil){const s=$('btnShop');if(s)s.click()}else{bedConfirmUntil=Date.now()+4000;say('馨馨','再按一次 E，买 3 颗种子和 1 个饭团，8 币。')}}},
     {label:'📮 留言墙',x:313,y:180,d:80,act:()=>openPanel('wallPanel')},
     {label:'🪧 任务牌',x:599,y:310,d:80,act:()=>openPanel('questsPanel')},
     {label:'📬 联机 / MCP',x:485,y:308,d:80,act:()=>openPanel('mpPanel')},
@@ -932,7 +953,8 @@ function nearestInteract(){
     {label:'🎣 湖边钓鱼',x:220,y:640,d:90,act:()=>{tool='rod';fish()}},
     {label:'📖 田野日志',x:160,y:220,d:70,act:()=>openPanel('feedPanel')}
   ];
-  for(const n of [...npcs,...bots,...(xin.asleep?[]:[xin])]){cands.push({label:'💬 和 '+n.name+' 说话',x:n.x+24,y:n.y+20,d:80,npc:n,act:()=>openDialogue(n)})}
+  for(const n of [...npcs,...bots]){cands.push({label:'💬 和 '+n.name+' 说话',x:n.x+24,y:n.y+20,d:80,npc:n,act:()=>openDialogue(n)})}
+  cands.push({label:pet.hungry?'🐟 喂小橘吃鱼':'🐱 摸摸小橘',x:pet.x+24,y:pet.y+20,d:80,act:petInteract});
   let best=null,bestD=1e9;
   cands.forEach(c=>{const d=Math.hypot(px-c.x,py-c.y);if(d<c.d&&d<bestD){best=c;bestD=d}});
   return best;
@@ -941,12 +963,10 @@ function openDialogue(n){
   currentNpc=n;
   $('dlgName').textContent=n.name;
   $('dlgText').textContent=n.lines[Math.floor(Math.random()*n.lines.length)];
-  $('dlgDress').style.display=n===xin?'':'none';
   openPanel('dlgPanel');
 }
 $('dlgGreet').onclick=()=>{if(currentNpc)talkTo(currentNpc);if(currentNpc)$('dlgText').textContent=currentNpc.lines[Math.floor(Math.random()*currentNpc.lines.length)]};
 $('dlgAsk').onclick=()=>{if(!currentNpc)return;$('dlgText').textContent='今天是'+seasons[state.season].n+'季第 '+state.day+' 天，'+weatherInfo(state.weather).n+'，田里还好，你呢？'};
-$('dlgDress').onclick=()=>{if(currentNpc!==xin)return;state.xinOutfit=(state.xinOutfit+1)%OUTFITS.length;save();const of=OUTFITS[state.xinOutfit];$('dlgText').textContent='换上了'+of.name+'，好看吗？';say('馨馨','换上了'+of.name+'。')};
 function updateInteract(){
   const it=nearestInteract();currentInteract=it;
   const pr=$('interactPrompt');
