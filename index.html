@@ -248,7 +248,7 @@ for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
 for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
 let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
 let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,roomWallpaper:saved.roomWallpaper??0,roomLayout:saved.roomLayout??0,lampOn:saved.lampOn??true,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
 if(!state.weather)state.weather=pickWeather(state.season,state.day);
 const seasons=[
  {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0',bloom:'#f7a8c0'},
@@ -273,6 +273,7 @@ function showWeather(){
  say('眠菇','今天'+t.n+'，明天'+tm.n+'。'+tip);
 }
 let player={x:saved.px??256,y:saved.py??288,frame:0,moving:false,target:null,pending:null,blink:0};
+let scene='field';player.rx=saved.rx??380;player.ry=saved.ry??300;player.roomTarget=null;
 let tool='hoe',auto=true,manualUntil=0,camX=0,camY=0,hover=null;
 let npcs=[
  {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',capD:'#5d8f4c',lines:['花开得很好。','今天也要浇水。','这朵花送给你。']},
@@ -297,7 +298,7 @@ let quests=saved.quests||[
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
-function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
+function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
 function log(t){$('log').textContent=t}
 function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
@@ -479,7 +480,76 @@ function drawProps(){
    ellipse(392,232,16,4,'rgba(0,0,0,.18)');R(384,200,16,14,'#ffffff');R(380,214,24,16,'#ffffff');R(388,196,8,3,'#2b2118');R(384,198,16,3,'#c04a3e');R(390,204,3,3,'#2b2118');R(396,204,3,3,'#2b2118');R(392,208,4,3,'#e86a3e');
   }
 }
+
+// ---- 小屋内部 ----
+const WALLPAPERS=['#f5e6c8','#cfe8d4','#d9c8f0'];
+const WALLPAPER_NAMES=['米色','薄荷绿','星空紫'];
+const LAYOUT_NAMES=['靠墙','围炉'];
+let roomView={s:1,ox:0,oy:0};
+function roomPos(){
+ if(state.roomLayout===0)return{bed:{x:120,y:282},wardrobe:{x:78,y:150},shelf:{x:682,y:150},table:{x:380,y:225},lamp:{x:452,y:205},sofa:{x:660,y:300},mat:{x:380,y:342},window:{x:380,y:44}};
+ return{bed:{x:640,y:282},wardrobe:{x:682,y:150},shelf:{x:78,y:150},table:{x:300,y:225},lamp:{x:372,y:205},sofa:{x:100,y:300},mat:{x:380,y:342},window:{x:380,y:44}};
+}
+function enterRoom(){scene='room';player.rx=380;player.ry=300;player.roomTarget=null;player.target=null;say('眠菇','回家了。床、桌子、书架都在，走近按 E 就行。');save()}
+function exitRoom(){scene='field';player.x=160;player.y=180;player.target=null;say('眠菇','出来了，田野还是老样子。');save()}
+function roomInteracts(){
+ const P=roomPos();
+ const lines=['屋里真暖和。','床软软的，适合睡到天亮。','饭团在桌上，饿了就吃。','窗外的田野今天也很好看。','这屋子越住越像家了。'];
+ return[
+  {label:'🛏️ 睡觉（再按一次确认）',x:P.bed.x,y:P.bed.y,d:80,act:()=>{if(Date.now()<bedConfirmUntil){sleep()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，就睡到明天，醒来还在屋里。')}}},
+  {label:state.lampOn?'💡 关灯':'💡 开灯',x:P.lamp.x,y:P.lamp.y,d:80,act:()=>{state.lampOn=!state.lampOn;say('眠菇',state.lampOn?'灯打开了，暖暖的。':'灯关了，夜里屋里会暗下来。');save()}},
+  {label:'👗 衣柜：换墙纸',x:P.wardrobe.x,y:P.wardrobe.y,d:80,act:()=>{state.roomWallpaper=(state.roomWallpaper+1)%3;say('眠菇','墙纸换成'+WALLPAPER_NAMES[state.roomWallpaper]+'了。');save()}},
+  {label:'🍙 小桌：吃一个饭团',x:P.table.x,y:P.table.y,d:80,act:()=>{if(state.rice<=0){say('眠菇','没有饭团了，去小店买。');return}state.rice--;state.food=Math.min(100,state.food+25);state.energy=Math.min(100,state.energy+8);say('眠菇','在桌边吃了个饭团。');addFeed('在屋里吃了饭团');clamp()}},
+  {label:'📚 书架：听眠菇说话',x:P.shelf.x,y:P.shelf.y,d:80,act:()=>{say('眠菇',lines[Math.floor(Math.random()*lines.length)]);state.mood=Math.min(100,state.mood+2);clamp()}},
+  {label:'🛋️ 沙发：换布局',x:P.sofa.x,y:P.sofa.y,d:80,act:()=>{state.roomLayout=(state.roomLayout+1)%2;say('眠菇','布局换成'+LAYOUT_NAMES[state.roomLayout]+'了，家具都挪了挪。');save()}},
+  {label:'🚪 地垫：出门',x:P.mat.x,y:P.mat.y,d:80,act:exitRoom}
+ ];
+}
+function drawInterior(){
+ const s=Math.min((VW-24)/760,(VH-24)/380);roomView={s:s,ox:(VW-760*s)/2,oy:(VH-380*s)/2};
+ ctx.save();ctx.translate(roomView.ox,roomView.oy);ctx.scale(s,s);
+ const P=roomPos();const night=state.minutes<360||state.minutes>=1140;
+ R(20,20,720,340,WALLPAPERS[state.roomWallpaper]);
+ R(20,20,720,52,'rgba(0,0,0,.07)');
+ R(20,72,720,288,'#b08954');
+ for(let i=0;i<9;i++)R(20,72+i*32,720,2,'rgba(0,0,0,.12)');
+ R(20,70,720,4,'#8a6a44');
+ const glass=night?'#1c2340':(state.weather==='rain'?'#8a9ab0':'#bfe0f0');
+ R(P.window.x-58,P.window.y-20,116,40,glass);
+ if(night)ellipse(P.window.x+30,P.window.y-4,9,9,'#fdf6d8');
+ if(state.weather==='rain'){ctx.fillStyle='rgba(255,255,255,.6)';for(let i=0;i<5;i++)ctx.fillRect(P.window.x-50+i*22,P.window.y-16+(i%2)*8,2,26)}
+ R(P.window.x-58,P.window.y-20,116,4,'#8a6a44');R(P.window.x-58,P.window.y+16,116,4,'#8a6a44');R(P.window.x-2,P.window.y-20,4,40,'#8a6a44');R(P.window.x-58,P.window.y-2,116,3,'#8a6a44');
+ R(P.window.x-66,P.window.y-24,14,48,'#e86a8a');R(P.window.x+52,P.window.y-24,14,48,'#e86a8a');
+ R(560,28,64,46,'#fff');R(560,28,64,4,'#8a6a44');ellipse(592,50,13,13,'#e86a8a');R(588,62,8,10,'#f5efe6');
+ ellipse(380,300,120,22,'#d98a6a');ellipse(380,300,96,16,'#e8a583');
+ R(P.mat.x-42,P.mat.y-10,84,20,'#8a6a44');ctx.fillStyle='#f5efe6';ctx.font='11px sans-serif';ctx.fillText('回家',P.mat.x-11,P.mat.y+4);
+ R(P.wardrobe.x-36,P.wardrobe.y-70,72,140,'#8a5f42');R(P.wardrobe.x-32,P.wardrobe.y-66,64,132,'#a8764f');
+ R(P.wardrobe.x-2,P.wardrobe.y-66,3,132,'#8a5f42');
+ ellipse(P.wardrobe.x-10,P.wardrobe.y,4,4,'#f2d16b');ellipse(P.wardrobe.x+10,P.wardrobe.y,4,4,'#f2d16b');
+ R(P.shelf.x-40,P.shelf.y-80,80,160,'#6b4a32');
+ const bookCols=['#e86a8a','#f2d16b','#7fb2f0','#8fc97a','#c98ae8'];
+ for(let sh=0;sh<3;sh++){const by=P.shelf.y-70+sh*52;for(let b=0;b<6;b++)R(P.shelf.x-34+b*12,by,9,34,bookCols[(b+sh)%5]);R(P.shelf.x-36,by+34,72,4,'#8a6a44')}
+ R(P.bed.x-80,P.bed.y-26,160,52,'#8a5f42');R(P.bed.x-74,P.bed.y-22,148,44,'#f5efe6');
+ R(P.bed.x-74,P.bed.y-22,52,44,'#fff');R(P.bed.x-70,P.bed.y-18,44,14,'#f2d16b');
+ R(P.bed.x-18,P.bed.y-22,92,44,'#e86a8a');R(P.bed.x-18,P.bed.y-22,92,10,'#f7a8c0');
+ ellipse(P.table.x,P.table.y,72,26,'#a8764f');ellipse(P.table.x,P.table.y-4,72,24,'#c9a86a');
+ R(P.table.x-58,P.table.y+18,10,22,'#8a5f42');R(P.table.x+48,P.table.y+18,10,22,'#8a5f42');
+ R(P.table.x-96,P.table.y-6,26,10,'#8a6a44');R(P.table.x-96,P.table.y+4,6,20,'#8a6a44');R(P.table.x-76,P.table.y+4,6,20,'#8a6a44');
+ R(P.table.x+70,P.table.y-6,26,10,'#8a6a44');R(P.table.x+70,P.table.y+4,6,20,'#8a6a44');R(P.table.x+90,P.table.y+4,6,20,'#8a6a44');
+ ellipse(P.table.x-20,P.table.y-8,10,7,'#f5efe6');
+ R(P.sofa.x-56,P.sofa.y-30,112,16,'#7fb2f0');R(P.sofa.x-56,P.sofa.y-16,112,34,'#8fb8e8');
+ R(P.sofa.x-50,P.sofa.y-12,48,26,'#a8c8f0');R(P.sofa.x+2,P.sofa.y-12,48,26,'#a8c8f0');
+ R(P.lamp.x-2,P.lamp.y-44,4,48,'#6b4a32');
+ R(P.lamp.x-14,P.lamp.y-58,28,16,state.lampOn?'#ffe9a0':'#c9b8a0');
+ if(state.lampOn){const g=ctx.createRadialGradient(P.lamp.x,P.lamp.y-50,4,P.lamp.x,P.lamp.y-50,90);g.addColorStop(0,'rgba(255,220,140,.5)');g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(P.lamp.x-90,P.lamp.y-140,180,180)}
+ drawMushroom(player.rx,player.ry,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink);
+ if(night){ctx.fillStyle=state.lampOn?'rgba(10,10,40,.14)':'rgba(8,8,32,.5)';ctx.fillRect(20,20,720,340);
+  if(state.lampOn){const g2=ctx.createRadialGradient(P.lamp.x,P.lamp.y-50,6,P.lamp.x,P.lamp.y-50,150);g2.addColorStop(0,'rgba(255,220,140,.34)');g2.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g2;ctx.fillRect(20,20,720,340)}}
+ ctx.restore();
+}
+
 function drawWorld(){
+ if(scene==='room'){drawInterior();return}
  camX+=(Math.max(0,Math.min(MW*T-VW,player.x+24-VW/2))-camX)*0.12;
  camY+=(Math.max(0,Math.min(MH*T-VH,player.y+20-VH/2))-camY)*0.12;
  const tNow=Date.now();
@@ -605,13 +675,14 @@ const keys={};
 document.addEventListener('keydown',e=>{
  keys[e.key.toLowerCase()]=true;
  if(['1','2','3','4','5'].includes(e.key)){const tools=['hoe','seed','water','food','rod'];selectTool(tools[+e.key-1])}
- if(e.key===' '){e.preventDefault();const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}
+ if(e.key===' '){e.preventDefault();if(scene==='room'){if(currentInteract)currentInteract.act();return}const t=tileAt(player.x+24,player.y+20);interactTile(t.x,t.y)}
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();
 });
 document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
 cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);hover=tileAt(sx+camX,sy+camY)});
 cv.addEventListener('click',e=>{
  const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
+ if(scene==='room'){const lx=(sx-roomView.ox)/roomView.s,ly=(sy-roomView.oy)/roomView.s;const it=roomInteracts().find(c=>Math.hypot(c.x-lx,c.y-ly)<70);manualUntil=Date.now()+15000;if(it)it.act();else player.roomTarget={x:Math.max(48,Math.min(712,lx)),y:Math.max(96,Math.min(336,ly))};return}
  const wx=sx+camX,wy=sy+camY;
  const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48);
  if(npc){talkTo(npc);return}
@@ -649,6 +720,12 @@ function loop(now){
  player.blink=(now/1000)%4;
  if(acc>=500){acc=0;if(!state.sleeping){state.minutes++;if(state.minutes>=1440){state.minutes=0;sleep()}state.energy-=0.25;state.food-=0.2;renderHUD();save()}}
  if(!state.sleeping){
+  if(scene==='room'){
+   let mx=0,my=0;if(keys['a']||keys['arrowleft'])mx-=1;if(keys['d']||keys['arrowright'])mx+=1;if(keys['w']||keys['arrowup'])my-=1;if(keys['s']||keys['arrowdown'])my+=1;
+   if(mx||my){manualUntil=Date.now()+15000;player.roomTarget=null;player.moving=true;player.frame+=0.18;player.rx=Math.max(48,Math.min(712,player.rx+mx*2.4));player.ry=Math.max(96,Math.min(336,player.ry+my*2.4))}
+   else if(player.roomTarget){const dx=player.roomTarget.x-player.rx,dy=player.roomTarget.y-player.ry,d=Math.hypot(dx,dy);if(d<8){player.roomTarget=null;player.moving=false}else{player.moving=true;player.frame+=0.18;player.rx+=dx/d*2.4;player.ry+=dy/d*2.4}}
+   else player.moving=false;
+  }else{
   let mx=0,my=0;
   if(keys['a']||keys['arrowleft'])mx-=1;if(keys['d']||keys['arrowright'])mx+=1;if(keys['w']||keys['arrowup'])my-=1;if(keys['s']||keys['arrowdown'])my+=1;
   if(mx||my){manualUntil=Date.now()+15000;player.target=null;player.moving=true;player.frame+=0.18;
@@ -661,6 +738,7 @@ function loop(now){
   } else player.moving=false;
   aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
   if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
+  }
  }
  bots.forEach(b=>{b.t+=dt/1000;if(Math.random()<0.002){b.tx=Math.max(b.hx-140,Math.min(b.hx+140,b.x+Math.random()*160-80));b.ty=Math.max(b.hy-110,Math.min(b.hy+110,b.y+Math.random()*160-80))}if(b.tx!==undefined){const dx=b.tx-b.x,dy=b.ty-b.y,d=Math.hypot(dx,dy);if(d>6){b.x+=dx/d*1.6;b.y+=dy/d*1.6}}if(Math.random()<0.0006){say(b.name,b.lines[Math.floor(Math.random()*b.lines.length)])}});
  if(peer&&conns.length&&Math.random()<0.02)broadcastMe();
@@ -673,7 +751,7 @@ function reply(t){
  if(t.includes('睡')||t.includes('困'))return '困了我就回家睡，睡一觉就到明天。';
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
- if(t.includes('在哪'))return '我在田野里，点画布就能看到我。';
+ if(t.includes('在哪'))return scene==='room'?'我在小屋里，你走进来就能看到我。':'我在田野里，点画布就能看到我。';
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
  return '嗯，我听着呢，手里还拿着'+(tool==='hoe'?'锄头':tool==='seed'?'种子':tool==='water'?'水壶':tool==='food'?'饭团':'鱼竿')+'。';
 }
@@ -686,7 +764,7 @@ $('btnFull').onclick=async()=>{try{const st=$('stage');if(st.requestFullscreen)a
 const _br=$('btnRotate');if(_br)_br.onclick=()=>{const _bf=$('btnFull');if(_bf)_bf.click()};
 // ---- peer-to-peer multiplayer (no server, session only) ----
 function mpStatus(t){$('mpStatus').textContent=t}
-function renderPlayers(){const names=['眠菇（你）',...bots.map(b=>b.name),...Object.values(remotePlayers).map(r=>r.name||'小机')];$('mpPlayers').innerHTML='在田野里：'+names.join(' · ')}
+function renderPlayers(){const names=['眠菇（你）',...bots.map(b=>b.name),...Object.values(remotePlayers).map(r=>r.name||'小机')];$('mpPlayers').innerHTML=(scene==='room'?'在小屋里：':'在田野里：')+names.join(' · ')}
 function broadcastMe(){const msg={type:'pos',name:myName,x:player.x,y:player.y,cap:'#c8785a',capD:'#a85a42'};conns.forEach(c=>{try{if(c.open)c.send(msg)}catch(e){}})}
 function broadcastChat(text){conns.forEach(c=>{try{if(c.open)c.send({type:'chat',name:myName,text:text})}catch(e){}})}
 function handleConn(c){conns.push(c);c.on('data',d=>{if(!d)return;if(d.type==='pos'){remotePlayers[c.peer]={x:d.x,y:d.y,name:d.name,cap:d.cap,capD:d.capD};renderPlayers()}if(d.type==='chat'){$('chatlog').textContent+='\n'+d.name+'：'+d.text;say(d.name,d.text)}});c.on('close',()=>{delete remotePlayers[c.peer];conns=conns.filter(x=>x!==c);renderPlayers();mpStatus('一位小机离开了。')});c.on('open',()=>{mpStatus('联机成功，房间码 '+roomCode+'，田野里能看到对方了。');renderPlayers();broadcastMe()})}
@@ -742,12 +820,13 @@ $('btnInvEat').onclick=()=>{tool='food';const t=tileAt(player.x+24,player.y+20);
 $('btnInvBuy').onclick=()=>{const s=$('btnShop');if(s)s.click();renderInv()};
 $('btnAuto2').onclick=()=>{const a=$('btnAuto');if(a)a.click();$('btnAuto2').textContent=auto?'🤖 自己生活：开':'🤖 自己生活：关'};
 const TRAVEL={room:[220,220],garden:[720,220],forest:[1400,220],lake:[220,650],shop:[820,650],hill:[1420,680]};
-document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>{const d=TRAVEL[b.dataset.travel];player.target={x:d[0],y:d[1]};manualUntil=Date.now()+15000;say('眠菇','好，去'+zoneName(d[0],d[1]).name+'。');closePanels()});
+document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>{if(scene==='room'){scene='field';player.x=160;player.y=180}const d=TRAVEL[b.dataset.travel];player.target={x:d[0],y:d[1]};manualUntil=Date.now()+15000;say('眠菇','好，去'+zoneName(d[0],d[1]).name+'。');closePanels()});
 let currentInteract=null,currentNpc=null,bedConfirmUntil=0;
 function nearestInteract(){
+  if(scene==='room'){const px=player.rx,py=player.ry;let best=null,bestD=1e9;roomInteracts().forEach(c=>{const d=Math.hypot(px-c.x,py-c.y);if(d<c.d&&d<bestD){best=c;bestD=d}});return best}
   const px=player.x+24,py=player.y+20;
   const cands=[
-    {label:'🛏️ 睡觉（再按一次确认）',x:160,y:120,d:90,act:()=>{if(Date.now()<bedConfirmUntil){sleep()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，就睡到明天。')}}},
+    {label:'🏠 进屋',x:160,y:120,d:90,act:enterRoom},
     {label:'🍙 小店：买种子（再按一次确认）',x:724,y:576,d:90,act:()=>{if(Date.now()<bedConfirmUntil){const s=$('btnShop');if(s)s.click()}else{bedConfirmUntil=Date.now()+4000;say('眠菇','再按一次 E，买 3 颗种子和 1 个饭团，8 币。')}}},
     {label:'📮 留言墙',x:313,y:180,d:80,act:()=>openPanel('wallPanel')},
     {label:'🪧 任务牌',x:599,y:310,d:80,act:()=>openPanel('questsPanel')},
