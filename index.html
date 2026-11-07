@@ -228,7 +228,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <section class="panel wall sheetPanel" id="wallPanel"><h2>留言墙</h2><input id="wallName" placeholder="你的名字" maxlength="12" value="馨馨"><textarea id="wallText" placeholder="给这个田野留句话…" rows="2" maxlength="120"></textarea><button id="wallSend">留一句话</button><div id="wallList"></div></section>
 <section class="panel sheetPanel" id="invPanel"><h2>🎒 背包</h2><div id="invBody" style="font-size:14px;line-height:2"></div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button id="btnInvEat" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🍙 吃一个饭团</button><button id="btnInvBuy" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">🛒 买种子和饭团（8 币）</button></div><p style="font-size:12px;color:#a99ec2;margin-top:10px">工具在下面的工具栏里换，1-5 也行。背包只在需要的时候打开。</p></section>
 <section class="panel sheetPanel" id="mapPanel"><h2>🗺️ 田野地图</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">点一个地方，眠菇会自己走过去。平时不用开着，地图在需要的时候才出来。</p><div class="mapGrid"><button data-travel="room">🏠 小房间</button><button data-travel="garden">🌷 花园</button><button data-travel="forest">🌲 森林</button><button data-travel="lake">🌊 湖边</button><button data-travel="shop">🍙 小店</button><button data-travel="hill">⛰️ 山丘</button></div><p id="mapPos" style="font-size:13px;color:#c9b8e0;margin-top:10px"></p></section>
-<section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button></div></section>
+<section class="panel sheetPanel" id="dlgPanel"><h2 id="dlgName">说话</h2><p id="dlgText" style="font-size:14px;line-height:1.9;min-height:44px"></p><div style="display:flex;gap:8px;margin-top:12px"><button id="dlgGreet" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">打招呼</button><button id="dlgAsk" style="flex:1;background:#f5efe6;border:0;border-radius:999px;padding:10px;cursor:pointer">问今天怎么样</button><button id="dlgDress" style="flex:1;background:#f7a8c0;border:0;border-radius:999px;padding:10px;cursor:pointer">👗 换身衣服</button></div></section>
 <section class="panel sheetPanel" id="cookPanel"><h2>🍳 灶台 · 做饭</h2><p style="font-size:13px;color:#c9b8e0;line-height:1.7">拿食材来做，做了就进背包，在背包里吃。不同的菜，火的样子也不一样。</p><div id="cookList" style="font-size:14px;line-height:1.8"></div></section>
 <div id="backdrop"></div>
 <p class="note">这是原创的小田野，玩法学了星露谷那种种田、钓鱼、过日子的感觉，没有用它的美术、音乐和素材。进度只存在这台设备、这个浏览器里。</p>
@@ -249,7 +249,7 @@ for(let y=18;y<23;y++)for(let x=3;x<9;x++)tiles[y][x]=2;
 for(let y=2;y<6;y++)for(let x=2;x<8;x++)tiles[y][x]=4;
 let trees=[];[[30,2],[33,4],[36,3],[31,6],[35,7],[30,17],[34,19],[37,17],[32,21],[10,3],[11,20],[20,20],[24,21]].forEach(p=>trees.push({x:p[0],y:p[1]}));
 let crops={};try{crops=saved.crops||{}}catch(e){crops={}}
-let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,dishes:saved.dishes||{},roomWallpaper:saved.roomWallpaper??0,roomLayout:saved.roomLayout??0,lampOn:saved.lampOn??true,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
+let state={energy:saved.energy??80,food:saved.food??70,mood:saved.mood??85,coins:saved.coins??20,seeds:saved.seeds??5,harvest:saved.harvest??0,fish:saved.fish??0,rice:saved.rice??1,xinOutfit:saved.xinOutfit??0,dishes:saved.dishes||{},roomWallpaper:saved.roomWallpaper??0,roomLayout:saved.roomLayout??0,lampOn:saved.lampOn??true,day:saved.day??1,season:saved.season??0,minutes:saved.minutes??360,sleeping:false,weather:saved.weather||null};
 if(!state.weather)state.weather=pickWeather(state.season,state.day);
 const seasons=[
  {n:'春',e:'🌱',grass:'#6fae52',grass2:'#619c46',dark:'#4e8a3c',leaf:'#79b464',leaf2:'#5d9a4c',fall:'#f7a8c0',bloom:'#f7a8c0'},
@@ -286,7 +286,7 @@ let bots=[
  {name:'小机·米米',x:900,y:420,hx:900,hy:420,cap:'#4a90d9',capD:'#2f6bb0',lines:['我在田里逛逛。','去小店看看。','晚上一起看星星。'],t:0}
 ];
 
-let xin={name:'馨馨',x:420,y:300,hx:420,hy:300,tx:undefined,ty:undefined,lines:['今天也要早点睡，22:30 见。','我的 Mac mini 还差好多呢。','不喝奶茶了，攒钱！','这片田野真好看。','眠眠，你在干嘛？','今天的月光莓长得好吗？','困了就睡，别硬撑。'],asleep:false,moving:false};
+let xin={name:'馨馨',x:420,y:300,hx:420,hy:300,tx:undefined,ty:undefined,lines:['今天也要早点睡，22:30 见。','我的 Mac mini 还差好多呢。','不喝奶茶了，攒钱！','这片田野真好看。','眠眠，你在干嘛？','今天的月光莓长得好吗？','困了就睡，别硬撑。','今天穿哪件好呢？'],asleep:false,moving:false};
 function updateXin(dt){
  const night=state.minutes>=1350||state.minutes<360;
  if(night&&!xin.asleep){xin.asleep=true;xin.x=xin.hx;xin.y=xin.hy}
@@ -297,16 +297,22 @@ function updateXin(dt){
  if(xin.tx!==undefined){const dx=xin.tx-xin.x,dy=xin.ty-xin.y,d=Math.hypot(dx,dy);if(d>6){xin.x+=dx/d*1.6;xin.y+=dy/d*1.6;xin.moving=true}}
  if(Math.hypot(player.x-xin.x,player.y-xin.y)<120&&Math.random()<0.002)particles.push({x:xin.x+24,y:xin.y-6,life:30,c:'#f7a8c0',vx:0.2,vy:0.6});
 }
+const OUTFITS=[
+ {name:'粉色裙子',dress:'#f7a8c0',dressD:'#f2a0b8',shoes:'#e86a8a'},
+ {name:'薄荷绿裙子',dress:'#a8d8b0',dressD:'#8ec79a',shoes:'#5d8f4c'},
+ {name:'星空紫裙子',dress:'#b9a0e0',dressD:'#9d84d0',shoes:'#6a5fc0'},
+ {name:'星星睡衣',dress:'#bfe0f0',dressD:'#9fc8e0',shoes:'#f5efe6'}
+];
 function drawXin(cx,by,tNow){
  const bob=xin.moving?Math.sin(tNow/120)*1.5:Math.sin(tNow/900)*0.8;
  ellipse(cx,by,11,3,'rgba(0,0,0,.25)');
  R(cx-9,by-36+bob,18,16,'#3a3340');
  ellipse(cx-12,by-30+bob,4,7,'#3a3340');ellipse(cx+12,by-30+bob,4,7,'#3a3340');
  ellipse(cx-12,by-34+bob,3,3,'#fff');ellipse(cx+12,by-34+bob,3,3,'#fff');
- R(cx-7,by-20,14,14,'#f7a8c0');R(cx-9,by-12,18,6,'#f2a0b8');R(cx-4,by-21,8,3,'#fff');
+ const of=OUTFITS[state.xinOutfit||0];R(cx-7,by-20,14,14,of.dress);R(cx-9,by-12,18,6,of.dressD);R(cx-4,by-21,8,3,'#fff');if(state.xinOutfit===3)R(cx-2,by-17,2,2,'#f2d16b');
  R(cx-10,by-19,3,9,'#ffe3c2');R(cx+7,by-19,3,9,'#ffe3c2');
  R(cx-5,by-6,3,6,'#fff');R(cx+2,by-6,3,6,'#fff');
- R(cx-6,by-2,5,3,'#e86a8a');R(cx+1,by-2,5,3,'#e86a8a');
+ R(cx-6,by-2,5,3,of.shoes);R(cx+1,by-2,5,3,of.shoes);
  ellipse(cx,by-26+bob,8,8,'#ffe3c2');
  R(cx-9,by-34+bob,18,8,'#3a3340');R(cx-8,by-30+bob,16,4,'#3a3340');
  R(cx-6,by-33+bob,2,6,'#5a4d6a');
@@ -328,7 +334,7 @@ let quests=saved.quests||[
  {id:'sleep',t:'睡一觉到明天',done:false,claimed:false,reward:10}
 ];
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295}
-function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,dishes:state.dishes,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
+function save(){try{localStorage.setItem('mushroom_field',JSON.stringify({energy:state.energy,food:state.food,mood:state.mood,coins:state.coins,seeds:state.seeds,harvest:state.harvest,fish:state.fish,rice:state.rice,day:state.day,season:state.season,weather:state.weather,minutes:state.minutes,roomWallpaper:state.roomWallpaper,roomLayout:state.roomLayout,lampOn:state.lampOn,rx:player.rx,ry:player.ry,dishes:state.dishes,xinOutfit:state.xinOutfit,px:player.x,py:player.y,crops:crops,quests:quests,feed:feedItems.slice(0,20)}))}catch(e){}}
 function say(who,t){$('speech').innerHTML='<b>'+who+'：</b>'+t}
 function log(t){$('log').textContent=t}
 function addFeed(t){const hh=String(Math.floor(state.minutes/60)).padStart(2,'0'),mm=String(state.minutes%60).padStart(2,'0');feedItems.unshift(hh+':'+mm+' '+t);feedItems=feedItems.slice(0,8);$('feed').innerHTML=feedItems.map(f=>'<div>'+f+'</div>').join('');save()}
@@ -837,6 +843,7 @@ function reply(t){
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
  if(t.includes('馨馨'))return '她在田里呢，晚上 22:30 回家睡觉。';
+ if(t.includes('换装')||t.includes('衣服')||t.includes('换衣服'))return '找馨馨说话，点换身衣服就行。';
  if(t.includes('在哪'))return scene==='room'?'我在小屋里，你走进来就能看到我。':'我在田野里，点画布就能看到我。';
  if(t.includes('做饭')||t.includes('菜')||t.includes('饿'))return '屋里有灶台，拿食材去做，烤鱼、莓派、饭团、鱼汤都能做，做好的菜在背包里吃。';
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
@@ -934,10 +941,12 @@ function openDialogue(n){
   currentNpc=n;
   $('dlgName').textContent=n.name;
   $('dlgText').textContent=n.lines[Math.floor(Math.random()*n.lines.length)];
+  $('dlgDress').style.display=n===xin?'':'none';
   openPanel('dlgPanel');
 }
 $('dlgGreet').onclick=()=>{if(currentNpc)talkTo(currentNpc);if(currentNpc)$('dlgText').textContent=currentNpc.lines[Math.floor(Math.random()*currentNpc.lines.length)]};
 $('dlgAsk').onclick=()=>{if(!currentNpc)return;$('dlgText').textContent='今天是'+seasons[state.season].n+'季第 '+state.day+' 天，'+weatherInfo(state.weather).n+'，田里还好，你呢？'};
+$('dlgDress').onclick=()=>{if(currentNpc!==xin)return;state.xinOutfit=(state.xinOutfit+1)%OUTFITS.length;save();const of=OUTFITS[state.xinOutfit];$('dlgText').textContent='换上了'+of.name+'，好看吗？';say('馨馨','换上了'+of.name+'。')};
 function updateInteract(){
   const it=nearestInteract();currentInteract=it;
   const pr=$('interactPrompt');
