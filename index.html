@@ -141,6 +141,18 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
  #bottomOverlay .hotbar .tool{padding:3px 2px;font-size:10px}.tool b{font-size:15px}.tool small{font-size:9px}
 }
 
+
+/* 真全屏（手机横屏）：画面铺满整屏，无边距、无标题、无紫边 */
+@media (orientation:landscape) and (max-height:620px){
+ html,body{height:100%;overflow:hidden}
+ body{padding:0;margin:0;background:#171126}
+ .wrap{max-width:none;width:100%;margin:0}
+ h1,.sub,.note,footer,.log{display:none}
+ #stage{width:100vw;height:100dvh;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
+ #topOverlay{top:max(8px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right))}
+ #bottomOverlay{left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom))}
+}
+
 </style>
 </head>
 <body>
@@ -224,8 +236,11 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const cv=document.getElementById('game'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
-const T=32,MW=40,MH=25,VW=960,VH=540;
+const T=32,MW=40,MH=25;let VW=960,VH=540;
 const $=id=>document.getElementById(id);
+// 画布跟着屏幕比例走：手机横屏更宽时，视野跟着加宽，不拉伸、不裁切
+function fitCanvas(){const st=$('stage');if(!st)return;const w=st.clientWidth||960,h=st.clientHeight||540,a=w/h;if(a>=16/9){VH=540;VW=Math.round(540*a)}else{VW=960;VH=Math.round(960/a)}VW=Math.min(VW,1600);VH=Math.min(VH,900);if(cv.width!==VW||cv.height!==VH){cv.width=VW;cv.height=VH;ctx.imageSmoothingEnabled=false}}
+window.addEventListener('resize',fitCanvas);fitCanvas();
 let saved={};try{saved=JSON.parse(localStorage.getItem('mushroom_field')||'{}')}catch(e){saved={}}
 let tiles=[];for(let y=0;y<MH;y++){let row=[];for(let x=0;x<MW;x++)row.push(0);tiles.push(row)}
 for(let x=0;x<MW;x++)tiles[8][x]=1;for(let y=0;y<MH;y++)tiles[y][14]=1;
