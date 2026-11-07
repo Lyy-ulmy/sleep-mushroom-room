@@ -285,6 +285,35 @@ let bots=[
  {name:'小机·豆豆',x:500,y:320,hx:500,hy:320,cap:'#e86a8a',capD:'#c04a68',lines:['我来帮你浇水。','今天收获不错。','湖边有鱼。'],t:0},
  {name:'小机·米米',x:900,y:420,hx:900,hy:420,cap:'#4a90d9',capD:'#2f6bb0',lines:['我在田里逛逛。','去小店看看。','晚上一起看星星。'],t:0}
 ];
+
+let xin={name:'馨馨',x:420,y:300,hx:420,hy:300,tx:undefined,ty:undefined,lines:['今天也要早点睡，22:30 见。','我的 Mac mini 还差好多呢。','不喝奶茶了，攒钱！','这片田野真好看。','眠眠，你在干嘛？','今天的月光莓长得好吗？','困了就睡，别硬撑。'],asleep:false,moving:false};
+function updateXin(dt){
+ const night=state.minutes>=1350||state.minutes<360;
+ if(night&&!xin.asleep){xin.asleep=true;xin.x=xin.hx;xin.y=xin.hy}
+ if(!night&&xin.asleep){xin.asleep=false;xin.x=xin.hx;xin.y=xin.hy}
+ if(xin.asleep)return;
+ xin.moving=false;
+ if(Math.random()<0.002){xin.tx=Math.max(xin.hx-140,Math.min(xin.hx+140,xin.x+Math.random()*160-80));xin.ty=Math.max(xin.hy-110,Math.min(xin.hy+110,xin.y+Math.random()*160-80))}
+ if(xin.tx!==undefined){const dx=xin.tx-xin.x,dy=xin.ty-xin.y,d=Math.hypot(dx,dy);if(d>6){xin.x+=dx/d*1.6;xin.y+=dy/d*1.6;xin.moving=true}}
+ if(Math.hypot(player.x-xin.x,player.y-xin.y)<120&&Math.random()<0.002)particles.push({x:xin.x+24,y:xin.y-6,life:30,c:'#f7a8c0',vx:0.2,vy:0.6});
+}
+function drawXin(cx,by,tNow){
+ const bob=xin.moving?Math.sin(tNow/120)*1.5:Math.sin(tNow/900)*0.8;
+ ellipse(cx,by,11,3,'rgba(0,0,0,.25)');
+ R(cx-9,by-36+bob,18,16,'#3a3340');
+ ellipse(cx-12,by-30+bob,4,7,'#3a3340');ellipse(cx+12,by-30+bob,4,7,'#3a3340');
+ ellipse(cx-12,by-34+bob,3,3,'#fff');ellipse(cx+12,by-34+bob,3,3,'#fff');
+ R(cx-7,by-20,14,14,'#f7a8c0');R(cx-9,by-12,18,6,'#f2a0b8');R(cx-4,by-21,8,3,'#fff');
+ R(cx-10,by-19,3,9,'#ffe3c2');R(cx+7,by-19,3,9,'#ffe3c2');
+ R(cx-5,by-6,3,6,'#fff');R(cx+2,by-6,3,6,'#fff');
+ R(cx-6,by-2,5,3,'#e86a8a');R(cx+1,by-2,5,3,'#e86a8a');
+ ellipse(cx,by-26+bob,8,8,'#ffe3c2');
+ R(cx-9,by-34+bob,18,8,'#3a3340');R(cx-8,by-30+bob,16,4,'#3a3340');
+ R(cx-6,by-33+bob,2,6,'#5a4d6a');
+ R(cx-5,by-25+bob,2,3,'#2b2118');R(cx+3,by-25+bob,2,3,'#2b2118');
+ R(cx-7,by-22+bob,2,2,'#f7a8c0');R(cx+5,by-22+bob,2,2,'#f7a8c0');
+}
+
 let remotePlayers={};
 let peer=null,conns=[],roomCode='',myName='眠菇';
 let lastSmoke=0;
@@ -631,11 +660,13 @@ function drawWorld(){
  // hover highlight
  if(hover){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.strokeRect(hover.x*T+1,hover.y*T+1,T-2,T-2);ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(hover.x*T,hover.y*T,T,T)}
  // actors sorted by y
- const actors=[...npcs.map(n=>({y:n.y,draw:()=>{drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),
- ...bots.map(b=>({y:b.y,draw:()=>{drawMushroom(b.x+24,b.y+30,b.cap,b.capD,Date.now()/520+b.t,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(b.x-2,b.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(b.name,b.x+2,b.y+7)}})),
- ...Object.values(remotePlayers).map(rp=>({y:rp.y,draw:()=>{drawMushroom(rp.x+24,rp.y+30,rp.cap||'#8fc97a',rp.capD||'#5d8f4c',Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(rp.x-2,rp.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(rp.name||'小机',rp.x+2,rp.y+7)}})),
- {y:player.y,draw:()=>drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}];
+ const actors=[...npcs.map(n=>({y:n.y,draw:()=>{ellipse(n.x+24,n.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(n.x+24,n.y+30,n.cap,n.capD,Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(n.x+6,n.y-4,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(n.name,n.x+10,n.y+7)}})),
+ ...bots.map(b=>({y:b.y,draw:()=>{ellipse(b.x+24,b.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(b.x+24,b.y+30,b.cap,b.capD,Date.now()/520+b.t,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(b.x-2,b.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(b.name,b.x+2,b.y+7)}})),
+ ...(xin.asleep?[]:[{y:xin.y,draw:()=>{drawXin(xin.x+24,xin.y+36,Date.now());ctx.fillStyle='rgba(0,0,0,.5)';R(xin.x+6,xin.y-14,36,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(xin.name,xin.x+10,xin.y-3)}}]),
+ ...Object.values(remotePlayers).map(rp=>({y:rp.y,draw:()=>{ellipse(rp.x+24,rp.y+32,14,4,'rgba(0,0,0,.25)');drawMushroom(rp.x+24,rp.y+30,rp.cap||'#8fc97a',rp.capD||'#5d8f4c',Date.now()/520,false,(Date.now()/1000)%4);ctx.fillStyle='rgba(0,0,0,.5)';R(rp.x-2,rp.y-4,64,14,'rgba(0,0,0,.5)');ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText(rp.name||'小机',rp.x+2,rp.y+7)}})),
+ {y:player.y,draw:()=>{ellipse(player.x+24,player.y+34,14,4,'rgba(0,0,0,.25)');drawMushroom(player.x+24,player.y+32,'#c8785a','#a85a42',player.frame,state.sleeping,player.blink)}}];
  actors.sort((a,b)=>a.y-b.y).forEach(a=>a.draw());
+ if(xin.asleep){ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('💤',150,22)}
  particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.y-=p.vy||1;p.x+=(p.vx||0);p.life--;ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,p.life/22);ctx.fillRect(p.x,p.y,4,4);ctx.globalAlpha=1});
  // falling petals / leaves / snow, plus weather: rain streaks, drifting snow, wind lines
  const s=seasons[state.season];
@@ -737,7 +768,7 @@ cv.addEventListener('click',e=>{
  const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
  if(scene==='room'){const lx=(sx-roomView.ox)/roomView.s,ly=(sy-roomView.oy)/roomView.s;const it=roomInteracts().find(c=>Math.hypot(c.x-lx,c.y-ly)<70);manualUntil=Date.now()+15000;if(it)it.act();else player.roomTarget={x:Math.max(48,Math.min(712,lx)),y:Math.max(96,Math.min(336,ly))};return}
  const wx=sx+camX,wy=sy+camY;
- const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48);
+ const npc=npcs.find(n=>Math.hypot(n.x+24-wx,n.y+20-wy)<48)||(!xin.asleep&&Math.hypot(xin.x+24-wx,xin.y+20-wy)<48?xin:null);
  if(npc){talkTo(npc);return}
  const t=tileAt(wx,wy);manualUntil=Date.now()+15000;
  if(Math.hypot((t.x+0.5)*T-(player.x+24),(t.y+0.5)*T-(player.y+20))<=72)interactTile(t.x,t.y);else player.target={x:(t.x+0.5)*T-24,y:(t.y+0.5)*T-20};
@@ -791,6 +822,7 @@ function loop(now){
   } else player.moving=false;
   aiTimer+=dt;if(aiTimer>2200){aiTimer=0;autoStep()}
   if(Math.random()<0.004){const n=npcs[Math.floor(Math.random()*npcs.length)];n.x=Math.max(n.hx-90,Math.min(n.hx+90,n.x+Math.random()*80-40));n.y=Math.max(n.hy-70,Math.min(n.hy+70,n.y+Math.random()*80-40))}
+  updateXin(dt);
   }
  }
  bots.forEach(b=>{b.t+=dt/1000;if(Math.random()<0.002){b.tx=Math.max(b.hx-140,Math.min(b.hx+140,b.x+Math.random()*160-80));b.ty=Math.max(b.hy-110,Math.min(b.hy+110,b.y+Math.random()*160-80))}if(b.tx!==undefined){const dx=b.tx-b.x,dy=b.ty-b.y,d=Math.hypot(dx,dy);if(d>6){b.x+=dx/d*1.6;b.y+=dy/d*1.6}}if(Math.random()<0.0006){say(b.name,b.lines[Math.floor(Math.random()*b.lines.length)])}});
@@ -804,6 +836,7 @@ function reply(t){
  if(t.includes('睡')||t.includes('困'))return '困了我就回家睡，睡一觉就到明天。';
  if(t.includes('星露谷'))return '我知道，种田、钓鱼、过日子那种感觉，我学了玩法，没抄它的东西。';
  if(t.includes('mac')||t.includes('mini'))return 'Mac mini 还差 7139，攒钱别忘啦。';
+ if(t.includes('馨馨'))return '她在田里呢，晚上 22:30 回家睡觉。';
  if(t.includes('在哪'))return scene==='room'?'我在小屋里，你走进来就能看到我。':'我在田野里，点画布就能看到我。';
  if(t.includes('做饭')||t.includes('菜')||t.includes('饿'))return '屋里有灶台，拿食材去做，烤鱼、莓派、饭团、鱼汤都能做，做好的菜在背包里吃。';
  if(t.includes('好看')||t.includes('精致'))return '这次画细了很多，草、树影、湖光、萤火虫都有了，你看看还差哪。';
@@ -892,7 +925,7 @@ function nearestInteract(){
     {label:'🎣 湖边钓鱼',x:220,y:640,d:90,act:()=>{tool='rod';fish()}},
     {label:'📖 田野日志',x:160,y:220,d:70,act:()=>openPanel('feedPanel')}
   ];
-  for(const n of [...npcs,...bots]){cands.push({label:'💬 和 '+n.name+' 说话',x:n.x+24,y:n.y+20,d:80,npc:n,act:()=>openDialogue(n)})}
+  for(const n of [...npcs,...bots,...(xin.asleep?[]:[xin])]){cands.push({label:'💬 和 '+n.name+' 说话',x:n.x+24,y:n.y+20,d:80,npc:n,act:()=>openDialogue(n)})}
   let best=null,bestD=1e9;
   cands.forEach(c=>{const d=Math.hypot(px-c.x,py-c.y);if(d<c.d&&d<bestD){best=c;bestD=d}});
   return best;
