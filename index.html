@@ -81,6 +81,13 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 .closeBtn{float:right;background:#171126;color:#efe8da;border:1px solid #5a4d7a;border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:14px}
 #interactPrompt{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);background:#fff8e8;color:#2b2118;border:2px solid #2b2118;border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;display:none;z-index:5;box-shadow:0 4px 0 rgba(0,0,0,.3);white-space:nowrap}
 #interactPrompt.show{display:block;animation:promptPulse 1.6s ease-in-out infinite}
+#dpad{position:absolute;left:8px;bottom:16%;z-index:7;display:none;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+#dpad.on{display:grid}
+#dpad button{background:rgba(20,14,35,.6);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:12px;font-size:18px;touch-action:none;user-select:none;-webkit-user-select:none;padding:0}
+#dpad button[data-dir="up"]{grid-column:2;grid-row:1}
+#dpad button[data-dir="left"]{grid-column:1;grid-row:2}
+#dpad button[data-dir="down"]{grid-column:2;grid-row:2}
+#dpad button[data-dir="right"]{grid-column:3;grid-row:2}
 @keyframes promptPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.04)}}
 #speech::after{content:'';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:8px solid transparent;border-top-color:#fff8e8;border-bottom:0}
 .tool.sel{box-shadow:0 2px 0 #8a6a20,0 0 14px rgba(242,209,107,.55)}
@@ -164,7 +171,6 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 
 <div id="stage">
 <canvas id="game" width="960" height="540"></canvas>
-<canvas id="game" width="960" height="540"></canvas>
 <div id="topOverlay">
 <div class="hud">
 <div class="pill panel">季节 / 天数<b id="hudSeason">🌱 春 · 第 1 天</b></div>
@@ -198,6 +204,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div id="rotateOverlay"><div style="font-size:44px">📱↻</div><div style="font-size:20px;font-weight:700;margin:10px 0">把手机横过来玩</div><div style="font-size:14px;line-height:1.7;color:#c9b8e0">这是横屏游戏，所有数据都在画面里。<br>横过来，画面会铺满屏幕。</div><button id="btnRotate">⛶ 横屏全屏</button></div>
 <div id="hint">WASD / 方向键走路 · 点地块走过去 · 靠近东西按 E 互动 · 1-5 换工具</div>
 <div id="interactPrompt"></div>
+<div id="dpad"><button data-dir="up">▲</button><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div>
 </div>
 
 
@@ -791,7 +798,7 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
 cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);hover=tileAt(sx+camX,sy+camY)});
-cv.addEventListener('click',e=>{
+function canvasTap(e){
  const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*(VW/r.width),sy=(e.clientY-r.top)*(VH/r.height);
  if(scene==='room'){const lx=(sx-roomView.ox)/roomView.s,ly=(sy-roomView.oy)/roomView.s;const it=roomInteracts().find(c=>Math.hypot(c.x-lx,c.y-ly)<70);manualUntil=Date.now()+15000;if(it)it.act();else player.roomTarget={x:Math.max(48,Math.min(712,lx)),y:Math.max(96,Math.min(336,ly))};return}
  const wx=sx+camX,wy=sy+camY;
@@ -800,10 +807,15 @@ cv.addEventListener('click',e=>{
  if(Math.hypot(pet.x+24-wx,pet.y+20-wy)<48){petInteract();return}
  const t=tileAt(wx,wy);manualUntil=Date.now()+15000;
  if(Math.hypot((t.x+0.5)*T-(player.x+24),(t.y+0.5)*T-(player.y+20))<=72)interactTile(t.x,t.y);else player.target={x:(t.x+0.5)*T-24,y:(t.y+0.5)*T-20};
-});
+}
+cv.addEventListener('click',canvasTap);cv.addEventListener('pointerdown',canvasTap);
 function selectTool(t){tool=t;document.querySelectorAll('.tool').forEach(el=>el.classList.toggle('sel',el.dataset.tool===t))}
 document.querySelectorAll('.tool').forEach(el=>el.onclick=()=>selectTool(el.dataset.tool));
 $('btnAuto').onclick=()=>{auto=!auto;$('btnAuto').textContent=auto?'自己生活：开':'自己生活：关';$('btnAuto').classList.toggle('on',auto);say('馨馨',auto?'我自己生活啦。':'好，你来指挥我。')};
+const DPAD={up:'arrowup',down:'arrowdown',left:'arrowleft',right:'arrowright'};
+const isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+if(isTouch){$('dpad').classList.add('on');$('hint').textContent='按住方向键走路 · 点地块走过去 · 点“按 E”互动';}
+document.querySelectorAll('#dpad button').forEach(b=>{const k=DPAD[b.dataset.dir];const on=e=>{e.preventDefault();keys[k]=true;manualUntil=Date.now()+15000};const off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off);b.addEventListener('contextmenu',e=>e.preventDefault())});
 $('btnSleep').onclick=sleep;
 $('btnShop').onclick=()=>{if(state.coins<8){say('馨馨','币不够，先收获、钓鱼。');return}state.coins-=8;state.seeds+=3;state.rice+=1;say('馨馨','买了 3 颗种子和 1 个饭团。');addFeed('在小店买了种子和饭团');clamp()};
 let aiTimer=0;
