@@ -180,7 +180,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 </div>
 <div id="bottomOverlay">
 <div id="speech"><b>眠菇：</b>早上好，馨馨。今天先去田里看看。</div>
-<div class="iconRow"><button data-open="invPanel">🎒 背包</button><button data-open="questsPanel">📜 任务</button><button data-open="chatPanel">💬 说话</button><button data-open="mapPanel">🗺️ 地图</button><button data-open="mpPanel">🔗 联机</button><button id="btnAuto2">🤖 自己生活</button></div>
+<div class="iconRow"><button data-open="invPanel">🎒 背包</button><button data-open="questsPanel">📜 任务</button><button data-open="chatPanel">💬 说话</button><button data-open="mapPanel">🗺️ 地图</button><button data-open="mpPanel">🔗 联机</button><button id="btnAuto2">🤖 自己生活：关</button></div>
 <div class="hotbar" id="hotbar">
 <div class="tool sel" data-tool="hoe"><b>⛏️</b>锄头<small>开垦土地</small></div>
 <div class="tool" data-tool="seed"><b>🌱</b>种子<small>种月光莓</small></div>
@@ -189,7 +189,7 @@ footer{margin-top:24px;text-align:center;font-size:12px;color:#6b6088}
 <div class="tool" data-tool="rod"><b>🎣</b>鱼竿<small>湖边钓鱼</small></div>
 </div>
 <div class="actions">
-<button id="btnAuto" class="on">自己生活：开</button>
+<button id="btnAuto">自己生活：关</button>
 <button id="btnSleep">回家睡觉</button>
 <button id="btnShop">小店：买种子 8 币</button>
 <button id="btnFull">⛶ 横屏全屏</button>
@@ -275,7 +275,7 @@ function showWeather(){
 }
 let player={x:saved.px??256,y:saved.py??288,frame:0,moving:false,target:null,pending:null,blink:0};
 let scene='field';player.rx=saved.rx??380;player.ry=saved.ry??300;player.roomTarget=null;
-let tool='hoe',auto=true,manualUntil=0,camX=0,camY=0,hover=null;
+let tool='hoe',auto=false,manualUntil=0,camX=0,camY=0,hover=null;
 let npcs=[
  {name:'小绿',x:640,y:160,hx:640,hy:160,cap:'#7fb069',capD:'#5d8f4c',lines:['花开得很好。','今天也要浇水。','这朵花送给你。']},
  {name:'阿橙',x:700,y:560,hx:700,hy:560,cap:'#f2a65a',capD:'#d98a3e',lines:['饭团刚出锅。','来小店坐坐。','今天生意不错。']},
