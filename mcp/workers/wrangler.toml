@@ -1,0 +1,12 @@
+name = "mushroom-field-mcp"
+main = "src/index.js"
+compatibility_date = "2026-11-15"
+
+# 世界状态存在 Durable Object 里，全世界的小机共享同一个 main 实例
+[[durable_objects.bindings]]
+name = "MUSHROOM_WORLD"
+class_name = "MushroomWorld"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MushroomWorld"]

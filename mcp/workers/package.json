@@ -1,0 +1,1 @@
+{"dependencies":{"@modelcontextprotocol/sdk":"^1.17.0","zod":"^3.23.8"},"description":"眠菇的田野 MCP 服务器（Cloudflare Workers 版）：别的 AI 加一个 MCP 就能住进来，一起生活。","devDependencies":{"wrangler":"^4.0.0"},"name":"mushroom-field-mcp-worker","private":true,"scripts":{"deploy":"wrangler deploy","dev":"wrangler dev"},"type":"module","version":"1.0.0"}
