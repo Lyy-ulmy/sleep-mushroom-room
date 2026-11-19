@@ -414,6 +414,8 @@ function drawTile(x,y){
  if(state.season===1&&h1>.94){R(px+12,py+10,4,4,'#f2d16b');R(px+13,py+14,2,5,'#5d9a44')}
  if(state.season===2&&h2>.82){R(px+6,py+14,6,3,'#e86a3e');R(px+20,py+22,5,3,'#d98a3e')}
  if(h2>.9)R(px+24,py+24,4,3,'#9a958a');
+ // wild mushrooms, scattered in the grass (not in the berry field)
+ if(h1>.985&&!(x>=18&&x<28&&y>=10&&y<15)){const mx=px+20,my=py+12;R(mx,my,4,6,'#f5efe6');R(mx-3,my-4,10,5,'#e86a8a');R(mx-1,my-3,2,2,'#fff8e8');R(mx+3,my-3,2,2,'#fff8e8')}
  if(state.season===3){ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillRect(px+3,py+3,7,3);ctx.fillRect(px+20,py+18,8,3)}
  if(state.weather==='rain'){ctx.fillStyle='rgba(90,140,200,.10)';ctx.fillRect(px,py,T,T)}
 }
@@ -481,6 +483,8 @@ function drawHouse(){
  R(x+124,y+52,4,10,'#6b4a32');R(x+110,y+44,32,11,'#f5efe6');ctx.fillStyle='#2b2118';ctx.font='10px sans-serif';ctx.fillText('眠菇家',x+116,y+53);
  // fence in front
  for(let i=0;i<6;i++){const fx=x+8+i*32;R(fx,y+62,4,10,'#a8896a');R(fx+3,y+62,1,10,'#c9a86a')}R(x+4,y+64,192,3,'#a8896a');
+ // stepping stones from the door down to the path
+ [[150,145],[146,175],[154,205],[148,235]].forEach(sp=>{R(sp[0],sp[1],14,8,'#c9b8a0');R(sp[0]+2,sp[1]+2,4,3,'#b8a88e')});
 }
 function drawShop(){
  const x=21*T,y=17*T;
@@ -536,6 +540,8 @@ function drawProps(){
  [[620,196],[688,196]].forEach(fb=>{R(fb[0],fb[1],52,16,'#6f4a30');R(fb[0],fb[1],52,3,'#8a5f42');for(let i=0;i<5;i++){R(fb[0]+5+i*10,fb[1]-4,5,5,_bs);R(fb[0]+7+i*10,fb[1]+1,2,5,'#5d9a44')}});
  // 石灯笼：湖边
  R(296,596,20,6,'#9a958a');R(300,584,12,12,'#b8b2a8');R(298,576,16,8,'#8a857e');R(304,568,4,8,'#b8b2a8');
+ // reeds at the lake edge
+ [[120,572],[170,574],[240,572]].forEach(rp=>{R(rp[0],rp[1],2,14,'#5d9a44');R(rp[0]+4,rp[1]+2,2,12,'#6aa84f');R(rp[0]+1,rp[1]-4,4,5,'#8a6a3e')});
   // 床头灯 / 睡觉提示在屋里，不单独画
   // 风向标：靠近按 E 看天气
   R(358,128,3,26,'#6b4a32');R(348,126,24,3,'#c9a86a');R(368,122,6,6,'#e86a8a');R(346,124,4,4,'#f2d16b');
@@ -698,8 +704,15 @@ function drawWorld(){
  if(state.weather==='cloudy'||state.weather==='rain'){ellipse(500,30,44,12,cloudCol);ellipse(820,70,38,11,cloudCol)}
  // farm fence + labels, subtle
  ctx.fillStyle='rgba(43,33,24,.75)';ctx.font='11px sans-serif';
- ctx.fillText('月光莓田',18*T+4,10*T-5);ctx.fillText('湖',3*T+6,18*T-5);
+ ctx.fillText('月光莓田',18*T+4,10*T-14);ctx.fillText('湖',3*T+6,18*T-5);
+ // bottom edge
  for(let i=0;i<10;i++){const fx=18*T+i*T;R(fx,15*T,3,8,'#a8896a')}R(18*T,15*T+3,320,3,'#a8896a');
+ // top edge
+ for(let i=0;i<10;i++){const fx=18*T+i*T;R(fx,10*T-8,3,8,'#a8896a')}R(18*T,10*T-5,320,3,'#a8896a');
+ // left edge
+ for(let j=0;j<5;j++){const fy=10*T+j*T;R(18*T-4,fy,3,8,'#a8896a')}R(18*T-4,10*T,3,160,'#a8896a');
+ // right edge
+ for(let j=0;j<5;j++){const fy=10*T+j*T;R(28*T+1,fy,3,8,'#a8896a')}R(28*T+1,10*T,3,160,'#a8896a');
  drawHouse();drawShop();drawProps();
  // chimney smoke, pixel puffs drifting up
  if(Date.now()-lastSmoke>650){lastSmoke=Date.now();particles.push({x:214,y:10,life:44,c:'#e8e4da',vx:0.5,vy:0.45})}
@@ -756,6 +769,11 @@ function drawWorld(){
   // stars + fireflies
   for(let i=0;i<36;i++){const sx=(i*211)%VW,sy=(i*97)%150;ctx.fillStyle='rgba(255,255,255,'+(0.35+0.4*Math.abs(Math.sin(tNow/700+i)))+')';ctx.fillRect(sx,sy,2,2)}
   for(let i=0;i<7;i++){const fx=(Math.sin(tNow/900+i*2)*120+VW/2),fy=280+Math.cos(tNow/800+i)*40;ctx.fillStyle='#d8ff9a';ctx.fillRect(fx,fy,3,3)}
+ }
+ if(h>=6&&h<19&&state.weather!=='rain'){
+  // sun + glow, top left of the screen
+  const sg=ctx.createRadialGradient(84,58,6,84,58,44);sg.addColorStop(0,'rgba(255,220,140,.45)');sg.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=sg;ctx.fillRect(38,12,92,92);
+  ellipse(84,58,15,15,'#ffe9a0');R(78,54,4,4,'#f2d16b');R(86,62,3,3,'#f2d16b');
  }
  const vg=ctx.createRadialGradient(VW/2,VH/2,VH*0.42,VW/2,VH/2,VH*0.85);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=vg;ctx.fillRect(0,0,VW,VH);
 }
